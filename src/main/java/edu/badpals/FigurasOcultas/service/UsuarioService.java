@@ -29,6 +29,14 @@ public class UsuarioService {
     }
 
     @Transactional
+    public List<UsuarioDTO> getAllAlumnos() {
+        return StreamSupport.stream(usuarioRepository.findAll().spliterator(), false)
+                .map(u -> modelMapper.map(u, UsuarioDTO.class))
+                .filter(u -> !u.isAdmin())
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public UsuarioDTO getUserById(Long id) {
         return usuarioRepository.findById(id)
                 .map(u -> modelMapper.map(u, UsuarioDTO.class))

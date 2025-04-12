@@ -1,5 +1,6 @@
 package edu.badpals.FigurasOcultas.controller;
 
+import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.Usuario;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
@@ -16,6 +17,9 @@ public class LoginController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private ManagerUserSession managerUserSession;
+
     @GetMapping("/login")
     public String loginForm(Model model) {
         model.addAttribute("loginData", new UsuarioDTO());
@@ -23,13 +27,15 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String loginSubmit(@ModelAttribute UsuarioDTO userdto) {
-        System.out.println(userdto.toString());
+    public String loginSubmit(@ModelAttribute UsuarioDTO userdto, Model model) {
         UsuarioDTO usuario = usuarioService.getUserByEmail(userdto.getEmail());
         if (usuario != null && usuario.getPassword().equals(userdto.getPassword())) {
-            return "/index";
+            managerUserSession.logearUsuario(usuario.getId());
+            return "redirect:/index";
         } else {
-            return "redirect:/login";
+            model.addAttribute("loginData", userdto);
+            model.addAttribute("error", "Contraseña o usuario incorrectos");
+            return "formLogin";
         }
     }
 }

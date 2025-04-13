@@ -23,6 +23,29 @@ h1, h5 {
     border: 1px solid #a26eff;
 }
 
+.input-group-text {
+    background-color: #4b2673;
+    border: 1px solid #a26eff;
+}
+
+.input-group-text i {
+    color: #f1e6ff;
+}
+
+.toggle-container {
+    width: 45px; /* Fijo para evitar saltos */
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid #a26eff;
+    background-color: #4b2673;
+}
+
+.toggle-container i {
+    color: #f1e6ff;
+    font-size: 1.2rem;
+}
+
+
 .form-control::placeholder {
     color: #d4bfff;
 }

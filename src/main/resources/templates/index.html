@@ -4,30 +4,96 @@
 <head>
     <title>Figuras Ocultas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/login_style.css?v=1}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/index_style.css?v=1}">
 </head>
 
 <body>
-  <p>HOLA MUNDO</p>
-  <div style="display: inline-block; float: right;" th:if="${usuario}">
-      <div th:if="${usuario.isAdmin()}">
-          <p>El usuario que se ha logueado es admin</p>
+<!-- NAVBAR flotante con fondo transparente -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow p-3 mb-5 rounded"
+     style="position: fixed; top: 30px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7);">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold fs-3 text-gradient" href="#">✨ Figuras Ocultas ✨</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/alumnado}">Alumnado</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/cartas}">Cartas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin}">Administradores</a>
+                </li>
+            </ul>
+            <span class="navbar-text text-white" th:text="'Hola, ' + ${usuario.nombre}"></span>
+        </div>
+    </div>
+</nav>
 
-          <div class="container mt-4" id="content" style="margin-bottom: 20px">
-              <div class="row row-cols-md-3 g-4">
-                  <div class="col" th:each="alumno : ${alumnos}">
-                      <div class="card p-3">
-                          <p class="card-title" th:text="${alumno.nombre}"></p>
-                          <p class="card-text" th:text="${alumno.email}"></p>
-                      </div>
-                  </div>
-              </div>
-          </div>
+<!-- Contenido principal -->
+<div class="container mt-5 pt-4">
+    <div th:if="${usuario}">
+        <div th:if="${usuario.isAdmin()}">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Listado de Alumnos</h2>
 
-      </div>
-      <div th:if="${!usuario.isAdmin()}">
-          <p>Bienvenido alumno!</p>
-      </div>
-  </div>
+                <div class="d-flex align-items-center gap-3">
+                    <form th:action="@{/alumnos}" method="get" class="d-flex align-items-center">
+                        <select name="curso" class="form-select me-2" onchange="this.form.submit()">
+                            <option value="">📚 Todos los cursos</option>
+                            <option value="PRIMERO_ESO">1º ESO</option>
+                            <option value="SEGUNDO_ESO">2º ESO</option>
+                            <option value="TERCERO_ESO">3º ESO</option>
+                            <option value="CUARTO_ESO">4º ESO</option>
+                            <option value="PRIMERO_BACH">1º BAC</option>
+                            <option value="SEGUNDO_BACH">2º BAC</option>
+                        </select>
+                    </form>
+
+                    <a class="btn btn-success fw-bold" th:href="@{/alumnos/nuevo}">
+                        ➕ Nuevo Alumno
+                    </a>
+                </div>
+            </div>
+
+            <table class="table table-bordered table-hover table-striped text-center align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Contraseña</th>
+                    <th>Curso</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="alumno : ${alumnos}">
+                    <td th:text="${alumno.id}"></td>
+                    <td th:text="${alumno.nombre}"></td>
+                    <td th:text="${alumno.email}"></td>
+                    <td th:text="${alumno.password}"></td>
+                    <td th:text="${alumno.curso}"></td>
+                    <td th:text="${alumno.rol}"></td>
+                    <td>
+                        <a class="btn btn-sm btn-warning me-2" th:href="@{'/alumnos/editar/' + ${alumno.id}}"
+                           title="Modificar">✏️</a>
+                        <a class="btn btn-sm btn-danger" th:href="@{'/alumnos/borrar/' + ${alumno.id}}" title="Borrar"
+                           onclick="return confirm('¿Seguro que quieres borrar este alumno?');">🗑️</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

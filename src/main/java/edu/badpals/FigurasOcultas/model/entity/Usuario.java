@@ -20,7 +20,8 @@ public class Usuario implements Serializable {
     private String nombre;
     private String email;
     private String password;
-    private String curso;
+    @Enumerated(EnumType.STRING)
+    private CursoAlumno curso;
     @Enumerated(EnumType.STRING)
     private RolUsuario rol;
 

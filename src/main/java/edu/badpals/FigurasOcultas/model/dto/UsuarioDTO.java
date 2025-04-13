@@ -1,5 +1,6 @@
 package edu.badpals.FigurasOcultas.model.dto;
 
+import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,7 @@ public class UsuarioDTO {
     private String nombre;
     private String email;
     private String password;
-    private String curso;
+    private CursoAlumno curso;
     private RolUsuario rol;
 
     public boolean isAdmin() {
@@ -23,8 +24,11 @@ public class UsuarioDTO {
     public String toString() {
         return "UsuarioDTO{" +
                 "id=" + id +
+                ", nombre='" + nombre + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
+                ", curso=" + curso +
+                ", rol=" + rol +
                 '}';
     }
 }

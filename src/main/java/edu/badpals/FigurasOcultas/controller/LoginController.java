@@ -31,7 +31,7 @@ public class LoginController {
         UsuarioDTO usuario = usuarioService.getUserByEmail(userdto.getEmail());
         if (usuario != null && usuario.getPassword().equals(userdto.getPassword())) {
             managerUserSession.logearUsuario(usuario.getId());
-            return "redirect:/index";
+            return "redirect:/alumnos";
         } else {
             model.addAttribute("loginData", userdto);
             model.addAttribute("error", "Contraseña o usuario incorrectos");

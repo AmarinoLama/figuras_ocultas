@@ -2,6 +2,7 @@ package edu.badpals.FigurasOcultas.model.dto;
 
 import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
+import edu.badpals.FigurasOcultas.model.entity.TarjetaAlumno;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +16,7 @@ public class UsuarioDTO {
     private String password;
     private CursoAlumno curso;
     private RolUsuario rol;
+    private TarjetaAlumno tarjetaAlumno;
 
     public boolean isAdmin() {
         return this.rol == RolUsuario.ADMIN;

@@ -24,6 +24,8 @@ public class Usuario implements Serializable {
     private CursoAlumno curso;
     @Enumerated(EnumType.STRING)
     private RolUsuario rol;
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private TarjetaAlumno tarjetaAlumno;
 
     @Override
     public String toString() {

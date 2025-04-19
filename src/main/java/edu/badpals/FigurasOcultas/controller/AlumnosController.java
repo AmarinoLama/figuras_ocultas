@@ -2,7 +2,6 @@ package edu.badpals.FigurasOcultas.controller;
 
 import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
-import edu.badpals.FigurasOcultas.model.entity.Usuario;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,13 +26,13 @@ public class AlumnosController {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             model.addAttribute("alumnos", usuarioService.getAllAlumnos());
             model.addAttribute("usuario", usuario);
-            model.addAttribute("nuevoAlumno", new Usuario());
+            model.addAttribute("nuevoAlumno", new UsuarioDTO());
         }
         return "alumnos";
     }
 
     @PostMapping("/alumnos/nuevo")
-    public String createAlumno(Usuario nuevoAlumno) {
+    public String createAlumno(UsuarioDTO nuevoAlumno) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
         boolean usuarioLogeado = usuarioLogeadoId != null;
         if (usuarioLogeado) {

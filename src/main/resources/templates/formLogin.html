@@ -20,7 +20,7 @@
                                  style="border-radius: 1rem 0 0 1rem; width: 100%; height: 100%; object-fit: cover;"/>
                         </div>
                         <div class="col-md-6 col-lg-7 d-flex align-items-center">
-                            <div class="card-body p-4 p-lg-5 text-black">
+                            <div class="card-body p-4 p-lg-5 text-black" style="height: 500px">
 
                                 <form method="post" th:action="@{/login}" th:object="${loginData}">
                                     <div class="mb-3 pb-1" style="color: #f1e6ff;">
@@ -33,19 +33,20 @@
                                     <div class="form-outline mb-4" data-mdb-input-init>
                                         <input class="form-control form-control-lg" id="eMail" name="eMail"
                                                placeholder="Correo electrónico"
-                                               required th:field="${loginData.email}" type="text"/>
+                                               required th:field="*{email}" type="text"/>
                                         <label class="form-label" for="eMail">Correo electrónico</label>
                                     </div>
 
                                     <div class="form-outline mb-4 position-relative">
                                         <div class="input-group input-group-lg">
-                                            <input type="password" class="form-control form-control-lg pe-5" id="password"
+                                            <input type="password" class="form-control form-control-lg pe-5"
+                                                   id="password"
                                                    name="password"
-                                                   placeholder="Contraseña" required th:field="${loginData.password}"/>
+                                                   placeholder="Contraseña" required th:field="*{password}"/>
                                             <span class="input-group-text bg-transparent border-start-0 toggle-container"
                                                   id="togglePassword" onclick="togglePassword()"
                                                   title="Mostrar/Ocultar contraseña">
-                                                <i class="fa-solid fa-eye"></i>
+                                                <i class="fa-solid fa-eye-slash"></i>
                                             </span>
                                         </div>
                                         <label class="form-label" for="password">Contraseña</label>
@@ -53,12 +54,20 @@
 
 
                                     <div class="d-flex align-items-center mb-4 gap-3 flex-wrap">
-                                        <button class="btn btn-dark btn-lg" data-mdb-button-init data-mdb-ripple-init type="submit">
+                                        <button class="btn btn-dark btn-lg" data-mdb-button-init data-mdb-ripple-init
+                                                type="submit">
                                             Iniciar sesión
                                         </button>
 
-                                        <div class="alert alert-danger mb-0 py-2 px-3" style="white-space: nowrap;" th:if="${error != null}"
+                                        <div class="alert alert-danger mb-0 py-2 px-3" style="white-space: nowrap;"
+                                             th:if="${error != null}"
                                              th:text="${error}"></div>
+
+                                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('email')}"
+                                             th:errors="*{email}"></div>
+
+                                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('password')}"
+                                             th:errors="*{password}"></div>
                                     </div>
 
                                 </form>
@@ -79,8 +88,8 @@
         const isPassword = passwordInput.type === "password";
 
         passwordInput.type = isPassword ? "text" : "password";
-        toggleIcon.classList.toggle("fa-eye");
         toggleIcon.classList.toggle("fa-eye-slash");
+        toggleIcon.classList.toggle("fa-eye");
     }
 </script>
 

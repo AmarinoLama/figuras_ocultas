@@ -22,7 +22,7 @@ public class LoginController {
     @Autowired
     private ManagerUserSession managerUserSession;
 
-    @GetMapping("/login")
+    @GetMapping({"/login", "/"})
     public String loginForm(Model model) {
         model.addAttribute("loginData", new UsuarioDTO());
         return "formLogin";
@@ -33,6 +33,7 @@ public class LoginController {
                               BindingResult bindingResult,
                               Model model) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("loginData", new UsuarioDTO());
             return "formLogin";
         }
 

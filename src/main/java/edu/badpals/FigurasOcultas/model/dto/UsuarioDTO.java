@@ -2,7 +2,6 @@ package edu.badpals.FigurasOcultas.model.dto;
 
 import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
-import edu.badpals.FigurasOcultas.model.entity.TarjetaAlumno;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -14,13 +13,18 @@ public class UsuarioDTO {
 
     private Long id;
     private String nombre;
+
     @Email(message = "Debe ser un email válido")
     private String email;
+
     @NotBlank(message = "La contraseña no puede estar vacía")
     private String password;
+
     private CursoAlumno curso;
     private RolUsuario rol;
-    private TarjetaAlumno tarjetaAlumno;
+
+    // Aquí agregamos la propiedad tarjetaAlumno
+    private TarjetaAlumnoDTO tarjetaAlumno = new TarjetaAlumnoDTO();
 
     public boolean isAdmin() {
         return this.rol == RolUsuario.ADMIN;
@@ -35,6 +39,7 @@ public class UsuarioDTO {
                 ", password='" + password + '\'' +
                 ", curso=" + curso +
                 ", rol=" + rol +
+                ", tarjetaAlumno=" + tarjetaAlumno + // Asegúrate de incluirla también en el toString
                 '}';
     }
 }

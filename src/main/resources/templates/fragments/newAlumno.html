@@ -1,6 +1,6 @@
 <div th:fragment="newAlumno">
     <div th:if="${usuario.isAdmin()}">
-        <div class="modal fade" id="modalNuevoAlumno" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="modalNuevoAlumno" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -11,24 +11,24 @@
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" th:field="${nuevoAlumno.nombre}" class="form-control" id="nombre" required />
+                                <input type="text" th:field="*{nombre}" class="form-control" id="nombre" required />
                             </div>
 
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
-                                <input type="email" th:field="${nuevoAlumno.email}" class="form-control" id="email" required />
+                                <input type="email" th:field="*{email}" class="form-control" id="email" required />
                             </div>
 
                             <div class="mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>
-                                <input type="password" th:field="${nuevoAlumno.password}" class="form-control" id="contrasena" required />
+                                <input type="password" th:field="*{password}" class="form-control" id="contrasena" required />
                             </div>
 
                             <div class="mb-3">
                                 <label for="curso" class="form-label">Curso</label>
-                                <select th:field="${nuevoAlumno.curso}" class="form-select" id="curso" required>
+                                <select th:field="*{curso}" class="form-select" id="curso" required>
                                     <option th:each="c : ${T(edu.badpals.FigurasOcultas.model.entity.CursoAlumno).values()}"
-                                            th:value="${c}"
+                                            th:value="${c.name()}"
                                             th:text="${c}">Curso</option>
                                 </select>
                             </div>
@@ -67,6 +67,15 @@
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Guardar Alumno</button>
                         </div>
+
+                        <script th:if="${showAlert}">
+                            alert('El email ya está en uso');
+                            var myModal = new bootstrap.Modal(document.getElementById('modalNuevoAlumno'), {
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                            myModal.show();
+                        </script>
                     </form>
                 </div>
             </div>

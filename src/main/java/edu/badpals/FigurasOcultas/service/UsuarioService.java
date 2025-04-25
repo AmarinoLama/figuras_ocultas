@@ -1,6 +1,9 @@
 package edu.badpals.FigurasOcultas.service;
 
+import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
+import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
+import edu.badpals.FigurasOcultas.model.entity.TarjetaAlumno;
 import edu.badpals.FigurasOcultas.model.entity.Usuario;
 import edu.badpals.FigurasOcultas.model.repository.UsuarioRepository;
 import org.modelmapper.ModelMapper;
@@ -37,6 +40,15 @@ public class UsuarioService {
     }
 
     @Transactional
+    public List<UsuarioDTO> getAlumnosFromCurso(String curso) {
+        CursoAlumno cursoEnum = CursoAlumno.valueOf(curso); // conversión segura
+        return StreamSupport.stream(usuarioRepository.findAll().spliterator(), false)
+                .map(u -> modelMapper.map(u, UsuarioDTO.class))
+                .filter(u -> !u.isAdmin() && u.getCurso() == cursoEnum)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public UsuarioDTO getUserById(Long id) {
         return usuarioRepository.findById(id)
                 .map(u -> modelMapper.map(u, UsuarioDTO.class))
@@ -44,14 +56,17 @@ public class UsuarioService {
     }
 
     @Transactional
-    public Usuario getUserByIdNormal(Long id) {
-        return usuarioRepository.findById(id).orElse(null);
+    public UsuarioDTO saveUser(UsuarioDTO usuarioDTO) {
+        Usuario usuario = modelMapper.map(usuarioDTO, Usuario.class);
+        if (usuarioDTO.getTarjetaAlumno() != null) {
+            TarjetaAlumno tarjetaAlumno = modelMapper.map(usuarioDTO.getTarjetaAlumno(), TarjetaAlumno.class);
+            tarjetaAlumno.setUsuario(usuario);
+            usuario.setTarjetaAlumno(tarjetaAlumno);
+        }
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+        return modelMapper.map(usuarioGuardado, UsuarioDTO.class);
     }
 
-    @Transactional
-    public UsuarioDTO saveUser(UsuarioDTO usuarioDTO) {
-        return modelMapper.map(usuarioRepository.save(modelMapper.map(usuarioDTO, Usuario.class)), UsuarioDTO.class);
-    }
 
     @Transactional
     public void deleteUser(Long id) {

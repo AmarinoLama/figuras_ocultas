@@ -24,12 +24,12 @@
                     <form th:action="@{/alumnos}" method="get" class="d-flex align-items-center">
                         <select name="curso" class="form-select me-2" onchange="this.form.submit()">
                             <option value="">📚 Todos los cursos</option>
-                            <option value="PRIMERO_ESO">1º ESO</option>
-                            <option value="SEGUNDO_ESO">2º ESO</option>
-                            <option value="TERCERO_ESO">3º ESO</option>
-                            <option value="CUARTO_ESO">4º ESO</option>
-                            <option value="PRIMERO_BACH">1º BAC</option>
-                            <option value="SEGUNDO_BACH">2º BAC</option>
+                            <option value="PRIMERO_ESO" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO'">1º ESO</option>
+                            <option value="SEGUNDO_ESO" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO'">2º ESO</option>
+                            <option value="TERCERO_ESO" th:selected="${cursoSeleccionado} == 'TERCERO_ESO'">3º ESO</option>
+                            <option value="CUARTO_ESO" th:selected="${cursoSeleccionado} == 'CUARTO_ESO'">4º ESO</option>
+                            <option value="PRIMERO_BACH" th:selected="${cursoSeleccionado} == 'PRIMERO_BACH'">1º BAC</option>
+                            <option value="SEGUNDO_BACH" th:selected="${cursoSeleccionado} == 'SEGUNDO_BACH'">2º BAC</option>
                         </select>
                     </form>
 
@@ -38,19 +38,18 @@
                     </button>
 
                     <div th:replace="~{fragments/newAlumno :: newAlumno}"></div>
-
                 </div>
             </div>
 
-            <table class="table table-bordered table-hover table-striped text-center align-middle">
+            <table id="tablaAlumnos" data-orden="asc" class="table table-bordered table-hover table-striped text-center align-middle">
                 <thead class="table-dark">
                 <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Nivel</th>
-                    <th>Experiencia</th>
-                    <th>Electronios</th>
-                    <th>Curso</th>
+                    <th onclick="ordenarTabla(0)" style="cursor:pointer;">Nombre ⬍</th>
+                    <th onclick="ordenarTabla(1)" style="cursor:pointer;">Email ⬍</th>
+                    <th onclick="ordenarTabla(2)" style="cursor:pointer;">Nivel ⬍</th>
+                    <th onclick="ordenarTabla(3)" style="cursor:pointer;">Experiencia ⬍</th>
+                    <th onclick="ordenarTabla(4)" style="cursor:pointer;">Electronios ⬍</th>
+                    <th style="cursor:pointer;">Curso</th>
                     <th>Acciones</th>
                 </tr>
                 </thead>
@@ -74,6 +73,33 @@
         </div>
     </div>
 </div>
+
+<!-- Script para ordenación -->
+<script>
+    function ordenarTabla(colIndex) {
+        const tabla = document.getElementById("tablaAlumnos");
+        let orden = tabla.getAttribute("data-orden") === "asc" ? "desc" : "asc";
+        tabla.setAttribute("data-orden", orden);
+
+        const filas = Array.from(tabla.querySelectorAll("tbody tr"));
+        filas.sort((a, b) => {
+            let valA = a.children[colIndex].innerText.trim().toLowerCase();
+            let valB = b.children[colIndex].innerText.trim().toLowerCase();
+
+            // Si es numérico, comparamos como número
+            if (!isNaN(valA) && !isNaN(valB)) {
+                valA = parseFloat(valA);
+                valB = parseFloat(valB);
+                return orden === "asc" ? valA - valB : valB - valA;
+            }
+
+            return orden === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        });
+
+        const tbody = tabla.querySelector("tbody");
+        filas.forEach(fila => tbody.appendChild(fila));
+    }
+</script>
 
 </body>
 </html>

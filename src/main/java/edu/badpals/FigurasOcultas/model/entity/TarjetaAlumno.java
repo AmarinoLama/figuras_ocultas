@@ -18,7 +18,6 @@ public class TarjetaAlumno {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotNull
     @ColumnDefault("0")
     @Column(name = "nivel", nullable = false)
     private Byte nivel;

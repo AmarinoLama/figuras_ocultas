@@ -64,8 +64,10 @@
                     <td>
                         <a class="btn btn-sm btn-warning me-2" th:href="@{'/alumnos/editar/' + ${alumno.id}}"
                            title="Modificar">✏️</a>
-                        <a class="btn btn-sm btn-danger" th:href="@{'/alumnos/borrar/' + ${alumno.id}}" title="Borrar"
-                           onclick="return confirm('¿Seguro que quieres borrar este alumno?');">🗑️</a>
+                        <form th:action="@{'/alumnos/borrar/' + ${alumno.id}}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('¿Seguro que quieres borrar este alumno?');">🗑️</button>
+                        </form>
                     </td>
                 </tr>
                 </tbody>

@@ -6,6 +6,7 @@ USE figuras_ocultas;
 
 DROP TABLE IF EXISTS tarjeta_alumno;
 DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS cartas;
 
 CREATE TABLE IF NOT EXISTS usuarios
 (
@@ -25,6 +26,16 @@ CREATE TABLE IF NOT EXISTS tarjeta_alumno
     electronios  TINYINT NOT NULL DEFAULT 0,
     usuario_id   BIGINT UNIQUE,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS cartas
+(
+    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
+    imagen       LONGBLOB NULL,
+    precio       INT NOT NULL DEFAULT 0,
+    titulo       VARCHAR(50) NOT NULL,
+    descripcion  TEXT,
+    activa       BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 /* =========================  CREACIÓN DE TRIGGERS  ========================= */
@@ -114,4 +125,12 @@ INSERT INTO tarjeta_alumno (exp, electronios, usuario_id) VALUES
 (310, 12, 17),
 (295, 12, 18);
 
-SELECT * FROM tarjeta_alumno;
+INSERT INTO cartas (imagen, precio, titulo, descripcion, activa) VALUES
+                                                                     (NULL, 100, 'Carta de Curación', 'Restaura 50 puntos de vida al instante.', TRUE),
+                                                                     (NULL, 200, 'Carta de Invisibilidad', 'Otorga invisibilidad durante 5 segundos.', TRUE),
+                                                                     (NULL, 150, 'Carta de Rayo', 'Lanza un rayo que inflige daño en área.', FALSE),
+                                                                     (NULL, 180, 'Carta de Congelación', 'Congela al enemigo durante 3 segundos.', FALSE),
+                                                                     (NULL, 80, 'Carta de Velocidad', 'Aumenta la velocidad de movimiento un 30%.', TRUE),
+                                                                     (NULL, 120, 'Carta de Veneno', 'Aplica veneno que causa daño durante 10 segundos.', TRUE),
+                                                                     (NULL, 160, 'Carta de Escudo Mágico', 'Bloquea el siguiente ataque recibido.', TRUE),
+                                                                     (NULL, 90, 'Carta de Ilusión', 'Crea un clon que distrae al enemigo.', TRUE);

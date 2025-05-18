@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class CartasController {
@@ -40,4 +42,14 @@ public class CartasController {
 
         return "cartas";
     }
+
+    @PostMapping("/cartas/alternarVisibilidad/{id}")
+    public String alternarVisibilidad(@PathVariable Long id) {
+        System.out.println("Alternando visibilidad de la carta con ID: " + id);
+        /*Carta carta = cartaRepository.findById(id).orElseThrow();
+        carta.setVisible(!carta.isVisible());
+        cartaRepository.save(carta);*/
+        return "redirect:/cartas";
+    }
+
 }

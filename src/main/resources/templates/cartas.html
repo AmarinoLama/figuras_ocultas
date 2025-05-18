@@ -39,18 +39,26 @@
                                  alt="Imagen de la carta"
                                  th:alt="Imagen no disponible"
                                  onerror="this.onerror=null; this.src='/path/to/default-image.png';">-->
+                            <img th:src="@{/images/imagenprueba.png}" class="card-img-top w-75" alt="Imagen de prueba">
                             <!-- Botones de acción al lado derecho de la imagen -->
                             <div class="d-flex flex-column justify-content-start ms-2">
                                 <a th:href="@{'/cartas/editar/' + ${carta.id}}" class="btn btn-warning btn-sm mb-1" title="Modificar">✏️</a>
                                 <form th:action="@{'/cartas/borrar/' + ${carta.id}}" method="post" style="display:inline;">
                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que quieres borrar esta carta?');">🗑️</button>
                                 </form>
+                                <form th:action="@{'/cartas/alternarVisibilidad/' + ${carta.id}}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-secondary btn-sm mt-1" title="Alternar visibilidad">
+                                        <span th:if="${carta.activa}" class="bi bi-eye-fill">👁️</span>
+                                        <span th:if="${!carta.activa}" class="bi bi-eye-slash-fill">🙈</span>
+                                    </button>
+                                </form>
+
                             </div>
                         </div>
                         <div class="card-body p-2">
                             <div class="d-flex justify-content-between">
                                 <h5 class="card-title mb-1" th:text="${carta.titulo}">Título de la carta</h5>
-                                <p class="card-text mb-1"><strong><span th:text="${carta.precio}">Precio</span> monedas</strong></p>
+                                <p class="card-text mb-1"><strong><span th:text="${carta.precio}">Precio</span> electronios</strong></p>
                             </div>
                         </div>
                     </div>

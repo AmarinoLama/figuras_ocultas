@@ -14,13 +14,22 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link active" th:href="@{/alumnos}">Alumnado</a>
+                            <a class="nav-link" th:href="@{/alumnos}"
+                               th:classappend="${currentPath == '/alumnos'} ? 'active'">
+                                Alumnado
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/cartas}">Cartas</a>
+                            <a class="nav-link" th:href="@{/cartas}"
+                               th:classappend="${currentPath == '/cartas'} ? 'active'">
+                                Cartas
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/admin}">Administradores</a>
+                            <a class="nav-link" th:href="@{/admin}"
+                               th:classappend="${currentPath == '/admin'} ? 'active'">
+                                Administradores
+                            </a>
                         </li>
                     </ul>
                     <span class="navbar-text text-white" th:text="'Hola, ' + ${usuario.nombre}"></span>

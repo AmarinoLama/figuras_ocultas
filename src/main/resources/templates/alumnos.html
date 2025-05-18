@@ -11,7 +11,7 @@
 
 <body>
 
-<div th:insert="~{fragments/navBar :: navBar}"></div>
+<div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/alumnos'"></div>
 
 <!-- Contenido principal -->
 <div class="container mt-5 pt-4">

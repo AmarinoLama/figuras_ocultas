@@ -1,0 +1,76 @@
+<div th:fragment="editAlumno">
+    <div th:if="${usuario.isAdmin()}">
+        <div class="modal fade" id="modalEditarAlumno" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Modificar Alumno</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{'/alumnos/editar/' + ${alumno.id}}" th:object="${alumnoModif}" method="post">
+                        <div class="modal-body">
+                           <!-- <div class="mb-3">
+                                <label for="nombre" class="form-label">Nombre</label>
+                                <input type="text" th:field="*{nombre}" class="form-control" id="nombre" required />
+                            </div>-->
+
+                            <!--<div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" th:field="*{email}" class="form-control" id="email" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="contrasena" class="form-label">Contraseña</label>
+                                <input type="password" th:field="*{password}" class="form-control" id="contrasena" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="curso" class="form-label">Curso</label>
+                                <select th:field="*{curso}" class="form-select" id="curso" required>
+                                    <option th:each="c : ${T(edu.badpals.FigurasOcultas.model.entity.CursoAlumno).values()}"
+                                            th:value="${c.name()}"
+                                            th:text="${c}">Curso</option>
+                                </select>
+                            </div>
+
+                            <hr/>
+
+                            <div class="mb-3 d-flex justify-content-between gap-3" id="tarjeta-info-group">
+                                &lt;!&ndash; Exp &ndash;&gt;
+                                <div class="flex-fill">
+                                    <label for="exp" class="form-label">
+                                        <i class="bi bi-lightning-charge-fill me-1"></i> Exp
+                                    </label>
+                                    <input type="number" th:field="*{tarjetaAlumno.exp}" class="form-control" id="exp" min="0" required />
+                                </div>
+
+                                &lt;!&ndash; Electronios &ndash;&gt;
+                                <div class="flex-fill">
+                                    <label for="electronios" class="form-label">
+                                        <i class="bi bi-atom me-1"></i> Electronios
+                                    </label>
+                                    <input type="number" th:field="*{tarjetaAlumno.electronios}" class="form-control" id="electronios" min="0" required />
+                                </div>
+                            </div>-->
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Actualizar Alumno</button>
+                        </div>
+
+                        <script th:if="${showAlert}">
+                            alert('El email ya está en uso');
+                            var myModal = new bootstrap.Modal(document.getElementById('modalEditarAlumno'), {
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                            myModal.show();
+                        </script>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

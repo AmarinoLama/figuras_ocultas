@@ -46,6 +46,20 @@ public class AlumnosController {
         return "alumnos";
     }
 
+    @GetMapping("/alumnos/editar/{id}")
+    public String editarAlumno(@PathVariable Long id, Model model) {
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        boolean usuarioLogeado = usuarioLogeadoId != null;
+
+        if (usuarioLogeado) {
+            UsuarioDTO alumnoCargar = usuarioService.getUserById(id);
+            model.addAttribute("alumnoModif", alumnoCargar);
+            return "fragments/editAlumno";
+        }
+
+        return "redirect:/alumnos";
+    }
+
     @PostMapping("/alumnos/nuevo")
     public String createAlumno(@Valid @ModelAttribute("nuevoAlumno") UsuarioDTO nuevoAlumno, RedirectAttributes redirectAttributes) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
@@ -60,6 +74,20 @@ public class AlumnosController {
                 tarjetaAlumnoService.addTarjetaAlumno(tarjetaAlumnoDTO);
             } else {
                 redirectAttributes.addFlashAttribute("showAlert", true);
+            }
+        }
+        return "redirect:/alumnos";
+    }
+
+    @PostMapping("/alumnos/editar/{id}")
+    public String editarAlumno(@PathVariable(value = "id") Long idAlumno) {
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        boolean usuarioLogeado = usuarioLogeadoId != null;
+        if (usuarioLogeado) {
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            if (usuario != null) {
+                UsuarioDTO alumnoActualizar = usuarioService.getUserById(idAlumno);
+                System.out.println("Alumno a actualizar: " + alumnoActualizar);
             }
         }
         return "redirect:/alumnos";

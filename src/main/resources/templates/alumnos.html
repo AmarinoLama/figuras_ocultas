@@ -62,12 +62,19 @@
                     <td th:text="${alumno.tarjetaAlumno.electronios}"></td>
                     <td th:text="${alumno.curso}"></td>
                     <td>
-                        <a class="btn btn-sm btn-warning me-2" th:href="@{'/alumnos/editar/' + ${alumno.id}}"
-                           title="Modificar">✏️</a>
-                        <form th:action="@{'/alumnos/borrar/' + ${alumno.id}}" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-sm btn-danger"
-                                    onclick="return confirm('¿Seguro que quieres borrar este alumno?');">🗑️</button>
-                        </form>
+                        <div class="d-flex justify-content-center align-items-center gap-2">
+
+                            <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalEditarAlumno">
+                                ✏️
+                            </button>
+                            <div th:replace="~{fragments/editAlumno :: editAlumno}"></div>
+
+                            <form th:action="@{'/alumnos/borrar/' + ${alumno.id}}" method="post" style="margin:0;">
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                        onclick="return confirm('¿Seguro que quieres borrar este alumno?');">🗑️</button>
+                            </form>
+
+                        </div>
                     </td>
                 </tr>
                 </tbody>

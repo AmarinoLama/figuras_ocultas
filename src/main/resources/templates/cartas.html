@@ -34,12 +34,9 @@
                     <div class="card shadow-sm p-2">
                         <div class="d-flex justify-content-center">
                             <!-- Imagen centrada -->
-                            <!--<img th:src="@{'data:image/png;base64,' + ${carta.imagen}}"
+                            <img th:src="@{'/cartas/imagen/' + ${carta.id}}"
                                  class="card-img-top w-75"
-                                 alt="Imagen de la carta"
-                                 th:alt="Imagen no disponible"
-                                 onerror="this.onerror=null; this.src='/path/to/default-image.png';">-->
-                            <img th:src="@{/images/imagenprueba.png}" class="card-img-top w-75" alt="Imagen de prueba">
+                                 alt="Imagen de la carta">
                             <!-- Botones de acción al lado derecho de la imagen -->
                             <div class="d-flex flex-column justify-content-start ms-2">
                                 <a th:href="@{'/cartas/editar/' + ${carta.id}}" class="btn btn-warning btn-sm mb-1" title="Modificar">✏️</a>

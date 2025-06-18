@@ -6,11 +6,17 @@ import edu.badpals.FigurasOcultas.model.entity.Carta;
 import edu.badpals.FigurasOcultas.service.CartaService;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 public class CartasController {
@@ -24,6 +30,8 @@ public class CartasController {
     @Autowired
     private CartaService cartaService;
 
+    /// TODO: add DTO to cards
+
     @GetMapping("/cartas")
     public String loadCartas(Model model) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
@@ -32,8 +40,7 @@ public class CartasController {
         if (usuarioLogeado) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             model.addAttribute("usuario", usuario);
-            model.addAttribute("nuevaCarta", new Carta()); // Añadir DTO para la nueva carta
-
+            model.addAttribute("nuevaCarta", new Carta());
             model.addAttribute("cartas", cartaService.getAllCartas());
             System.out.println("Cartas: " + cartaService.getAllCartas());
         } else {
@@ -52,4 +59,25 @@ public class CartasController {
         return "redirect:/cartas";
     }
 
+    @PostMapping("/cartas/guardar")
+    public String guardarCarta(@RequestParam("titulo") String titulo,
+                               @RequestParam("precio") Integer precio,
+                               @RequestParam("descripcion") String descripcion,
+                               @RequestParam(value = "activa", required = false) Boolean activa,
+                               @RequestParam("imagen") MultipartFile imagenFile) {
+        cartaService.guardarCarta(titulo, precio, descripcion, activa, imagenFile);
+        return "redirect:/cartas";
+    }
+
+    @GetMapping("/cartas/imagen/{id}")
+    public ResponseEntity<byte[]> mostrarImagen(@PathVariable Long id) {
+        try {
+            byte[] imagen = cartaService.obtenerImagenCarta(id);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_JPEG);
+            return new ResponseEntity<>(imagen, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

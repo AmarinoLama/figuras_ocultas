@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class LoginController {
 
+    /// TODO: hashing user passwords
+
     @Autowired
     private UsuarioService usuarioService;
 

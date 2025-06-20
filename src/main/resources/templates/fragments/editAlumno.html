@@ -7,59 +7,50 @@
                         <h5 class="modal-title" id="exampleModalLabel">Modificar Alumno</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form th:action="@{'/alumnos/editar/' + ${alumno.id}}" th:object="${alumnoModif}" method="post">
+
+                    <!-- Formulario, la acción se establece vía JS -->
+                    <form method="post">
                         <div class="modal-body">
-                           <!-- <div class="mb-3">
-                                <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" th:field="*{nombre}" class="form-control" id="nombre" required />
-                            </div>-->
-
-                            <!--<div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" th:field="*{email}" class="form-control" id="email" required />
-                            </div>
-
+                            <!-- Nombre -->
                             <div class="mb-3">
-                                <label for="contrasena" class="form-label">Contraseña</label>
-                                <input type="password" th:field="*{password}" class="form-control" id="contrasena" required />
+                                <label for="nombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" required />
                             </div>
 
+                            <!-- Curso -->
                             <div class="mb-3">
                                 <label for="curso" class="form-label">Curso</label>
-                                <select th:field="*{curso}" class="form-select" id="curso" required>
-                                    <option th:each="c : ${T(edu.badpals.FigurasOcultas.model.entity.CursoAlumno).values()}"
-                                            th:value="${c.name()}"
-                                            th:text="${c}">Curso</option>
+                                <select class="form-select" id="curso" name="curso" required>
+                                    <option value="PRIMERO_ESO">1º ESO</option>
+                                    <option value="SEGUNDO_ESO">2º ESO</option>
+                                    <option value="TERCERO_ESO">3º ESO</option>
+                                    <option value="CUARTO_ESO">4º ESO</option>
+                                    <option value="PRIMERO_BACH">1º BACH</option>
+                                    <option value="SEGUNDO_BACH">2º BACH</option>
                                 </select>
                             </div>
 
-                            <hr/>
-
-                            <div class="mb-3 d-flex justify-content-between gap-3" id="tarjeta-info-group">
-                                &lt;!&ndash; Exp &ndash;&gt;
+                            <!-- Exp y Electronios -->
+                            <div class="mb-3 d-flex justify-content-between gap-3">
                                 <div class="flex-fill">
-                                    <label for="exp" class="form-label">
-                                        <i class="bi bi-lightning-charge-fill me-1"></i> Exp
-                                    </label>
-                                    <input type="number" th:field="*{tarjetaAlumno.exp}" class="form-control" id="exp" min="0" required />
+                                    <label for="exp" class="form-label">Exp</label>
+                                    <input type="number" class="form-control" id="exp" name="exp" min="0" required />
                                 </div>
 
-                                &lt;!&ndash; Electronios &ndash;&gt;
                                 <div class="flex-fill">
-                                    <label for="electronios" class="form-label">
-                                        <i class="bi bi-atom me-1"></i> Electronios
-                                    </label>
-                                    <input type="number" th:field="*{tarjetaAlumno.electronios}" class="form-control" id="electronios" min="0" required />
+                                    <label for="electronios" class="form-label">Electronios</label>
+                                    <input type="number" class="form-control" id="electronios" name="electronios" min="0" required />
                                 </div>
-                            </div>-->
-
+                            </div>
                         </div>
 
+                        <!-- Botones -->
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Actualizar Alumno</button>
                         </div>
 
+                        <!-- Mostrar alerta si el email ya existe -->
                         <script th:if="${showAlert}">
                             alert('El email ya está en uso');
                             var myModal = new bootstrap.Modal(document.getElementById('modalEditarAlumno'), {

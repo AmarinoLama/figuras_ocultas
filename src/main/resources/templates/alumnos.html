@@ -65,14 +65,7 @@
                         <div class="d-flex justify-content-center align-items-center gap-2">
 
                             <button class="btn btn-sm btn-warning btn-editar"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalEditarAlumno"
-                                    th:data-id="${alumno.id}"
-                                    th:data-nombre="${alumno.nombre}"
-                                    th:data-email="${alumno.email}"
-                                    th:data-exp="${alumno.tarjetaAlumno.exp}"
-                                    th:data-electronios="${alumno.tarjetaAlumno.electronios}"
-                                    th:data-curso="${alumno.curso.name()}">
+                                    th:data-email="${alumno.email}">
                                 ✏️
                             </button>
 
@@ -86,7 +79,6 @@
                 </tr>
                 </tbody>
             </table>
-            <div th:replace="~{fragments/editAlumno :: editAlumno}"></div>
         </div>
     </div>
 </div>
@@ -120,36 +112,28 @@
 
 <!-- Modal para editar alumno -->
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const botonesEditar = document.querySelectorAll('.btn-editar');
-        const modal = document.getElementById('modalEditarAlumno');
+    document.addEventListener("DOMContentLoaded", () => {
+        const botones = document.querySelectorAll(".btn-editar");
+        const container = document.querySelector("#modalContainer");
 
-        const inputNombre = modal.querySelector('#nombre');
-        const inputExp = modal.querySelector('#exp');
-        const inputElectronios = modal.querySelector('#electronios');
-        const selectCurso = modal.querySelector('#curso');
-        const form = modal.querySelector('form');
+        botones.forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const email = btn.getAttribute("data-email");
 
-        botonesEditar.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-id');
-                const nombre = btn.getAttribute('data-nombre');
-                const exp = btn.getAttribute('data-exp');
-                const electronios = btn.getAttribute('data-electronios');
-                const curso = btn.getAttribute('data-curso');
+                const response = await fetch(`/alumnos/info?email=${encodeURIComponent(email)}`);
+                const html = await response.text();
 
-                // Rellenar inputs
-                inputNombre.value = nombre;
-                inputExp.value = exp;
-                inputElectronios.value = electronios;
-                selectCurso.value = curso;
+                container.innerHTML = html;
 
-                // Cambiar acción del formulario
-                form.setAttribute('action', `/alumnos/editar/${id}`);
+                // Bootstrap necesita esto si lo haces por JS manual
+                const modal = new bootstrap.Modal(document.getElementById('modalEditarAlumno'));
+                modal.show();
             });
         });
     });
 </script>
+
+<div id="modalContainer"></div>
 
 </body>
 </html>

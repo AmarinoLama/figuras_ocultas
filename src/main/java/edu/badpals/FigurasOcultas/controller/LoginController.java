@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+/// TODO: hashear las contraseñas de los usuarios
+
 @Controller
 public class LoginController {
-
-    /// TODO: hashing user passwords
 
     @Autowired
     private UsuarioService usuarioService;

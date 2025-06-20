@@ -13,6 +13,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/// TODO: Añadir una barra de búsqueda para buscar alumnos
+/// TODO: Añadir paginación para la lista de alumnos
+/// TODO: Mejorar los iconos de la tabla de ordenar
+/// TODO: La contraseña del menú de editar ocultarla
+
 @Controller
 public class AlumnosController {
 
@@ -46,18 +51,19 @@ public class AlumnosController {
         return "alumnos";
     }
 
-    @GetMapping("/alumnos/editar/{id}")
-    public String editarAlumno(@PathVariable Long id, Model model) {
+    @GetMapping("/alumnos/info")
+    public String cargarDatosAlumno(@RequestParam String email, Model model) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
         boolean usuarioLogeado = usuarioLogeadoId != null;
 
         if (usuarioLogeado) {
-            UsuarioDTO alumnoCargar = usuarioService.getUserById(id);
-            model.addAttribute("alumnoModif", alumnoCargar);
-            return "fragments/editAlumno";
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            model.addAttribute("usuario", usuario);
+            UsuarioDTO alumno = usuarioService.getUserByEmail(email);
+            model.addAttribute("alumno", alumno);
+            return "fragments/editAlumno :: editAlumno";
         }
-
-        return "redirect:/alumnos";
+        return "alumnos";
     }
 
     @PostMapping("/alumnos/nuevo")
@@ -80,18 +86,31 @@ public class AlumnosController {
     }
 
     @PostMapping("/alumnos/editar/{id}")
-    public String editarAlumno(@PathVariable(value = "id") Long idAlumno) {
+    public String editarAlumno(@PathVariable("id") Long idAlumno,
+                               @ModelAttribute UsuarioDTO alumnoEditado) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
-        boolean usuarioLogeado = usuarioLogeadoId != null;
-        if (usuarioLogeado) {
+        if (usuarioLogeadoId != null) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             if (usuario != null) {
-                UsuarioDTO alumnoActualizar = usuarioService.getUserById(idAlumno);
-                System.out.println("Alumno a actualizar: " + alumnoActualizar);
+                // Obtén el alumno original
+                UsuarioDTO alumnoOriginal = usuarioService.getUserById(idAlumno);
+
+                // Actualiza los campos
+                alumnoOriginal.setNombre(alumnoEditado.getNombre());
+                alumnoOriginal.setPassword(alumnoEditado.getPassword());
+                alumnoOriginal.setCurso(alumnoEditado.getCurso());
+
+                alumnoOriginal.getTarjetaAlumno().setExp(alumnoEditado.getTarjetaAlumno().getExp());
+                alumnoOriginal.getTarjetaAlumno().setElectronios(alumnoEditado.getTarjetaAlumno().getElectronios());
+
+                // Guarda
+                System.out.println("Actualizando alumno: " + alumnoOriginal);
+                usuarioService.saveUser(alumnoOriginal);
             }
         }
         return "redirect:/alumnos";
     }
+
 
     @PostMapping("/alumnos/borrar/{id}")
     public String borrarAlumno(@PathVariable(value = "id") Long idAlumno) {

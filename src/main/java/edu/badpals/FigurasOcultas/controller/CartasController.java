@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+/// TODO: hacer DTO de las cartas
+
 @Controller
 public class CartasController {
 
@@ -29,8 +31,6 @@ public class CartasController {
 
     @Autowired
     private CartaService cartaService;
-
-    /// TODO: add DTO to cards
 
     @GetMapping("/cartas")
     public String loadCartas(Model model) {
@@ -44,7 +44,7 @@ public class CartasController {
             model.addAttribute("cartas", cartaService.getAllCartas());
             System.out.println("Cartas: " + cartaService.getAllCartas());
         } else {
-            return "redirect:/login"; // O la página que desees
+            return "redirect:/login";
         }
 
         return "cartas";

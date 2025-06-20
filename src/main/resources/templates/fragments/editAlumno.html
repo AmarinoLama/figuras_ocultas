@@ -8,25 +8,31 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
-                    <!-- Formulario, la acción se establece vía JS -->
-                    <form method="post">
+                    <!-- Formulario, la acción se establece vía Thymeleaf -->
+                    <form th:action="@{'/alumnos/editar/' + ${alumno.id}}" method="post">
                         <div class="modal-body">
                             <!-- Nombre -->
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" required />
+                                <input type="text" class="form-control" id="nombre" name="nombre" th:value="${alumno.nombre}" required />
+                            </div>
+
+                            <!-- Contraseña -->
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Contraseña</label>
+                                <input type="text" class="form-control" id="password" name="password" th:value="${alumno.password}" required />
                             </div>
 
                             <!-- Curso -->
                             <div class="mb-3">
                                 <label for="curso" class="form-label">Curso</label>
                                 <select class="form-select" id="curso" name="curso" required>
-                                    <option value="PRIMERO_ESO">1º ESO</option>
-                                    <option value="SEGUNDO_ESO">2º ESO</option>
-                                    <option value="TERCERO_ESO">3º ESO</option>
-                                    <option value="CUARTO_ESO">4º ESO</option>
-                                    <option value="PRIMERO_BACH">1º BACH</option>
-                                    <option value="SEGUNDO_BACH">2º BACH</option>
+                                    <option th:value="PRIMERO_ESO" th:text="'1º ESO'" th:selected="${alumno.curso == 'PRIMERO_ESO'}"></option>
+                                    <option th:value="SEGUNDO_ESO" th:text="'2º ESO'" th:selected="${alumno.curso == 'SEGUNDO_ESO'}"></option>
+                                    <option th:value="TERCERO_ESO" th:text="'3º ESO'" th:selected="${alumno.curso == 'TERCERO_ESO'}"></option>
+                                    <option th:value="CUARTO_ESO" th:text="'4º ESO'" th:selected="${alumno.curso == 'CUARTO_ESO'}"></option>
+                                    <option th:value="PRIMERO_BACH" th:text="'1º BACH'" th:selected="${alumno.curso == 'PRIMERO_BACH'}"></option>
+                                    <option th:value="SEGUNDO_BACH" th:text="'2º BACH'" th:selected="${alumno.curso == 'SEGUNDO_BACH'}"></option>
                                 </select>
                             </div>
 
@@ -34,12 +40,12 @@
                             <div class="mb-3 d-flex justify-content-between gap-3">
                                 <div class="flex-fill">
                                     <label for="exp" class="form-label">Exp</label>
-                                    <input type="number" class="form-control" id="exp" name="exp" min="0" required />
+                                    <input type="number" class="form-control" id="exp" name="tarjetaAlumno.exp" min="0" th:value="${alumno.tarjetaAlumno.exp}" required />
                                 </div>
 
                                 <div class="flex-fill">
                                     <label for="electronios" class="form-label">Electronios</label>
-                                    <input type="number" class="form-control" id="electronios" name="electronios" min="0" required />
+                                    <input type="number" class="form-control" id="electronios" name="tarjetaAlumno.electronios" min="0" th:value="${alumno.tarjetaAlumno.electronios}" required />
                                 </div>
                             </div>
                         </div>
@@ -49,17 +55,17 @@
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="btn btn-primary">Actualizar Alumno</button>
                         </div>
-
-                        <!-- Mostrar alerta si el email ya existe -->
-                        <script th:if="${showAlert}">
-                            alert('El email ya está en uso');
-                            var myModal = new bootstrap.Modal(document.getElementById('modalEditarAlumno'), {
-                                backdrop: 'static',
-                                keyboard: false
-                            });
-                            myModal.show();
-                        </script>
                     </form>
+
+                    <!-- Mostrar alerta si el email ya existe -->
+                    <script th:if="${showAlert}">
+                        alert('El email ya está en uso');
+                        var myModal = new bootstrap.Modal(document.getElementById('modalEditarAlumno'), {
+                            backdrop: 'static',
+                            keyboard: false
+                        });
+                        myModal.show();
+                    </script>
                 </div>
             </div>
         </div>

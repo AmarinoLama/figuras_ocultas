@@ -1,6 +1,7 @@
 <div th:fragment="editCarta">
     <div th:if="${usuario.isAdmin()}">
-        <div class="modal fade" id="modalEditarCarta" tabindex="-1" aria-labelledby="modalEditarCartaLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal fade" id="modalEditarCarta" tabindex="-1" aria-labelledby="modalEditarCartaLabel"
+             aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -14,57 +15,43 @@
                             <!-- Titulo -->
                             <div class="mb-3">
                                 <label for="titulo" class="form-label">Título</label>
-                                <input type="text" class="form-control" id="titulo" name="titulo" th:value="${carta.titulo}" required />
+                                <input type="text" class="form-control" id="titulo" name="titulo"
+                                       th:value="${carta.titulo}" required/>
                             </div>
 
                             <!-- Descripción -->
                             <div class="mb-3">
                                 <label for="descripcion" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="descripcion" rows="3" th:field="*{carta.descripcion}" required></textarea>
+                                <textarea class="form-control" id="descripcion" rows="3" th:field="*{carta.descripcion}"
+                                          required></textarea>
                             </div>
 
                             <!-- Precio -->
                             <div class="mb-3">
                                 <label for="precio" class="form-label">Precio (Electronios)</label>
-                                <input type="number" class="form-control" id="precio" min="0" th:field="*{carta.precio}" required />
+                                <input type="number" class="form-control" id="precio" min="0" th:field="*{carta.precio}"
+                                       required/>
                             </div>
 
                             <!-- Imagen -->
                             <div class="mb-3">
                                 <label for="imagenEditar" class="form-label">Nueva Imagen (opcional)</label>
-                                <input type="file" class="form-control" id="imagenEditar" name="imagenFile" accept="image/*" />
+                                <input type="file" class="form-control" id="imagenEditar" name="imagenFile"
+                                       accept="image/*"/>
                             </div>
 
                             <!-- Activa -->
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="activa" th:field="*{carta.activa}" />
+                                <input class="form-check-input" type="checkbox" id="activa" th:field="*{carta.activa}"/>
                                 <label class="form-check-label" for="activa">¿Carta activa?</label>
                             </div>
 
-
-                            <!-- Vista previa -->
-                            <div class="card mt-4 border border-primary">
-                                <div class="row g-0">
-                                    <div class="col-md-4">
-                                        <img th:src="@{'/cartas/imagen/' + ${carta.id}}" id="previewImagenEditar" class="img-fluid rounded-start" alt="Previsualización" />
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title mb-1" id="previewTituloEditar" th:text="${carta.titulo}">Título</h5>
-                                            <p class="card-text mb-1" id="previewDescripcionEditar" th:text="${carta.descripcion}">Descripción</p>
-                                            <p class="card-text"><small class="text-muted" id="previewPrecioEditar">Precio: <span th:text="${carta.precio}">0</span> electronios</small></p>
-                                            <p class="card-text" id="previewActivaEditar">Estado: <span th:text="${carta.activa} ? 'Activa' : 'Inactiva'"></span></p>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Botones -->
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary">Actualizar Carta</button>
                             </div>
-                        </div>
-
-                        <!-- Botones -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Actualizar Carta</button>
-                        </div>
 
                     </form>
                 </div>

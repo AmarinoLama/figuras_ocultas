@@ -13,15 +13,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /// TODO: hacer DTO de las cartas
 /// TODO: mejorar la vista en general
 /// TODO: mejorar los mensajes de confirmación
+/// TODO: hacer que las fotos tengan el mismo tamaño
+/// TODO: hacer DTO de las cartas en el método getAllCardsDTO()
 
 @Controller
 public class CartasController {
@@ -113,4 +114,17 @@ public class CartasController {
         return "redirect:/cartas";
     }
 
+    @PostMapping("/cartas/editar/{id}")
+    public String editarCarta(@PathVariable("id") Long idCarta,
+                              @ModelAttribute CartaDTO cartaEditada,
+                              @RequestParam("imagenFile") MultipartFile imagenFile) throws IOException {
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        if (usuarioLogeadoId != null) {
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            if (usuario != null) {
+                cartaService.actualizarCarta(cartaEditada, idCarta, imagenFile);
+            }
+        }
+        return "redirect:/cartas";
+    }
 }

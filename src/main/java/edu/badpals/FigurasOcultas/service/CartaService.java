@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +27,6 @@ public class CartaService {
     @Autowired
     private ModelMapper modelMapper;
 
-    /// TODO: hacer DTO de las cartas
     @Transactional
     public List<Carta> getAllCartasDTO() {
         return StreamSupport.stream(cartaRepository.findAll().spliterator(), false)
@@ -52,6 +54,23 @@ public class CartaService {
         }
     }
 
+    @Transactional
+    public void actualizarCarta(CartaDTO cartaDTO, Long id, MultipartFile imagenFile) throws IOException {
+
+        Carta carta = cartaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Carta no encontrada"));
+
+        carta.setTitulo(cartaDTO.getTitulo());
+        carta.setPrecio(cartaDTO.getPrecio());
+        carta.setDescripcion(cartaDTO.getDescripcion());
+        carta.setActiva(cartaDTO.getActiva());
+        if (!imagenFile.isEmpty()) {
+            carta.setImagen(imagenFile.getBytes());
+        }
+
+        cartaRepository.save(carta);
+    }
+
     @Transactional(readOnly = true)
     public byte[] obtenerImagenCarta(Long id) {
         Carta carta = cartaRepository.findById(id)
@@ -75,4 +94,5 @@ public class CartaService {
                 .orElseThrow(() -> new RuntimeException("Carta no encontrada"));
         return modelMapper.map(carta, CartaDTO.class);
     }
+
 }

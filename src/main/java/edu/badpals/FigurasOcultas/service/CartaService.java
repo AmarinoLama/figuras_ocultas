@@ -25,12 +25,6 @@ public class CartaService {
     private ModelMapper modelMapper;
 
     @Transactional
-    public List<Carta> getAllCartas() {
-        return StreamSupport.stream(cartaRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
     public List<Carta> getAllCartasDTO() {
         return StreamSupport.stream(cartaRepository.findAll().spliterator(), false)
                 .map(u -> modelMapper.map(u, Carta.class))
@@ -65,5 +59,12 @@ public class CartaService {
             throw new RuntimeException("La carta no tiene imagen");
         }
         return carta.getImagen();
+    }
+
+    @Transactional
+    public void borrarCarta(Long id) {
+        Carta carta = cartaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Carta no encontrada"));
+        cartaRepository.delete(carta);
     }
 }

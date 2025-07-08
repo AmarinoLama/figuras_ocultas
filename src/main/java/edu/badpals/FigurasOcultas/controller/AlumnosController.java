@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /// TODO: Añadir paginación para la lista de alumnos
 /// TODO: Mejorar los iconos de la tabla de ordenar
 /// TODO: La contraseña del menú de editar ocultarla
+/// TODO: mejorar los mensajes de confirmación
 
 @Controller
 public class AlumnosController {

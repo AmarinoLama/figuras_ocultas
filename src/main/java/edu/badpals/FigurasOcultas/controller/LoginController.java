@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 /// TODO: hashear las contraseñas de los usuarios
+/// TODO: mejorar la interfaz
 
 @Controller
 public class LoginController {

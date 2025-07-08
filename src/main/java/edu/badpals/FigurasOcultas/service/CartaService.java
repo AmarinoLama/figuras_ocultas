@@ -1,5 +1,6 @@
 package edu.badpals.FigurasOcultas.service;
 
+import edu.badpals.FigurasOcultas.model.dto.CartaDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.Carta;
 import edu.badpals.FigurasOcultas.model.repository.CartaRepository;
@@ -20,9 +21,19 @@ public class CartaService {
     @Autowired
     private CartaRepository cartaRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Transactional
     public List<Carta> getAllCartas() {
         return StreamSupport.stream(cartaRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<Carta> getAllCartasDTO() {
+        return StreamSupport.stream(cartaRepository.findAll().spliterator(), false)
+                .map(u -> modelMapper.map(u, Carta.class))
                 .collect(Collectors.toList());
     }
 

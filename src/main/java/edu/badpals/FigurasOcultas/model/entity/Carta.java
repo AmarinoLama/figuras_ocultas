@@ -17,7 +17,8 @@ public class Carta {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "imagen")
+    @Lob
+    @Column(name = "imagen", columnDefinition = "MEDIUMBLOB")
     private byte[] imagen;
 
     @NotNull
@@ -38,5 +39,4 @@ public class Carta {
     @ColumnDefault("1")
     @Column(name = "activa", nullable = false)
     private Boolean activa = false;
-
 }

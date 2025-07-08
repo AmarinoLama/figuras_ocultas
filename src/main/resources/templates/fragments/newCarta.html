@@ -1,0 +1,114 @@
+<div th:fragment="newCarta">
+    <div th:if="${usuario.isAdmin()}">
+        <div class="modal fade" id="modalNuevaCarta" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Crear Nueva Carta</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <form th:action="@{/cartas/nueva}" th:object="${nuevaCarta}" method="post" enctype="multipart/form-data">
+                        <div class="modal-body">
+                            <!-- Título -->
+                            <div class="mb-3">
+                                <label for="titulo" class="form-label">Título</label>
+                                <input type="text" class="form-control" id="titulo" th:field="*{titulo}" required />
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="mb-3">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" rows="3" th:field="*{descripcion}" required></textarea>
+                            </div>
+
+                            <!-- Precio -->
+                            <div class="mb-3">
+                                <label for="precio" class="form-label">Precio (Electronios)</label>
+                                <input type="number" class="form-control" id="precio" min="0" th:field="*{precio}" required />
+                            </div>
+
+                            <!-- Imagen -->
+                            <div class="mb-3">
+                                <label for="imagen" class="form-label">Imagen</label>
+                                <input type="file" class="form-control" id="imagen" name="imagenFile" accept="image/*" required />
+                            </div>
+
+                            <!-- Activa -->
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="activa" th:field="*{activa}" />
+                                <label class="form-check-label" for="activa">¿Carta activa?</label>
+                            </div>
+
+                            <!-- Vista previa -->
+                            <div class="card mt-4 border border-primary">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        <img id="previewImagen" src="#" class="img-fluid rounded-start" alt="Previsualización" style="display: none;" />
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <h5 class="card-title" id="previewTitulo">Título</h5>
+                                            <p class="card-text" id="previewDescripcion">Descripción</p>
+                                            <p class="card-text"><small class="text-muted" id="previewPrecio">Precio: 0 electronios</small></p>
+                                            <p class="card-text" id="previewActiva">Estado: Inactiva</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Carta</button>
+                        </div>
+
+                        <script th:if="${showAlert}">
+                            alert('El título ya está en uso');
+                            var myModal = new bootstrap.Modal(document.getElementById('modalNuevaCarta'), {
+                                backdrop: 'static',
+                                keyboard: false
+                            });
+                            myModal.show();
+                        </script>
+
+                        <!-- Script de previsualización -->
+                        <script>
+                            document.getElementById("titulo").addEventListener("input", function () {
+                                document.getElementById("previewTitulo").textContent = this.value || "Título";
+                            });
+
+                            document.getElementById("descripcion").addEventListener("input", function () {
+                                document.getElementById("previewDescripcion").textContent = this.value || "Descripción";
+                            });
+
+                            document.getElementById("precio").addEventListener("input", function () {
+                                document.getElementById("previewPrecio").textContent = "Precio: " + (this.value || 0) + " electronios";
+                            });
+
+                            document.getElementById("activa").addEventListener("change", function () {
+                                document.getElementById("previewActiva").textContent = "Estado: " + (this.checked ? "Activa" : "Inactiva");
+                            });
+
+                            document.getElementById("imagen").addEventListener("change", function (event) {
+                                const file = event.target.files[0];
+                                const preview = document.getElementById("previewImagen");
+                                if (file) {
+                                    const reader = new FileReader();
+                                    reader.onload = function (e) {
+                                        preview.src = e.target.result;
+                                        preview.style.display = "block";
+                                    };
+                                    reader.readAsDataURL(file);
+                                } else {
+                                    preview.src = "#";
+                                    preview.style.display = "none";
+                                }
+                            });
+                        </script>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

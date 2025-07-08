@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS tarjeta_alumno
 CREATE TABLE IF NOT EXISTS cartas
 (
     id           BIGINT AUTO_INCREMENT PRIMARY KEY,
-    imagen       BLOB NULL,
+    imagen       MEDIUMBLOB NULL,
     precio       INT NOT NULL DEFAULT 0,
     titulo       VARCHAR(50) NOT NULL,
     descripcion  TEXT,

@@ -9,6 +9,8 @@ import java.util.Arrays;
 @Setter
 public class CartaDTO {
 
+    private Long id;
+
     private byte[] imagen;
 
     private Integer precio;

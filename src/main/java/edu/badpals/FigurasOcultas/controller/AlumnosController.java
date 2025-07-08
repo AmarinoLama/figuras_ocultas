@@ -60,6 +60,7 @@ public class AlumnosController {
         if (usuarioLogeado) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             model.addAttribute("usuario", usuario);
+
             UsuarioDTO alumno = usuarioService.getUserByEmail(email);
             model.addAttribute("alumno", alumno);
             return "fragments/editAlumno :: editAlumno";
@@ -111,7 +112,6 @@ public class AlumnosController {
         }
         return "redirect:/alumnos";
     }
-
 
     @PostMapping("/alumnos/borrar/{id}")
     public String borrarAlumno(@PathVariable(value = "id") Long idAlumno) {

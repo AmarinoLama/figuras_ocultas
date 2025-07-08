@@ -1,6 +1,7 @@
 package edu.badpals.FigurasOcultas.controller;
 
 import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
+import edu.badpals.FigurasOcultas.model.dto.CartaDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.Carta;
 import edu.badpals.FigurasOcultas.service.CartaService;
@@ -96,4 +97,20 @@ public class CartasController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/cartas/info")
+    public String cargarDatosCarta(@RequestParam Long id, Model model) {
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        if (usuarioLogeadoId != null) {
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            model.addAttribute("usuario", usuario);
+
+            CartaDTO carta = cartaService.getCartaById(id);
+            model.addAttribute("carta", carta);
+
+            return "fragments/editCarta :: editCarta";
+        }
+        return "redirect:/cartas";
+    }
+
 }

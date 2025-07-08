@@ -39,10 +39,16 @@
                                  alt="Imagen de la carta">
                             <!-- Botones de acción al lado derecho de la imagen -->
                             <div class="d-flex flex-column justify-content-start ms-2">
-                                <a th:href="@{'/cartas/editar/' + ${carta.id}}" class="btn btn-warning btn-sm mb-1" title="Modificar">✏️</a>
+
+                                <!-- Botón de editar cartas -->
+                                <button class="btn btn-sm btn-warning btn-editar-carta" th:data-id="${carta.id}">✏️</button>
+
+                                <!-- Botón para borrar cartas -->
                                 <form th:action="@{'/cartas/borrar/' + ${carta.id}}" method="post" style="display:inline;">
                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que quieres borrar esta carta?');">🗑️</button>
                                 </form>
+
+                                <!-- Botón para alternar visibilidad -->
                                 <form th:action="@{'/cartas/alternarVisibilidad/' + ${carta.id}}" method="post" style="display:inline;">
                                     <button type="submit" class="btn btn-secondary btn-sm mt-1" title="Alternar visibilidad">
                                         <span th:if="${carta.activa}" class="bi bi-eye-fill">👁️</span>
@@ -65,5 +71,31 @@
         </div>
 </div>
 </div>
+
+<!-- Modal para editar carta -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const botones = document.querySelectorAll(".btn-editar-carta");
+        const container = document.querySelector("#modalContainer");
+
+        botones.forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const id = btn.getAttribute("data-id");
+
+                const response = await fetch(`/cartas/info?id=${encodeURIComponent(id)}`);
+                const html = await response.text();
+
+                container.innerHTML = html;
+
+                // Bootstrap necesita esto si lo haces por JS manual
+                const modal = new bootstrap.Modal(document.getElementById('modalEditarCarta'));
+                modal.show();
+            });
+        });
+    });
+</script>
+
+<div id="modalContainer"></div>
+
 </body>
 </html>

@@ -24,6 +24,7 @@ public class CartaService {
     @Autowired
     private ModelMapper modelMapper;
 
+    /// TODO: hacer DTO de las cartas
     @Transactional
     public List<Carta> getAllCartasDTO() {
         return StreamSupport.stream(cartaRepository.findAll().spliterator(), false)
@@ -66,5 +67,12 @@ public class CartaService {
         Carta carta = cartaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Carta no encontrada"));
         cartaRepository.delete(carta);
+    }
+
+    @Transactional
+    public CartaDTO getCartaById(Long id) {
+        Carta carta = cartaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Carta no encontrada"));
+        return modelMapper.map(carta, CartaDTO.class);
     }
 }

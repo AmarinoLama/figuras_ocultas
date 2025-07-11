@@ -64,7 +64,7 @@ public class CartaService {
         carta.setPrecio(cartaDTO.getPrecio());
         carta.setDescripcion(cartaDTO.getDescripcion());
         carta.setActiva(cartaDTO.getActiva());
-        if (!imagenFile.isEmpty()) {
+        if (imagenFile != null && !imagenFile.isEmpty()) {
             carta.setImagen(imagenFile.getBytes());
         }
 

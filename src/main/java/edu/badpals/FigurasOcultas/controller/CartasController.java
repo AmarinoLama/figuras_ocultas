@@ -54,11 +54,11 @@ public class CartasController {
     }
 
     @PostMapping("/cartas/alternarVisibilidad/{id}")
-    public String alternarVisibilidad(@PathVariable Long id) {
+    public String alternarVisibilidad(@PathVariable Long id) throws IOException {
         System.out.println("Alternando visibilidad de la carta con ID: " + id);
-        /*Carta carta = cartaRepository.findById(id).orElseThrow();
-        carta.setVisible(!carta.isVisible());
-        cartaRepository.save(carta);*/
+        CartaDTO carta = cartaService.getCartaById(id);
+        carta.setActiva(!carta.getActiva());
+        cartaService.actualizarCarta(carta, id, null);
         return "redirect:/cartas";
     }
 

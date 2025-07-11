@@ -52,21 +52,21 @@
                 <div class="collapse navbar-collapse" id="navbarAlumnos">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/alumnos}"
-                               th:classappend="${currentPath == '/alumnos'} ? 'active'">
-                                Tienda
+                            <a class="nav-link text-white" th:href="@{/cartas}"
+                               th:classappend="${currentPath == '/cartas'} ? 'active'">
+                                <i class="fas fa-store"></i> Tienda
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/cartas}"
+                            <a class="nav-link text-white" th:href="@{/cartas}"
                                th:classappend="${currentPath == '/cartas'} ? 'active'">
-                                Inventario
+                                <i class="fas fa-box-open"></i> Inventario
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" th:href="@{/cartas}"
-                               th:classappend="${currentPath == '/cartas'} ? 'active'">
-                                Historial
+                            <a class="nav-link text-white" th:href="@{/historial}"
+                               th:classappend="${currentPath == '/historial'} ? 'active'">
+                                <i class="fas fa-history"></i> Historial
                             </a>
                         </li>
                     </ul>

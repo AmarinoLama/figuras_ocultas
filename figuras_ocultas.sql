@@ -88,7 +88,7 @@ DELIMITER ;
 INSERT INTO usuarios (nombre, email, password, curso, rol)
 VALUES 
     ('adminPrueba', 'admin@ua', '123', NULL, 'ADMIN'),
-    ('alumno', 'alumno', '123', 'PRIMERO_ESO', 'ALUMNO'),
+    ('alumno', 'alumno@ua', '123', 'PRIMERO_ESO', 'ALUMNO'),
     ('Vegete Pérez', 'Vegete', '123', 'SEGUNDO_ESO', 'ALUMNO'),
     ('Skibidi Pérez', 'Skibidi', '123', 'SEGUNDO_ESO', 'ALUMNO'),
     ('Vicente Pérez', 'Vicente', '123', 'PRIMERO_BACH', 'ALUMNO'),

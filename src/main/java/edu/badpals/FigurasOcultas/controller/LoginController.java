@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 /// TODO: hashear las contraseñas de los usuarios
 /// TODO: mejorar la interfaz
+/// TODO: poner un botón para desloguearse
 
 @Controller
 public class LoginController {
@@ -44,7 +45,11 @@ public class LoginController {
 
         if (usuario != null && usuario.getPassword().equals(userdto.getPassword())) {
             managerUserSession.logearUsuario(usuario.getId());
-            return "redirect:/alumnos";
+            if (usuario.isAdmin()) {
+                return "redirect:/alumnos";
+            } else {
+                return "redirect:/cartas";
+            }
         } else {
             model.addAttribute("error", "Contraseña o usuario incorrectos");
             return "formLogin";

@@ -1,0 +1,45 @@
+<div th:fragment="infoCarta">
+    <div th:if="${!usuario.isAdmin()}">
+        <div class="modal fade" id="modalInfoCarta" tabindex="-1" aria-labelledby="modalInfoCartaLabel"
+             aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalInfoCartaLabel" th:text="${carta.titulo}">Título</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <!-- Imagen -->
+                        <div class="mb-3 text-center">
+                            <img th:src="@{'/cartas/imagen/' + ${carta.id}}" class="img-fluid w-50" alt="Imagen de la carta"/>
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="mb-3">
+                            <h6>Descripción:</h6>
+                            <p th:text="${carta.descripcion}">Descripción de la carta</p>
+                        </div>
+
+                        <!-- Precio -->
+                        <div class="mb-3">
+                            <h6>Precio:</h6>
+                            <p><strong th:text="${carta.precio}">0</strong> electronios</p>
+                        </div>
+
+                        <!-- Estado -->
+                        <div class="mb-3">
+                            <h6>Estado:</h6>
+                            <p th:text="${carta.activa} ? 'Activa' : 'Inactiva'">Estado</p>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

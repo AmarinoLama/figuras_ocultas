@@ -99,7 +99,7 @@
                                 </form>
 
                                 <!-- Botón para ver la información -->
-                                <button class="btn btn-sm btn-warning btn-editar-carta" th:data-id="${carta.id}">ℹ️</button>
+                                <button class="btn btn-sm btn-warning btn-info-carta" th:data-id="${carta.id}">ℹ️</button>
 
                             </div>
                         </div>
@@ -121,7 +121,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const botones = document.querySelectorAll(".btn-editar-carta");
-        const container = document.querySelector("#modalContainer");
+        const container = document.querySelector("#modalContainerEdit");
 
         botones.forEach(btn => {
             btn.addEventListener("click", async () => {
@@ -140,7 +140,31 @@
     });
 </script>
 
-<div id="modalContainer"></div>
+<!-- Modal para info carta -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const botones = document.querySelectorAll(".btn-info-carta");
+        const container = document.querySelector("#modalContainerInfo");
+
+        botones.forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const id = btn.getAttribute("data-id");
+
+                const response = await fetch(`/cartas/info?id=${encodeURIComponent(id)}`);
+                const html = await response.text();
+
+                container.innerHTML = html;
+
+                // Bootstrap necesita esto si lo haces por JS manual
+                const modal = new bootstrap.Modal(document.getElementById('modalInfoCarta'));
+                modal.show();
+            });
+        });
+    });
+</script>
+
+<div id="modalContainerEdit"></div>
+<div id="modalContainerInfo"></div>
 
 </body>
 </html>

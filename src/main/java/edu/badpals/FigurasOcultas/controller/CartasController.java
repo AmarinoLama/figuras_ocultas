@@ -45,7 +45,11 @@ public class CartasController {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             model.addAttribute("usuario", usuario);
             model.addAttribute("nuevaCarta", new Carta());
-            model.addAttribute("cartas", cartaService.getAllCartasDTO());
+            if (usuario.isAdmin()) {
+                model.addAttribute("cartas", cartaService.getAllCartasDTO());
+            } else {
+                model.addAttribute("cartas", cartaService.getCartasDisponibles());
+            }
         } else {
             return "redirect:/login";
         }
@@ -109,7 +113,11 @@ public class CartasController {
             CartaDTO carta = cartaService.getCartaById(id);
             model.addAttribute("carta", carta);
 
-            return "fragments/editCarta :: editCarta";
+            if (usuario.isAdmin()) {
+                return "fragments/editCarta :: editCarta";
+            } else {
+                return "fragments/infoCarta :: infoCarta";
+            }
         }
         return "redirect:/cartas";
     }

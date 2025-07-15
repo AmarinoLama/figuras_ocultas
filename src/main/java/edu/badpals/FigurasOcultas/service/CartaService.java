@@ -35,6 +35,14 @@ public class CartaService {
     }
 
     @Transactional
+    public List<CartaDTO> getCartasDisponibles() {
+        return StreamSupport.stream(cartaRepository.findAll().spliterator(), false)
+                .filter(Carta::getActiva)
+                .map(carta -> modelMapper.map(carta, CartaDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public void guardarCarta(String titulo, Integer precio, String descripcion,
                              Boolean activa, MultipartFile imagenFile) {
         try {

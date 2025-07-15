@@ -1,20 +1,18 @@
 package edu.badpals.FigurasOcultas.service;
-
 import edu.badpals.FigurasOcultas.model.dto.CartaDTO;
-import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.Carta;
+import edu.badpals.FigurasOcultas.model.entity.CartasUsuario;
 import edu.badpals.FigurasOcultas.model.repository.CartaRepository;
+import edu.badpals.FigurasOcultas.model.repository.CartaUsuarioRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -23,6 +21,9 @@ public class CartaService {
 
     @Autowired
     private CartaRepository cartaRepository;
+
+    @Autowired
+    private CartaUsuarioRepository cartaUsuarioRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -102,5 +103,4 @@ public class CartaService {
                 .orElseThrow(() -> new RuntimeException("Carta no encontrada"));
         return modelMapper.map(carta, CartaDTO.class);
     }
-
 }

@@ -38,6 +38,17 @@ CREATE TABLE IF NOT EXISTS cartas
     activa       BOOLEAN NOT NULL DEFAULT TRUE
 );
 
+CREATE TABLE IF NOT EXISTS cartas_usuario (
+      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+      carta_id BIGINT NOT NULL,
+      alumno_id BIGINT NOT NULL,
+      fecha_adquisicion DATETIME DEFAULT CURRENT_TIMESTAMP,
+      usada BOOLEAN DEFAULT FALSE,
+      fecha_usada DATETIME NULL,
+      FOREIGN KEY (carta_id) REFERENCES cartas(id) ON DELETE CASCADE,
+      FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
 /* =========================  CREACIÓN DE TRIGGERS  ========================= */
 
 DELIMITER $$

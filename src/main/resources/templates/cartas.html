@@ -76,45 +76,58 @@
         <!-- SI EL USUARIO ES UN ALUMNO -->
 
         <div th:if="${!usuario.isAdmin()}">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="mb-0">Listado de Cartas</h2>
-            </div>
-
             <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
                 <div th:each="carta : ${cartas}" class="col">
-                    <div class="card shadow-sm p-2">
-                        <div class="d-flex justify-content-center">
+                    <div class="card text-dark border-0 shadow-sm"
+                         style="background-color: #e6a5e8; border-radius: 20px; position: relative; overflow: hidden;">
 
-                            <!-- Imagen centrada -->
-                            <img th:src="@{'/cartas/imagen/' + ${carta.id}}"
-                                 class="card-img-top w-75"
-                                 alt="Imagen de la carta">
+                        <!-- Título + Inventario -->
+                        <div class="d-flex justify-content-between align-items-start p-3">
+                            <h5 class="card-title fw-bold mb-0"
+                                th:text="${carta.titulo}"
+                                style="font-size: 1.2rem; line-height: 1.2; max-width: 70%; word-wrap: break-word; white-space: normal;">
+                                Nombre de la carta
+                            </h5>
 
-                            <!-- Botones de acción al lado derecho de la imagen -->
-                            <div class="d-flex flex-column justify-content-start ms-2">
-
-                                <!-- Botón para comprar cartas -->
-                                <form th:action="@{'/cartas/borrar/' + ${carta.id}}" method="post" style="display:inline;">
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que quieres comprar esta carta?');">💲</button>
-                                </form>
-
-                                <!-- Botón para ver la información -->
-                                <button class="btn btn-sm btn-warning btn-info-carta" th:data-id="${carta.id}">ℹ️</button>
-
+                            <div class="bg-light text-dark rounded px-2 py-1 d-flex align-items-center"
+                                 style="font-weight: bold; font-size: 1rem; box-shadow: 0 0 6px rgba(0,0,0,0.1); user-select: none;">
+                                🎒 <span th:text="${inventario[carta.id]} ?: 0">0</span>
                             </div>
                         </div>
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <h5 class="card-title mb-1" th:text="${carta.titulo}">Título de la carta</h5>
-                                <p class="card-text mb-1"><strong><span th:text="${carta.precio}">Precio</span> electronios</strong></p>
+
+                        <!-- Imagen centrada -->
+                        <div class="d-flex justify-content-center p-3 pt-0">
+                            <img th:src="@{'/cartas/imagen/' + ${carta.id}}"
+                                 class="img-fluid rounded border border-3"
+                                 style="max-height: 160px; border-color: #bbaaff;"
+                                 alt="Imagen de la carta">
+                        </div>
+
+                        <!-- Botones e info abajo -->
+                        <div class="d-flex justify-content-between align-items-center px-3 pb-3">
+                            <div class="d-flex gap-2">
+                                <form th:action="@{'/cartas/comprar/' + ${carta.id}}" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-light fw-bold"
+                                            onclick="return confirm('¿Seguro que quieres comprar esta carta?');"
+                                            title="Comprar">💰</button>
+                                </form>
+
+                                <button class="btn btn-sm btn-outline-dark btn-info-carta fw-bold"
+                                        th:data-id="${carta.id}" title="Info">
+                                    ℹ️
+                                </button>
                             </div>
+
+                            <p class="mb-0 fw-bold" style="font-size: 1rem;">
+                                <span th:text="${carta.precio}">0</span> ⚡
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-</div>
+    </div>
 </div>
 
 <!-- Modal para editar carta -->

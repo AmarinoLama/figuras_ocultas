@@ -18,6 +18,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /// TODO: Mejorar los iconos de la tabla de ordenar
 /// TODO: La contraseña del menú de editar ocultarla
 /// TODO: mejorar los mensajes de confirmación
+/// TODO: hacer un sistema de notificaciones para mostrar los usos de las cartas de los alumnos
+/// TODO: hacer la parte de dar electronios de forma mejorada
 
 @Controller
 public class AlumnosController {

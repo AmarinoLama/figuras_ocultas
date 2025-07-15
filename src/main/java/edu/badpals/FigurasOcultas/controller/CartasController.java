@@ -5,6 +5,7 @@ import edu.badpals.FigurasOcultas.model.dto.CartaDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.Carta;
 import edu.badpals.FigurasOcultas.service.CartaService;
+import edu.badpals.FigurasOcultas.service.CartaUsuarioService;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 /// TODO: hacer DTO de las cartas
 /// TODO: mejorar la vista en general
@@ -36,22 +38,30 @@ public class CartasController {
     @Autowired
     private CartaService cartaService;
 
+    @Autowired
+    private CartaUsuarioService cartaUsuarioService;
+
     @GetMapping("/cartas")
     public String loadCartas(Model model) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
         boolean usuarioLogeado = usuarioLogeadoId != null;
 
-        if (usuarioLogeado) {
-            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
-            model.addAttribute("usuario", usuario);
-            model.addAttribute("nuevaCarta", new Carta());
-            if (usuario.isAdmin()) {
-                model.addAttribute("cartas", cartaService.getAllCartasDTO());
-            } else {
-                model.addAttribute("cartas", cartaService.getCartasDisponibles());
-            }
-        } else {
+        if (!usuarioLogeado) {
             return "redirect:/login";
+        }
+
+        UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("nuevaCarta", new Carta());
+
+        if (usuario.isAdmin()) {
+            model.addAttribute("cartas", cartaService.getAllCartasDTO());
+        } else {
+            model.addAttribute("cartas", cartaService.getCartasDisponibles());
+
+            Map<Long, Integer> inventario = cartaUsuarioService.getCantidadPorCartaParaAlumno(usuario.getId());
+            System.out.println("Inventario del usuario: " + inventario.toString());
+            model.addAttribute("inventario", inventario);
         }
 
         return "cartas";
@@ -86,6 +96,18 @@ public class CartasController {
             if (usuario != null) {
                 usuarioService.deleteUser(idCarta);
                 cartaService.borrarCarta(idCarta);
+            }
+        }
+        return "redirect:/cartas";
+    }
+
+    @PostMapping("/cartas/comprar/{id}")
+    public String comprarCarta(@PathVariable Long id) {
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        if (usuarioLogeadoId != null) {
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            if (usuario != null && !usuario.isAdmin()) {
+                cartaUsuarioService.comprarCarta(usuario.getId(), id);
             }
         }
         return "redirect:/cartas";

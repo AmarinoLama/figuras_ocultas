@@ -1,4 +1,7 @@
 package edu.badpals.FigurasOcultas.service;
+
+import edu.badpals.FigurasOcultas.model.dto.CartaDTO;
+import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.Carta;
 import edu.badpals.FigurasOcultas.model.entity.CartasUsuario;
 import edu.badpals.FigurasOcultas.model.entity.Usuario;
@@ -8,7 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,15 +33,28 @@ public class CartaUsuarioService {
     private ModelMapper modelMapper;
 
     @Transactional
-    public void comprarCarta(Long usuarioId, Long cartaId) {
+    public boolean comprarCarta(Long usuarioId, Long cartaId) {
 
-       CartasUsuario cartasUsuario = new CartasUsuario();
+        UsuarioDTO usuario = usuarioService.getUserById(usuarioId);
+        CartaDTO carta = cartaService.getCartaById(cartaId);
 
-       cartasUsuario.setAlumno(modelMapper.map(usuarioService.getUserById(usuarioId), Usuario.class));
-       cartasUsuario.setCarta(modelMapper.map(cartaService.getCartaById(cartaId), Carta.class));
-       cartasUsuario.setFechaAdquisicion(new Date().toInstant());
+        if (usuario.getTarjetaAlumno().getElectronios() < carta.getPrecio()) {
+            return false;
+        } else {
 
-       cartaUsuarioRepository.save(cartasUsuario);
+            CartasUsuario cartasUsuario = new CartasUsuario();
+
+            cartasUsuario.setAlumno(modelMapper.map(usuario, Usuario.class));
+            cartasUsuario.setCarta(modelMapper.map(carta, Carta.class));
+            cartasUsuario.setFechaAdquisicion(ZonedDateTime.now(ZoneId.of("Europe/Madrid")).toInstant());
+
+            cartaUsuarioRepository.save(cartasUsuario);
+
+            usuario.getTarjetaAlumno().setElectronios((byte) (usuario.getTarjetaAlumno().getElectronios() - carta.getPrecio()));
+            usuarioService.saveUser(usuario);
+
+            return true;
+        }
     }
 
     @Transactional
@@ -47,7 +64,7 @@ public class CartaUsuarioService {
 
         for (Object[] fila : resultados) {
             Long cartaId = (Long) fila[0];
-            Long cantidad = (Long) fila[1]; // o Integer, depende de tu query
+            Long cantidad = (Long) fila[1];
             inventario.put(cartaId, cantidad.intValue());
         }
 

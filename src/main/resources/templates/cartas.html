@@ -14,6 +14,13 @@
 <div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/cartas'"></div>
 
 <div class="container mt-5 pt-4">
+
+    <div th:if="${mensajeCompra}" class="alert alert-dismissible fade show mt-3"
+         th:classappend="'alert-' + ${tipoAlerta}" role="alert">
+        <span th:text="${mensajeCompra}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+
     <div th:if="${usuario}">
 
         <!-- SI EL USUARIO ES UN ADMINISTRADOR -->
@@ -76,6 +83,11 @@
         <!-- SI EL USUARIO ES UN ALUMNO -->
 
         <div th:if="${!usuario.isAdmin()}">
+
+            <div class="mb-4 p-3 bg-light rounded shadow-sm text-center" style="font-size: 1.5rem; font-weight: bold; color: #6f42c1;">
+                ⚡ Electronios disponibles: <span th:text="${electroniosTotales}">0</span>
+            </div>
+
             <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
                 <div th:each="carta : ${cartas}" class="col">
                     <div class="card text-dark border-0 shadow-sm"

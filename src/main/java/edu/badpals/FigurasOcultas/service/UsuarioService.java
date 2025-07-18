@@ -1,6 +1,5 @@
 package edu.badpals.FigurasOcultas.service;
 
-import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
 import edu.badpals.FigurasOcultas.model.entity.TarjetaAlumno;
@@ -56,7 +55,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioDTO saveUser(UsuarioDTO usuarioDTO) {
+    public void saveUser(UsuarioDTO usuarioDTO) {
         Usuario usuario = modelMapper.map(usuarioDTO, Usuario.class);
         if (usuarioDTO.getTarjetaAlumno() != null) {
             TarjetaAlumno tarjetaAlumno = modelMapper.map(usuarioDTO.getTarjetaAlumno(), TarjetaAlumno.class);
@@ -64,7 +63,7 @@ public class UsuarioService {
             usuario.setTarjetaAlumno(tarjetaAlumno);
         }
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
-        return modelMapper.map(usuarioGuardado, UsuarioDTO.class);
+        modelMapper.map(usuarioGuardado, UsuarioDTO.class);
     }
 
 

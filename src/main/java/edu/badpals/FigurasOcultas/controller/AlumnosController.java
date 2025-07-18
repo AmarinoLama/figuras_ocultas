@@ -3,7 +3,9 @@ package edu.badpals.FigurasOcultas.controller;
 import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
+import edu.badpals.FigurasOcultas.model.entity.HistorialTransacciones;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
+import edu.badpals.FigurasOcultas.service.HistorialTransaccionesService;
 import edu.badpals.FigurasOcultas.service.TarjetaAlumnoService;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -29,6 +31,9 @@ public class AlumnosController {
 
     @Autowired
     private UsuarioService usuarioService;
+
+    @Autowired
+    private HistorialTransaccionesService hts;
 
     @Autowired
     private TarjetaAlumnoService tarjetaAlumnoService;
@@ -99,6 +104,15 @@ public class AlumnosController {
                 // Obtén el alumno original
                 UsuarioDTO alumnoOriginal = usuarioService.getUserById(idAlumno);
 
+                int electroniosBefore = alumnoOriginal.getTarjetaAlumno().getElectronios();
+                int electroniosAfter = alumnoEditado.getTarjetaAlumno().getElectronios();
+
+                if (electroniosBefore > electroniosAfter) {
+                    hts.addLessElectroniosToHistorial(idAlumno, electroniosBefore-electroniosAfter);
+                } else if (electroniosBefore < electroniosAfter) {
+                    hts.addMoreElectroniosToHistorial(idAlumno, electroniosAfter-electroniosBefore);
+                }
+
                 // Actualiza los campos
                 alumnoOriginal.setNombre(alumnoEditado.getNombre());
                 alumnoOriginal.setPassword(alumnoEditado.getPassword());
@@ -107,8 +121,6 @@ public class AlumnosController {
                 alumnoOriginal.getTarjetaAlumno().setExp(alumnoEditado.getTarjetaAlumno().getExp());
                 alumnoOriginal.getTarjetaAlumno().setElectronios(alumnoEditado.getTarjetaAlumno().getElectronios());
 
-                // Guarda
-                System.out.println("Actualizando alumno: " + alumnoOriginal);
                 usuarioService.saveUser(alumnoOriginal);
             }
         }

@@ -10,11 +10,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.ZonedDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class CartaUsuarioService {
@@ -29,6 +28,9 @@ public class CartaUsuarioService {
     private UsuarioService usuarioService;
 
     @Autowired
+    private HistorialTransaccionesService hts;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Transactional
@@ -40,6 +42,8 @@ public class CartaUsuarioService {
         if (usuario.getTarjetaAlumno().getElectronios() < carta.getPrecio()) {
             return false;
         } else {
+
+            hts.addCompraToHistorial(usuarioId, cartaId);
 
             CartasUsuario cartasUsuario = new CartasUsuario();
 
@@ -71,6 +75,7 @@ public class CartaUsuarioService {
         return inventario;
     }
 
+    @Transactional
     public List<CartaDTO> getCartasDisponiblesByUsuario(Long usuarioId) {
         return cartaUsuarioRepository.findByAlumnoIdAndUsadaFalse(usuarioId).stream()
                 .map(CartasUsuario::getCarta)
@@ -79,11 +84,16 @@ public class CartaUsuarioService {
                 .toList();
     }
 
+    @Transactional
     public boolean usarCarta(Long idCarta, Long idUsuario) {
         List<CartasUsuario> cartasUsuarios = cartaUsuarioRepository.findByCartaIdAndAlumnoId(idCarta, idUsuario);
         for (CartasUsuario cartaUsuario : cartasUsuarios) {
             if (!cartaUsuario.getUsada()) {
+
+                hts.addUsoToHistorial(idUsuario, idCarta);
+
                 cartaUsuario.setUsada(true);
+                cartaUsuario.setFechaUsada(ZonedDateTime.now(ZoneId.of("Europe/Madrid")).toInstant());
                 cartaUsuarioRepository.save(cartaUsuario);
                 return true;
             }

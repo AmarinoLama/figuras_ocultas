@@ -16,4 +16,6 @@ public interface CartaUsuarioRepository extends CrudRepository<CartasUsuario, Lo
     List<CartasUsuario> findByAlumnoIdAndUsadaFalse(Long usuarioId);
 
     List<CartasUsuario> findByCartaIdAndAlumnoId(Long idCarta, Long idUsuario);
+
+    List<CartasUsuario> findByAlumnoId(Long usuarioId);
 }

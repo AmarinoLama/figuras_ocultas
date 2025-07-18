@@ -7,6 +7,8 @@ USE figuras_ocultas;
 DROP TABLE IF EXISTS tarjeta_alumno;
 DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS cartas;
+DROP TABLE IF EXISTS historial_transacciones;
+DROP TABLE IF EXISTS cartas_usuario;
 
 CREATE TABLE IF NOT EXISTS usuarios
 (
@@ -48,6 +50,17 @@ CREATE TABLE IF NOT EXISTS cartas_usuario (
       FOREIGN KEY (carta_id) REFERENCES cartas(id) ON DELETE CASCADE,
       FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS historial_transacciones (
+       id BIGINT AUTO_INCREMENT PRIMARY KEY,
+       alumno_id BIGINT NOT NULL,
+       tipo ENUM('COMPRA', 'USO', 'GANAR_ELECTRONIOS', 'PERDER_ELECTRONIOS') NOT NULL,
+       descripcion TEXT,
+       electronios_en_momento INT NOT NULL,
+       fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+       FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
 
 /* =========================  CREACIÓN DE TRIGGERS  ========================= */
 

@@ -26,6 +26,7 @@ import java.util.Map;
 /// TODO: mejorar los mensajes de confirmación
 /// TODO: hacer que las fotos tengan el mismo tamaño
 /// TODO: hacer DTO de las cartas en el método getAllCardsDTO()
+/// TODO: dividir la parte de la tienda de lo de administradores
 
 @Controller
 public class CartasController {
@@ -60,7 +61,7 @@ public class CartasController {
         } else {
             model.addAttribute("cartas", cartaService.getCartasDisponibles());
 
-            Map<Long, Integer> inventario = cartaUsuarioService.getCantidadPorCartaParaAlumno(usuario.getId());
+            Map<Long, Integer> inventario = cartaUsuarioService.getCartasByAlumno(usuario.getId());
             model.addAttribute("electroniosTotales", usuario.getTarjetaAlumno().getElectronios());
             model.addAttribute("inventario", inventario);
         }
@@ -97,25 +98,6 @@ public class CartasController {
             if (usuario != null) {
                 usuarioService.deleteUser(idCarta);
                 cartaService.borrarCarta(idCarta);
-            }
-        }
-        return "redirect:/cartas";
-    }
-
-    @PostMapping("/cartas/comprar/{id}")
-    public String comprarCarta(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
-        if (usuarioLogeadoId != null) {
-            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
-            if (usuario != null && !usuario.isAdmin()) {
-                boolean operacionExitosa = cartaUsuarioService.comprarCarta(usuario.getId(), id);
-                if (!operacionExitosa) {
-                    redirectAttributes.addFlashAttribute("mensajeCompra", "❌ No se pudo completar la compra debido a la insuficiencia de electronios.");
-                    redirectAttributes.addFlashAttribute("tipoAlerta", "danger");
-                } else {
-                    redirectAttributes.addFlashAttribute("mensajeCompra", "✅ ¡Compra realizada con éxito!");
-                    redirectAttributes.addFlashAttribute("tipoAlerta", "success");
-                }
             }
         }
         return "redirect:/cartas";

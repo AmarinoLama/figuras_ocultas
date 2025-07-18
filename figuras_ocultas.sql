@@ -137,11 +137,11 @@ INSERT INTO tarjeta_alumno (exp, electronios, usuario_id) VALUES
 (295, 12, 18);
 
 INSERT INTO cartas (imagen, precio, titulo, descripcion, activa) VALUES
-                                                                     (NULL, 100, 'Carta de Curación', 'Restaura 50 puntos de vida al instante.', TRUE),
-                                                                     (NULL, 200, 'Carta de Invisibilidad', 'Otorga invisibilidad durante 5 segundos.', TRUE),
-                                                                     (NULL, 150, 'Carta de Rayo', 'Lanza un rayo que inflige daño en área.', FALSE),
-                                                                     (NULL, 180, 'Carta de Congelación', 'Congela al enemigo durante 3 segundos.', FALSE),
-                                                                     (NULL, 80, 'Carta de Velocidad', 'Aumenta la velocidad de movimiento un 30%.', TRUE),
-                                                                     (NULL, 120, 'Carta de Veneno', 'Aplica veneno que causa daño durante 10 segundos.', TRUE),
-                                                                     (NULL, 160, 'Carta de Escudo Mágico', 'Bloquea el siguiente ataque recibido.', TRUE),
-                                                                     (NULL, 90, 'Carta de Ilusión', 'Crea un clon que distrae al enemigo.', TRUE);
+                                                                     (NULL, 1, 'Carta de Curación', 'Restaura 50 puntos de vida al instante.', TRUE),
+                                                                     (NULL, 1, 'Carta de Invisibilidad', 'Otorga invisibilidad durante 5 segundos.', TRUE),
+                                                                     (NULL, 2, 'Carta de Rayo', 'Lanza un rayo que inflige daño en área.', FALSE),
+                                                                     (NULL, 2, 'Carta de Congelación', 'Congela al enemigo durante 3 segundos.', FALSE),
+                                                                     (NULL, 3, 'Carta de Velocidad', 'Aumenta la velocidad de movimiento un 30%.', TRUE),
+                                                                     (NULL, 3, 'Carta de Veneno', 'Aplica veneno que causa daño durante 10 segundos.', TRUE),
+                                                                     (NULL, 3, 'Carta de Escudo Mágico', 'Bloquea el siguiente ataque recibido.', TRUE),
+                                                                     (NULL, 1, 'Carta de Ilusión', 'Crea un clon que distrae al enemigo.', TRUE);

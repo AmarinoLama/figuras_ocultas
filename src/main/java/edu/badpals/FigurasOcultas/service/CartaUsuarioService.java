@@ -10,7 +10,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.ZonedDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -47,6 +46,7 @@ public class CartaUsuarioService {
             cartasUsuario.setAlumno(modelMapper.map(usuario, Usuario.class));
             cartasUsuario.setCarta(modelMapper.map(carta, Carta.class));
             cartasUsuario.setFechaAdquisicion(ZonedDateTime.now(ZoneId.of("Europe/Madrid")).toInstant());
+            cartasUsuario.setUsada(false);
 
             cartaUsuarioRepository.save(cartasUsuario);
 
@@ -58,7 +58,7 @@ public class CartaUsuarioService {
     }
 
     @Transactional
-    public Map<Long, Integer> getCantidadPorCartaParaAlumno(Long usuarioId) {
+    public Map<Long, Integer> getCartasByAlumno(Long usuarioId) {
         List<Object[]> resultados = cartaUsuarioRepository.countByCartaIdAndUsuarioId(usuarioId);
         Map<Long, Integer> inventario = new HashMap<>();
 
@@ -69,5 +69,24 @@ public class CartaUsuarioService {
         }
 
         return inventario;
+    }
+
+    public List<CartaDTO> getCartasDisponiblesByUsuario(Long usuarioId) {
+        return cartaUsuarioRepository.findByAlumnoIdAndUsadaFalse(usuarioId).stream()
+                .map(CartasUsuario::getCarta)
+                .map(carta -> modelMapper.map(carta, CartaDTO.class))
+                .distinct()
+                .toList();
+    }
+
+    public boolean usarCarta(Long idCarta, Long idUsuario) {
+        CartasUsuario cartaUsuario = cartaUsuarioRepository.findByCartaIdAndAlumnoId(idCarta, idUsuario).get(0);
+        if (cartaUsuario != null) {
+            cartaUsuario.setUsada(true);
+            cartaUsuarioRepository.save(cartaUsuario);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

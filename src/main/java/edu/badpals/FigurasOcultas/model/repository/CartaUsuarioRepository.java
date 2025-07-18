@@ -12,4 +12,8 @@ public interface CartaUsuarioRepository extends CrudRepository<CartasUsuario, Lo
 
     @Query("SELECT cu.carta.id, COUNT(cu) FROM CartasUsuario cu WHERE cu.alumno.id = :usuarioId AND (cu.usada = false OR cu.usada IS NULL) GROUP BY cu.carta.id")
     List<Object[]> countByCartaIdAndUsuarioId(@Param("usuarioId") Long usuarioId);
+
+    List<CartasUsuario> findByAlumnoIdAndUsadaFalse(Long usuarioId);
+
+    List<CartasUsuario> findByCartaIdAndAlumnoId(Long idCarta, Long idUsuario);
 }

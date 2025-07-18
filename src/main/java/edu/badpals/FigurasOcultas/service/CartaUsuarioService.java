@@ -80,13 +80,14 @@ public class CartaUsuarioService {
     }
 
     public boolean usarCarta(Long idCarta, Long idUsuario) {
-        CartasUsuario cartaUsuario = cartaUsuarioRepository.findByCartaIdAndAlumnoId(idCarta, idUsuario).get(0);
-        if (cartaUsuario != null) {
-            cartaUsuario.setUsada(true);
-            cartaUsuarioRepository.save(cartaUsuario);
-            return true;
-        } else {
-            return false;
+        List<CartasUsuario> cartasUsuarios = cartaUsuarioRepository.findByCartaIdAndAlumnoId(idCarta, idUsuario);
+        for (CartasUsuario cartaUsuario : cartasUsuarios) {
+            if (!cartaUsuario.getUsada()) {
+                cartaUsuario.setUsada(true);
+                cartaUsuarioRepository.save(cartaUsuario);
+                return true;
+            }
         }
+        return false;
     }
 }

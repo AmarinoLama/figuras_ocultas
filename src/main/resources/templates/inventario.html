@@ -80,4 +80,30 @@
 
 </div>
 
+<!-- Contenedor del modal de info -->
+<div id="modalContainerInfo"></div>
+
+<!-- Script para cargar info de carta -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const botones = document.querySelectorAll(".btn-info-carta");
+        const container = document.querySelector("#modalContainerInfo");
+
+        botones.forEach(btn => {
+            btn.addEventListener("click", async () => {
+                const id = btn.getAttribute("data-id");
+
+                const response = await fetch(`/cartas/info?id=${encodeURIComponent(id)}`);
+                const html = await response.text();
+
+                container.innerHTML = html;
+
+                const modal = new bootstrap.Modal(document.getElementById('modalInfoCarta'));
+                modal.show();
+            });
+        });
+    });
+</script>
+
 </body>
+</html>

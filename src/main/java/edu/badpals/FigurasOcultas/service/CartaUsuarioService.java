@@ -4,6 +4,7 @@ import edu.badpals.FigurasOcultas.model.dto.CartaDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.Carta;
 import edu.badpals.FigurasOcultas.model.entity.CartasUsuario;
+import edu.badpals.FigurasOcultas.model.entity.HistorialTransacciones;
 import edu.badpals.FigurasOcultas.model.entity.Usuario;
 import edu.badpals.FigurasOcultas.model.repository.CartaUsuarioRepository;
 import org.modelmapper.ModelMapper;
@@ -32,6 +33,14 @@ public class CartaUsuarioService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private HistorialTransaccionesService historialTransaccionesService;
+
+    public List<HistorialTransacciones> getHistorial(Long usuarioId) {
+        return historialTransaccionesService.getHistorialTransaccionesByUsuario(usuarioId);
+    }
+
 
     @Transactional
     public boolean comprarCarta(Long usuarioId, Long cartaId) {

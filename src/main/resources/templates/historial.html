@@ -34,21 +34,17 @@
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Mensaje</th>
+                        <th>Electronios</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="item : ${historial}">
                         <td th:text="${#dates.format(item.fecha, 'dd/MM/yyyy')}"></td>
                         <td th:text="${#dates.format(item.fecha, 'HH:mm:ss')}"></td>
-                        <td>
-                                <span th:if="${item.tipo == 'COMPRA'}"
-                                      th:text="'Compraste la carta ' + item.titulo + ' por ' + item.precio + ' electronios'">
-                                </span>
-                            <span th:if="${item.tipo == 'USO'}"
-                                  th:text="'Usaste la carta ' + item.titulo">
-                                </span>
-                        </td>
+                        <td th:text="${item.descripcion}"></td>
+                        <td th:text="${item.electroniosEnMomento}"></td>
                     </tr>
+
                     </tbody>
                 </table>
             </div>

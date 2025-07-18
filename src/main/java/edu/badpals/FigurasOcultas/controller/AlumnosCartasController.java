@@ -13,7 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Map;
 
 /// TODO: Hacer DTO de alumnosCartas
-/// TODO: eliminar atributos de fechas porque ya están en el historial de transacciones
+/// TODO: Eliminar atributos de fechas porque ya están en el historial de transacciones
 
 @Controller
 public class AlumnosCartasController {
@@ -90,6 +90,10 @@ public class AlumnosCartasController {
         if (usuarioLogeadoId != null) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
 
+            model.addAttribute("usuario", usuario);
+            model.addAttribute("historial", cartaUsuarioService.getHistorial(usuarioLogeadoId));
+
+            return "historial";
         }
         return "redirect:/login";
     }

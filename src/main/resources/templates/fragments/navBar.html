@@ -2,8 +2,8 @@
 
     <!-- NAVBAR PARA LOS USUARIOS ADMINISTRADORES -->
     <div th:if="${usuario.isAdmin()}">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow p-3 mb-5 rounded"
-             style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7); border-radius: 0;">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow p-3 mb-5"
+             style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7);">
         <div class="container-fluid">
                 <a class="navbar-brand fw-bold fs-3 text-gradient" href="#">✨ Figuras Ocultas ✨</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -11,37 +11,37 @@
                         aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/alumnos}"
-                               th:classappend="${currentPath == '/alumnos'} ? 'active'">
-                                Alumnado
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/cartas}"
-                               th:classappend="${currentPath == '/cartas'} ? 'active'">
-                                Cartas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" th:href="@{/admin}"
-                               th:classappend="${currentPath == '/admin'} ? 'active'">
-                                Administradores
-                            </a>
-                        </li>
-                    </ul>
-                    <span class="navbar-text text-white" th:text="'Hola, ' + ${usuario.nombre}"></span>
-                </div>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/alumnos}"
+                           th:classappend="${currentPath == '/alumnos'} ? 'active'">
+                            <i class="fas fa-user-graduate"></i> Alumnado
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/cartas}"
+                           th:classappend="${currentPath == '/cartas'} ? 'active'">
+                            <i class="fas fa-clone"></i> Cartas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/admin}"
+                           th:classappend="${currentPath == '/admin'} ? 'active'">
+                            <i class="fas fa-user-shield"></i> Administradores
+                        </a>
+                    </li>
+                </ul>
+                <span class="navbar-text text-light fw-bold" th:text="'👑 Hola, ' + ${usuario.nombre}"></span>
+            </div>
             </div>
         </nav>
     </div>
 
     <!-- NAVBAR PARA LOS USUARIOS NORMALES -->
     <div th:if="${!usuario.isAdmin()}">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow p-3 mb-5 rounded"
-             style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7); border-radius: 0;">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow p-3 mb-5"
+             style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7);">
         <div class="container-fluid">
                 <a class="navbar-brand fw-bold fs-3 text-gradient" href="#">✨ Figuras Ocultas ✨</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -49,29 +49,29 @@
                         aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse" id="navbarAlumnos">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link text-white" th:href="@{/cartas}"
-                               th:classappend="${currentPath == '/cartas'} ? 'active'">
-                                <i class="fas fa-store"></i> Tienda
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" th:href="@{/inventario}"
-                               th:classappend="${currentPath == '/inventario'} ? 'active'">
-                                <i class="fas fa-box-open"></i> Inventario
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" th:href="@{/historial}"
-                               th:classappend="${currentPath == '/historial'} ? 'active'">
-                                <i class="fas fa-history"></i> Historial
-                            </a>
-                        </li>
-                    </ul>
-                    <span class="navbar-text text-white" th:text="'Bienvenido, ' + ${usuario.nombre}"></span>
-                </div>
+            <div class="collapse navbar-collapse" id="navbarAlumnos">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/cartas}"
+                           th:classappend="${currentPath == '/cartas'} ? 'active'">
+                            <i class="fas fa-store"></i> Tienda
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/inventario}"
+                           th:classappend="${currentPath == '/inventario'} ? 'active'">
+                            <i class="fas fa-box-open"></i> Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/historial}"
+                           th:classappend="${currentPath == '/historial'} ? 'active'">
+                            <i class="fas fa-history"></i> Historial
+                        </a>
+                    </li>
+                </ul>
+                <span class="navbar-text text-light fw-bold" th:text="'🎮 Bienvenido, ' + ${usuario.nombre}"></span>
+            </div>
             </div>
         </nav>
     </div>

@@ -1,65 +1,95 @@
+<!-- Fragmento del nuevo alumno -->
 <div th:fragment="newAlumno">
     <div th:if="${usuario.isAdmin()}">
-        <div class="modal fade" id="modalNuevoAlumno" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal fade" id="modalNuevoAlumno" tabindex="-1" aria-labelledby="exampleModalLabel"
+             aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Crear Nuevo Alumno</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-content shadow-lg border-0 rounded-4" style="background-color: #f3e8ff; color: #000;">
+                    <div class="modal-header"
+                         style="background-color: #8e44ad; color: #000; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            <i class="fas fa-user-plus me-2"></i>Crear Nuevo Alumno
+                        </h5>
+                        <button type="button" class="btn-close" style="filter: invert(1);" data-bs-dismiss="modal"
+                                aria-label="Cerrar"></button>
                     </div>
+
                     <form th:action="@{/alumnos/nuevo}" th:object="${nuevoAlumno}" method="post">
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" th:field="*{nombre}" class="form-control" id="nombre" required />
+                        <div class="modal-body py-4 px-5">
+
+                            <!-- Nombre -->
+                            <div class="mb-4">
+                                <label for="nombre" class="form-label fw-semibold"><i class="fas fa-user me-2"></i>Nombre
+                                    completo</label>
+                                <input type="text" th:field="*{nombre}" class="form-control form-control-lg rounded-3"
+                                       id="nombre" required placeholder="Introduce el nombre completo"/>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" th:field="*{email}" class="form-control" id="email" required />
+                            <!-- Email -->
+                            <div class="mb-4">
+                                <label for="email" class="form-label fw-semibold"><i class="fas fa-envelope me-2"></i>Email</label>
+                                <input type="email" th:field="*{email}" class="form-control form-control-lg rounded-3"
+                                       id="email" required placeholder="correo@ejemplo.com"/>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="contrasena" class="form-label">Contraseña</label>
-                                <input type="password" th:field="*{password}" class="form-control" id="contrasena" required />
+                            <!-- Contraseña con ojo -->
+                            <div class="mb-4 position-relative">
+                                <label for="contrasena" class="form-label fw-semibold"><i class="fas fa-lock me-2"></i>Contraseña</label>
+                                <div class="input-group input-group-lg">
+                                    <input type="password" th:field="*{password}"
+                                           class="form-control form-control-lg rounded-3 pe-5" id="contrasena" required
+                                           placeholder="Contraseña segura..."/>
+                                    <span class="input-group-text bg-transparent border-start-0 toggle-container"
+                                          id="togglePasswordNuevo" onclick="togglePasswordNuevo()"
+                                          title="Mostrar/Ocultar contraseña">
+                                       <i class="fa-solid fa-eye-slash fa-fw"></i>
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="curso" class="form-label">Curso</label>
-                                <select th:field="*{curso}" class="form-select" id="curso" required>
-                                    <option th:each="c : ${T(edu.badpals.FigurasOcultas.model.entity.CursoAlumno).values()}"
-                                            th:value="${c.name()}"
-                                            th:text="${c}">Curso</option>
-                                </select>
-                            </div>
+                            <!-- Curso, Exp y Electronios -->
+                            <div class="row g-4">
+                                <!-- Curso -->
+                                <div class="col-md-4">
+                                    <label for="curso" class="form-label fw-semibold"><i
+                                            class="fas fa-graduation-cap me-2"></i>Curso</label>
+                                    <select th:field="*{curso}" class="form-select rounded-3" id="curso" required>
+                                        <option th:each="c : ${T(edu.badpals.FigurasOcultas.model.entity.CursoAlumno).values()}"
+                                                th:value="${c.name()}"
+                                                th:text="${c}">Curso
+                                        </option>
+                                    </select>
+                                </div>
 
-                            <hr/>
-
-                            <div class="mb-3 d-flex justify-content-between gap-3" id="tarjeta-info-group">
                                 <!-- Exp -->
-                                <div class="flex-fill">
-                                    <label for="exp" class="form-label">
-                                        <i class="bi bi-lightning-charge-fill me-1"></i> Exp
-                                    </label>
-                                    <input type="number" th:field="*{tarjetaAlumno.exp}" class="form-control" id="exp" min="0" required />
+                                <div class="col-md-4">
+                                    <label for="exp" class="form-label fw-semibold"><i class="fas fa-bolt me-2"></i>Exp</label>
+                                    <input type="number" th:field="*{tarjetaAlumno.exp}" class="form-control rounded-3"
+                                           id="exp" min="0" required/>
                                 </div>
 
                                 <!-- Electronios -->
-                                <div class="flex-fill">
-                                    <label for="electronios" class="form-label">
-                                        <i class="bi bi-atom me-1"></i> Electronios
-                                    </label>
-                                    <input type="number" th:field="*{tarjetaAlumno.electronios}" class="form-control" id="electronios" min="0" required />
+                                <div class="col-md-4">
+                                    <label for="electronios" class="form-label fw-semibold"><i
+                                            class="fas fa-coins me-2"></i>Electronios</label>
+                                    <input type="number" th:field="*{tarjetaAlumno.electronios}"
+                                           class="form-control rounded-3" id="electronios" min="0" required/>
                                 </div>
                             </div>
-
                         </div>
 
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Guardar Alumno</button>
+                        <!-- Botones -->
+                        <div class="modal-footer px-4 py-3"
+                             style="background-color: #e0c3fc; border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem;">
+                            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i>Cancelar
+                            </button>
+                            <button type="submit" class="btn" style="background-color: #9b59b6; color: white;">
+                                <i class="fas fa-check me-1"></i>Guardar Alumno
+                            </button>
                         </div>
 
+                        <!-- Alerta por email duplicado -->
                         <script th:if="${showAlert}">
                             alert('El email ya está en uso');
                             var myModal = new bootstrap.Modal(document.getElementById('modalNuevoAlumno'), {
@@ -73,4 +103,16 @@
             </div>
         </div>
     </div>
+    <!-- Script del toggle -->
+    <script>
+        function togglePasswordNuevo() {
+            const input = document.getElementById("contrasena");
+            const icon = document.querySelector("#togglePasswordNuevo i");
+            const isPassword = input.type === "password";
+
+            input.type = isPassword ? "text" : "password";
+            icon.classList.toggle("fa-eye-slash");
+            icon.classList.toggle("fa-eye");
+        }
+    </script>
 </div>

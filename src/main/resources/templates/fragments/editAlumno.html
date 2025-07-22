@@ -1,63 +1,137 @@
 <div th:fragment="editAlumno">
-    <div th:if="${usuario.isAdmin()}">
-        <div class="modal fade" id="modalEditarAlumno" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggle = document.getElementById('togglePasswordEditar');
+            if (toggle) {
+                toggle.addEventListener('click', () => {
+                    const input = document.getElementById("passwordEditar");
+                    const icon = toggle.querySelector("i");
+                    if (input.type === "password") {
+                        input.type = "text";
+                        icon.classList.remove("fa-eye-slash");
+                        icon.classList.add("fa-eye");
+                    } else {
+                        input.type = "password";
+                        icon.classList.remove("fa-eye");
+                        icon.classList.add("fa-eye-slash");
+                    }
+                });
+            }
+        });
+    </script>
+
+    <div th:if="${usuario != null and usuario.isAdmin()}">
+        <div class="modal fade" id="modalEditarAlumno" tabindex="-1" aria-labelledby="modalEditarAlumnoLabel"
+             aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Modificar Alumno</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-content shadow-lg border-0 rounded-4" style="background-color: #f3e8ff; color: #000;">
+                    <div class="modal-header"
+                         style="background-color: #8e44ad; color: #000; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                        <h5 class="modal-title" id="modalEditarAlumnoLabel">
+                            <i class="fas fa-user-edit me-2"></i>Modificar Alumno
+                        </h5>
+                        <button type="button" class="btn-close" style="filter: invert(1);" data-bs-dismiss="modal"
+                                aria-label="Cerrar"></button>
                     </div>
 
-                    <!-- Formulario, la acción se establece vía Thymeleaf -->
-                    <form th:action="@{'/alumnos/editar/' + ${alumno.id}}" method="post">
-                        <div class="modal-body">
+                    <form th:action="@{'/alumnos/editar/' + ${alumno.id}}" method="post" class="needs-validation"
+                          novalidate>
+                        <div class="modal-body py-4 px-5">
+
                             <!-- Nombre -->
-                            <div class="mb-3">
-                                <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" th:value="${alumno.nombre}" required />
+                            <div class="mb-4">
+                                <label for="nombre" class="form-label fw-semibold"><i class="fas fa-user me-2"></i>Nombre
+                                    completo</label>
+                                <input type="text" class="form-control rounded-3" id="nombre" name="nombre"
+                                       th:value="${alumno.nombre}" required
+                                       placeholder="Introduce el nombre completo del alumno"/>
                             </div>
 
-                            <!-- Contraseña -->
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Contraseña</label>
-                                <input type="text" class="form-control" id="password" name="password" th:value="${alumno.password}" required />
+                            <!-- Email -->
+                            <div class="mb-4">
+                                <label for="email" class="form-label fw-semibold"><i class="fas fa-envelope me-2"></i>Email</label>
+                                <input type="email" class="form-control rounded-3" id="email" name="email"
+                                       th:value="${alumno.email}" required placeholder="ejemplo@correo.com"/>
                             </div>
 
-                            <!-- Curso -->
-                            <div class="mb-3">
-                                <label for="curso" class="form-label">Curso</label>
-                                <select class="form-select" id="curso" name="curso" required>
-                                    <option th:value="PRIMERO_ESO" th:text="'1º ESO'" th:selected="${alumno.curso == 'PRIMERO_ESO'}"></option>
-                                    <option th:value="SEGUNDO_ESO" th:text="'2º ESO'" th:selected="${alumno.curso == 'SEGUNDO_ESO'}"></option>
-                                    <option th:value="TERCERO_ESO" th:text="'3º ESO'" th:selected="${alumno.curso == 'TERCERO_ESO'}"></option>
-                                    <option th:value="CUARTO_ESO" th:text="'4º ESO'" th:selected="${alumno.curso == 'CUARTO_ESO'}"></option>
-                                    <option th:value="PRIMERO_BACH" th:text="'1º BACH'" th:selected="${alumno.curso == 'PRIMERO_BACH'}"></option>
-                                    <option th:value="SEGUNDO_BACH" th:text="'2º BACH'" th:selected="${alumno.curso == 'SEGUNDO_BACH'}"></option>
-                                </select>
+                            <!-- Contraseña con ojo -->
+                            <div class="mb-4 position-relative">
+                                <label for="passwordEditar" class="form-label fw-semibold"><i
+                                        class="fas fa-lock me-2"></i>Contraseña</label>
+                                <div class="input-group input-group-lg">
+                                    <input type="password" class="form-control rounded-3 pe-5" id="passwordEditar"
+                                           name="password" th:value="${alumno.password}" required
+                                           placeholder="Contraseña segura..."/>
+                                    <button type="button"
+                                            class="input-group-text bg-transparent border-start-0 toggle-container"
+                                            id="togglePasswordEditar" title="Mostrar/Ocultar contraseña">
+                                        <i class="fa-solid fa-eye-slash fa-fw"></i>
+                                    </button>
+
+                                </div>
                             </div>
 
-                            <!-- Exp y Electronios -->
-                            <div class="mb-3 d-flex justify-content-between gap-3">
-                                <div class="flex-fill">
-                                    <label for="exp" class="form-label">Exp</label>
-                                    <input type="number" class="form-control" id="exp" name="tarjetaAlumno.exp" min="0" th:value="${alumno.tarjetaAlumno.exp}" required />
+                            <!-- Curso, Exp y Electronios -->
+                            <div class="row g-4">
+                                <!-- Curso -->
+                                <div class="col-md-4">
+                                    <label for="curso" class="form-label fw-semibold"><i
+                                            class="fas fa-graduation-cap me-2"></i>Curso</label>
+                                    <select class="form-select rounded-3" id="curso" name="curso" required>
+                                        <option th:value="PRIMERO_ESO" th:selected="${alumno.curso == 'PRIMERO_ESO'}">1º
+                                            ESO
+                                        </option>
+                                        <option th:value="SEGUNDO_ESO" th:selected="${alumno.curso == 'SEGUNDO_ESO'}">2º
+                                            ESO
+                                        </option>
+                                        <option th:value="TERCERO_ESO" th:selected="${alumno.curso == 'TERCERO_ESO'}">3º
+                                            ESO
+                                        </option>
+                                        <option th:value="CUARTO_ESO" th:selected="${alumno.curso == 'CUARTO_ESO'}">4º
+                                            ESO
+                                        </option>
+                                        <option th:value="PRIMERO_BACH" th:selected="${alumno.curso == 'PRIMERO_BACH'}">
+                                            1º BACH
+                                        </option>
+                                        <option th:value="SEGUNDO_BACH" th:selected="${alumno.curso == 'SEGUNDO_BACH'}">
+                                            2º BACH
+                                        </option>
+                                    </select>
                                 </div>
 
-                                <div class="flex-fill">
-                                    <label for="electronios" class="form-label">Electronios</label>
-                                    <input type="number" class="form-control" id="electronios" name="tarjetaAlumno.electronios" min="0" th:value="${alumno.tarjetaAlumno.electronios}" required />
+                                <!-- Exp -->
+                                <div class="col-md-4">
+                                    <label for="exp" class="form-label fw-semibold"><i class="fas fa-bolt me-2"></i>Exp</label>
+                                    <input type="number" class="form-control rounded-3" id="exp"
+                                           name="tarjetaAlumno.exp" min="0" th:value="${alumno.tarjetaAlumno.exp}"
+                                           required/>
+                                </div>
+
+                                <!-- Electronios -->
+                                <div class="col-md-4">
+                                    <label for="electronios" class="form-label fw-semibold"><i
+                                            class="fas fa-coins me-2"></i>Electronios</label>
+                                    <input type="number" class="form-control rounded-3" id="electronios"
+                                           name="tarjetaAlumno.electronios" min="0"
+                                           th:value="${alumno.tarjetaAlumno.electronios}" required/>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Botones -->
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Actualizar Alumno</button>
+                        <div class="modal-footer px-4 py-3"
+                             style="background-color: #e0c3fc; border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem;">
+                            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">
+                                <i class="fas fa-times me-1"></i>Cancelar
+                            </button>
+                            <button type="submit" class="btn" style="background-color: #9b59b6; color: white;">
+                                <i class="fas fa-save me-1"></i>Actualizar Alumno
+                            </button>
                         </div>
                     </form>
 
-                    <!-- Mostrar alerta si el email ya existe -->
+                    <!-- Alerta por email duplicado -->
                     <script th:if="${showAlert}">
                         alert('El email ya está en uso');
                         var myModal = new bootstrap.Modal(document.getElementById('modalEditarAlumno'), {
@@ -66,6 +140,21 @@
                         });
                         myModal.show();
                     </script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const toggle = document.getElementById('togglePasswordEditar');
+                            toggle.addEventListener('click', () => {
+                                const input = document.getElementById("passwordEditar");
+                                const icon = toggle.querySelector("i");
+                                const isPassword = input.type === "password";
+
+                                input.type = isPassword ? "text" : "password";
+                                icon.classList.toggle("fa-eye-slash");
+                                icon.classList.toggle("fa-eye");
+                            });
+                        });
+                    </script>
+
                 </div>
             </div>
         </div>

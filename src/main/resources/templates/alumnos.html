@@ -6,7 +6,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" th:href="@{/css/index_style.css?v=1}">
-    <link rel="stylesheet" th:href="@{/css/modal_form_style.css?v=1}">
     <link rel="stylesheet" th:href="@{/css/alumnos.css?v=1}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -16,7 +15,7 @@
 <div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/alumnos'"></div>
 
 <!-- Contenido principal -->
-<div class="mt-5 pt-4 position-relative" style="width: 90%; margin: 0 auto;">
+<div class="mt-1 position-relative" style="width: 90%; margin: 0 auto;">
     <div th:if="${usuario}">
         <div th:if="${usuario.isAdmin()}">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -24,7 +23,10 @@
 
                 <div class="d-flex align-items-center gap-3">
                     <!-- Botón Electronios -->
-                    <button id="btnElectronios" class="btn btn-primary fw-bold">&#9889; Electronios</button>
+                    <button id="btnElectronios" class="btn btn-primary fw-bold">
+                        <img src="/images/electronio.png" alt="Electronio" style="width: 20px; height: 20px;">
+                        Electronios
+                    </button>
 
                     <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoAlumno">
                         ➕ Nuevo Alumno
@@ -33,12 +35,18 @@
                     <form th:action="@{/alumnos}" method="get" class="d-flex align-items-center">
                         <select name="curso" class="form-select ms-2" onchange="this.form.submit()">
                             <option value="">&#128218; Todos los cursos</option>
-                            <option value="PRIMERO_ESO" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO'">1º ESO</option>
-                            <option value="SEGUNDO_ESO" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO'">2º ESO</option>
-                            <option value="TERCERO_ESO" th:selected="${cursoSeleccionado} == 'TERCERO_ESO'">3º ESO</option>
-                            <option value="CUARTO_ESO" th:selected="${cursoSeleccionado} == 'CUARTO_ESO'">4º ESO</option>
-                            <option value="PRIMERO_BACH" th:selected="${cursoSeleccionado} == 'PRIMERO_BACH'">1º BAC</option>
-                            <option value="SEGUNDO_BACH" th:selected="${cursoSeleccionado} == 'SEGUNDO_BACH'">2º BAC</option>
+                            <option value="PRIMERO_ESO" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO'">1º ESO
+                            </option>
+                            <option value="SEGUNDO_ESO" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO'">2º ESO
+                            </option>
+                            <option value="TERCERO_ESO" th:selected="${cursoSeleccionado} == 'TERCERO_ESO'">3º ESO
+                            </option>
+                            <option value="CUARTO_ESO" th:selected="${cursoSeleccionado} == 'CUARTO_ESO'">4º ESO
+                            </option>
+                            <option value="PRIMERO_BACH" th:selected="${cursoSeleccionado} == 'PRIMERO_BACH'">1º BAC
+                            </option>
+                            <option value="SEGUNDO_BACH" th:selected="${cursoSeleccionado} == 'SEGUNDO_BACH'">2º BAC
+                            </option>
                         </select>
                     </form>
 
@@ -48,19 +56,22 @@
 
             <div class="d-flex flex-row align-items-start w-100">
 
-                <table id="tablaAlumnos" class="table table-bordered table-hover table-striped text-center align-middle flex-grow-1 me-3" data-orden="asc">
-                <thead class="table-dark">
+                <table id="tablaAlumnos"
+                       class="table table-bordered table-hover table-striped text-center align-middle flex-grow-1 me-3"
+                       data-orden="asc">
+                    <thead class="table-dark">
                     <tr>
                         <th id="colSeleccion" style="display:none;">Seleccionar</th>
-                        <th onclick="ordenarTabla(0)" style="cursor:pointer;">Nombre ⬍</th>
-                        <th onclick="ordenarTabla(1)" style="cursor:pointer;">Email ⬍</th>
-                        <th onclick="ordenarTabla(2)" style="cursor:pointer;">Nivel ⬍</th>
-                        <th onclick="ordenarTabla(3)" style="cursor:pointer;">Experiencia ⬍</th>
-                        <th onclick="ordenarTabla(4)" style="cursor:pointer;">Electronios ⬍</th>
+                        <th class="sortable" data-col="0">Nombre <span class="flecha"></span></th>
+                        <th class="sortable" data-col="1">Email <span class="flecha"></span></th>
+                        <th class="sortable" data-col="2">Nivel <span class="flecha"></span></th>
+                        <th class="sortable" data-col="3">Experiencia <span class="flecha"></span></th>
+                        <th class="sortable" data-col="4">Electronios <span class="flecha"></span></th>
                         <th>Curso</th>
                         <th>Acciones</th>
                     </tr>
                     </thead>
+
                     <tbody>
                     <tr th:each="alumno : ${alumnos}">
                         <td style="display:none;" class="col-seleccion">
@@ -74,9 +85,12 @@
                         <td th:text="${alumno.curso}"></td>
                         <td>
                             <div class="d-flex justify-content-center align-items-center gap-2">
-                                <button class="btn btn-sm btn-warning btn-editar" th:data-email="${alumno.email}">✏️</button>
+                                <button class="btn btn-sm btn-warning btn-editar" th:data-email="${alumno.email}">✏️
+                                </button>
                                 <form th:action="@{'/alumnos/borrar/' + ${alumno.id}}" method="post" style="margin:0;">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que quieres borrar este alumno?');">🗑️</button>
+                                    <button type="submit" class="btn btn-sm btn-danger"
+                                            onclick="return confirm('¿Seguro que quieres borrar este alumno?');">🗑️
+                                    </button>
                                 </form>
                             </div>
                         </td>
@@ -89,7 +103,8 @@
                     <h5 class="mb-3">⚙️ Dar Electronios</h5>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="opcionSeleccion" id="opCurso" value="curso" checked>
+                        <input class="form-check-input" type="radio" name="opcionSeleccion" id="opCurso" value="curso"
+                               checked>
                         <label class="form-check-label" for="opCurso">Seleccionar por curso</label>
                     </div>
 
@@ -107,7 +122,8 @@
                     <br/>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="opcionSeleccion" id="opManual" value="manual">
+                        <input class="form-check-input" type="radio" name="opcionSeleccion" id="opManual"
+                               value="manual">
                         <label class="form-check-label" for="opManual">Selección simple</label>
                     </div>
                     <div class="form-check mb-3">
@@ -118,9 +134,13 @@
                     <div class="input-cantidad">
                         <label class="me-2 fw-bold mb-0">Electronios:</label>
                         <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(-1)">−</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    onclick="cambiarCantidad(-1)">−
+                            </button>
                             <input type="number" id="cantidadElectronios" class="form-control" value="1" min="1">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(1)">＋</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(1)">
+                                ＋
+                            </button>
                         </div>
                     </div>
 
@@ -153,7 +173,21 @@
 
         const tbody = tabla.querySelector("tbody");
         filas.forEach(fila => tbody.appendChild(fila));
+
+        // Actualizar flechas visuales
+        document.querySelectorAll("th.sortable .flecha").forEach(f => f.textContent = "");
+        const header = document.querySelector(`th.sortable[data-col="${colIndex}"] .flecha`);
+        if (header) header.textContent = orden === "asc" ? "↑" : "↓";
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("th.sortable").forEach(th => {
+            th.addEventListener("click", () => {
+                ordenarTabla(parseInt(th.getAttribute("data-col")));
+            });
+        });
+    });
+
 
     document.addEventListener("DOMContentLoaded", () => {
 
@@ -163,13 +197,13 @@
                 const checkboxes = document.querySelectorAll("#tablaAlumnos tbody tr:not([style*='display: none']) .selector-checkbox");
 
                 if (radio.id === "opTodos" && radio.checked) {
-                    // Seleccionar todos los checkboxes visibles
+// Seleccionar todos los checkboxes visibles
                     checkboxes.forEach(cb => {
                         cb.checked = true;
                         cb.closest("tr").classList.add("fila-seleccionada");
                     });
                 } else if (radio.id === "opManual" && radio.checked) {
-                    // Deseleccionar todos los checkboxes visibles
+// Deseleccionar todos los checkboxes visibles
                     checkboxes.forEach(cb => {
                         cb.checked = false;
                         cb.closest("tr").classList.remove("fila-seleccionada");
@@ -187,6 +221,25 @@
                 const response = await fetch(`/alumnos/info?email=${encodeURIComponent(email)}`);
                 const html = await response.text();
                 document.querySelector("#modalContainer").innerHTML = html;
+
+                // Aquí asignamos el event listener del ojo después de insertar el modal
+                const toggle = document.getElementById('togglePasswordEditar');
+                if (toggle) {
+                    toggle.addEventListener('click', () => {
+                        const input = document.getElementById("passwordEditar");
+                        const icon = toggle.querySelector("i");
+                        if (input.type === "password") {
+                            input.type = "text";
+                            icon.classList.remove("fa-eye-slash");
+                            icon.classList.add("fa-eye");
+                        } else {
+                            input.type = "password";
+                            icon.classList.remove("fa-eye");
+                            icon.classList.add("fa-eye-slash");
+                        }
+                    });
+                }
+
                 const modal = new bootstrap.Modal(document.getElementById('modalEditarAlumno'));
                 modal.show();
             });

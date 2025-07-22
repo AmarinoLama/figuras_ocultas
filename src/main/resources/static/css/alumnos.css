@@ -1,0 +1,58 @@
+/* Estilos para la tabla de alumnos y el panel de electronios */
+
+.fila-seleccionada td {
+    background-color: #b49cff !important;
+}
+
+#panelElectronios {
+    width: 350px; /* un poco más ancho para que los botones no queden fuera */
+    margin-left: 20px;
+}
+
+/* Más espacio entre opciones de radio */
+#panelElectronios .form-check {
+    margin-bottom: 1rem; /* aumenta espacio vertical */
+}
+
+/* Poner "Electronios:" en línea nueva y centrar controles */
+#panelElectronios .d-flex.align-items-center.mb-3 {
+    flex-direction: column; /* apila verticalmente */
+    align-items: center;
+    gap: 8px;
+}
+
+/* Ajustes para el input y botones de cantidad electronios */
+#panelElectronios .d-flex.align-items-center.mb-3 label {
+    margin-bottom: 0.5rem; /* espacio abajo del label */
+    font-weight: bold;
+}
+
+#panelElectronios input#cantidadElectronios {
+    width: 70px;
+    text-align: center;
+}
+
+/* Quitar flechas del input número en todos los navegadores principales */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+/* Centrar el botón verde de dar electronios */
+#panelElectronios > button.btn-success {
+    display: block;
+    margin: 0 auto;
+    width: 160px;
+    font-weight: bold;
+}
+
+/* Añade margen arriba y abajo */
+.input-cantidad {
+    margin-top: 1rem; /* Margen superior */
+    margin-bottom: 1rem; /* Margen inferior */
+}

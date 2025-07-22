@@ -3,8 +3,8 @@
     <!-- NAVBAR PARA LOS USUARIOS ADMINISTRADORES -->
     <div th:if="${usuario.isAdmin()}">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow p-3 mb-5 rounded"
-             style="position: fixed; top: 30px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7);">
-            <div class="container-fluid">
+             style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7); border-radius: 0;">
+        <div class="container-fluid">
                 <a class="navbar-brand fw-bold fs-3 text-gradient" href="#">✨ Figuras Ocultas ✨</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
@@ -41,8 +41,8 @@
     <!-- NAVBAR PARA LOS USUARIOS NORMALES -->
     <div th:if="${!usuario.isAdmin()}">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow p-3 mb-5 rounded"
-             style="position: fixed; top: 30px; left: 50%; transform: translateX(-50%); width: 90%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7);">
-            <div class="container-fluid">
+             style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7); border-radius: 0;">
+        <div class="container-fluid">
                 <a class="navbar-brand fw-bold fs-3 text-gradient" href="#">✨ Figuras Ocultas ✨</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"

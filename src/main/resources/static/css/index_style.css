@@ -9,11 +9,6 @@ html, body {
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Ajuste por el navbar flotante */
-body {
-    padding-top: 150px; /* Altura del navbar + margen superior */
-}
-
 /* Contenedor centrado */
 .container {
     max-width: 1100px;
@@ -24,11 +19,6 @@ body {
 /* Para asegurar que la tabla tenga espacio al final */
 .table {
     margin-bottom: 30px; /* Añadimos espacio debajo de la tabla */
-}
-
-/* Estilos del Navbar flotante */
-.navbar {
-    background-color: rgba(0, 0, 0, 0.7); /* Fondo semitransparente para que se vea el gradiente detrás */
 }
 
 /* Botones con mejoras visuales */

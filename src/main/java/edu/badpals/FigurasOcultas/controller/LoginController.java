@@ -37,7 +37,7 @@ public class LoginController {
                               BindingResult bindingResult,
                               Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("loginData", new UsuarioDTO());
+            model.addAttribute("loginData", userdto);
             return "formLogin";
         }
 

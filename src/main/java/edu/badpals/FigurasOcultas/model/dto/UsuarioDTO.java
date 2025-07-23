@@ -14,6 +14,7 @@ public class UsuarioDTO {
     private Long id;
     private String nombre;
 
+    @NotBlank(message = "El correo no puede estar vacío")
     @Email(message = "Debe ser un email válido")
     private String email;
 

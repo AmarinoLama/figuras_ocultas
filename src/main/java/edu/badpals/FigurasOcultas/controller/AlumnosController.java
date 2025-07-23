@@ -18,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /// TODO: Poner un botón para desloguearse
 
 /// TODO: Hacer la lógica de dar electronios
-/// TODO: Hacer la modal de confirmación de borrado de alumno
 /// TODO: Hacer que no dea errores por entrar en sitios sin estar logueado o ser admin
 
 @Controller

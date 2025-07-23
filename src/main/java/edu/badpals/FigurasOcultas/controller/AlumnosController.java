@@ -1,9 +1,7 @@
 package edu.badpals.FigurasOcultas.controller;
-
 import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
-import edu.badpals.FigurasOcultas.model.entity.HistorialTransacciones;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import edu.badpals.FigurasOcultas.service.HistorialTransaccionesService;
 import edu.badpals.FigurasOcultas.service.TarjetaAlumnoService;
@@ -17,11 +15,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /// TODO: Añadir una barra de búsqueda para buscar alumnos
 /// TODO: Añadir paginación para la lista de alumnos
-/// TODO: Mejorar los iconos de la tabla de ordenar
-/// TODO: La contraseña del menú de editar ocultarla
-/// TODO: mejorar los mensajes de confirmación
-/// TODO: hacer un sistema de notificaciones para mostrar los usos de las cartas de los alumnos
-/// TODO: hacer la parte de dar electronios de forma mejorada
+/// TODO: Poner un botón para desloguearse
+
+/// TODO: Hacer la lógica de dar electronios
+/// TODO: Hacer la modal de confirmación de borrado de alumno
+/// TODO: Hacer que no dea errores por entrar en sitios sin estar logueado o ser admin
 
 @Controller
 public class AlumnosController {

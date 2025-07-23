@@ -13,6 +13,7 @@
 <body>
 
 <div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/alumnos'"></div>
+<div th:insert="~{modalesConfirmacion/borradoAlumno :: modalConfirmarBorrado}"></div>
 
 <!-- Contenido principal -->
 <div class="mt-1 position-relative" style="width: 90%; margin: 0 auto;">
@@ -87,11 +88,12 @@
                             <div class="d-flex justify-content-center align-items-center gap-2">
                                 <button class="btn btn-sm btn-warning btn-editar" th:data-email="${alumno.email}">✏️
                                 </button>
-                                <form th:action="@{'/alumnos/borrar/' + ${alumno.id}}" method="post" style="margin:0;">
-                                    <button type="submit" class="btn btn-sm btn-danger"
-                                            onclick="return confirm('¿Seguro que quieres borrar este alumno?');">🗑️
-                                    </button>
-                                </form>
+                                <button type="button"
+                                        class="btn btn-sm btn-danger btn-confirmar-borrado"
+                                        th:data-id="${alumno.id}"
+                                        th:data-nombre="${alumno.nombre}">
+                                    🗑️
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -274,6 +276,26 @@
         valor += cambio;
         input.value = valor;
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".btn-confirmar-borrado").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.getAttribute("data-id");
+                const nombre = btn.getAttribute("data-nombre");
+
+                // Mostrar el nombre del alumno en el modal
+                document.getElementById("nombreAlumnoAEliminar").textContent = nombre;
+
+                // Cambiar la acción del formulario
+                const form = document.getElementById("formBorrarAlumno");
+                form.setAttribute("action", `/alumnos/borrar/${id}`);
+
+                // Mostrar el modal
+                const modal = new bootstrap.Modal(document.getElementById("modalConfirmarBorrado"));
+                modal.show();
+            });
+        });
+    });
 </script>
 
 </body>

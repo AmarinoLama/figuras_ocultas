@@ -61,9 +61,30 @@ input[type=number] {
     border-collapse: separate;
     border-spacing: 0;
     overflow: hidden;
+    table-layout: fixed;
+    width: 100%;
     border-radius: 12px;
     background-color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    width: 150px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: 20px;
+    position: relative;
+}
+
+th .sort-arrow {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px; /* ancho fijo para la flecha */
+    height: 12px; /* alto fijo */
+    display: inline-block; /* o block */
 }
 
 /* Encabezado bonito */

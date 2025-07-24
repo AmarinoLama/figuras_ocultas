@@ -15,6 +15,7 @@
 <div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/alumnos'"></div>
 <div th:insert="~{modalesAvisos/borradoAlumno :: modalConfirmarBorrado}"></div>
 <div th:insert="~{modalesAvisos/errorTexto :: modalErrorGenerico}"></div>
+<div th:insert="~{modalesAvisos/darElectronios :: modalConfirmarElectronios}"></div>
 
 <!-- Contenido principal -->
 <div class="mt-1 position-relative" style="width: 90%; margin: 0 auto;">
@@ -369,6 +370,92 @@
         valor += cambio;
         input.value = valor;
     }
+
+    document.getElementById('formElectronios').addEventListener('submit', function(event) {
+        const cantidadVisible = document.getElementById('cantidadElectronios').value;
+        document.getElementById('cantidadElectroniosInput').value = cantidadVisible;
+    });
+
+    let formDataElectronios = null; // Variable global para el form data
+
+    document.getElementById("formElectronios").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+        formDataElectronios = null; // Reiniciar
+
+        const tipoSeleccion = document.querySelector('input[name="opcionSeleccion"]:checked').value;
+        formData.append("tipoSeleccion", tipoSeleccion);
+
+        const cantidad = document.getElementById("cantidadElectronios").value;
+
+        let textoDestinatarios = "";
+
+        if (tipoSeleccion === "curso") {
+            const curso = document.getElementById("selectCursoElectronios").value;
+            if (!curso) {
+                mostrarError("Debes seleccionar un curso válido.");
+                return;
+            }
+            formData.append("curso", curso);
+            textoDestinatarios = curso;
+        } else {
+            const checkboxes = document.querySelectorAll('.selector-checkbox:checked');
+            if (checkboxes.length === 0) {
+                mostrarError("Debes seleccionar al menos un alumno.");
+                return;
+            }
+            textoDestinatarios = `${checkboxes.length} alumno${checkboxes.length > 1 ? 's' : ''}`;
+            checkboxes.forEach(cb => {
+                formData.append("idsAlumnos", cb.value);
+            });
+        }
+
+        formDataElectronios = formData;
+
+        // Actualizar texto modal
+        document.getElementById("cantidadElectroniosModal").textContent = cantidad;
+        document.getElementById("destinatariosModal").textContent = textoDestinatarios;
+
+        // Mostrar modal
+        const modalConfirm = new bootstrap.Modal(document.getElementById("modalConfirmarElectronios"));
+        modalConfirm.show();
+    });
+
+    document.getElementById("btnAceptarConfirmacion").addEventListener("click", function () {
+        if (!formDataElectronios) return;
+
+        fetch("/alumnos/darElectronios", { // Cambia la URL si necesitas
+            method: "POST",
+            body: formDataElectronios
+        })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    return response.text();
+                } else {
+                    throw new Error("Error al enviar el formulario");
+                }
+            })
+            .then(data => {
+                console.log("Electronios enviados correctamente");
+                // Opcional: cerrar modal manualmente si quieres
+                const modal = bootstrap.Modal.getInstance(document.getElementById("modalConfirmarElectronios"));
+                modal.hide();
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+    });
+
+    function mostrarError(mensaje) {
+        document.getElementById("textoErrorModal").textContent = mensaje;
+        const modal = new bootstrap.Modal(document.getElementById("modalErrorGenerico"));
+        modal.show();
+    }
+
 </script>
 
 </body>

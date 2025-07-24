@@ -1,5 +1,4 @@
 package edu.badpals.FigurasOcultas.service;
-
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
 import edu.badpals.FigurasOcultas.model.entity.TarjetaAlumno;
@@ -7,9 +6,9 @@ import edu.badpals.FigurasOcultas.model.entity.Usuario;
 import edu.badpals.FigurasOcultas.model.repository.UsuarioRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -19,6 +18,10 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    @Lazy
+    private HistorialTransaccionesService hts;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -78,5 +81,42 @@ public class UsuarioService {
                 .filter(u -> u.getEmail().equals(email))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Transactional
+    public void darElectroniosCurso(String curso, int cantidadElectronios) {
+        List<UsuarioDTO> alumnos = getAlumnosFromCurso(curso);
+        for (UsuarioDTO alumno : alumnos) {
+
+            int electronios = alumno.getTarjetaAlumno().getElectronios();
+            alumno.getTarjetaAlumno().setElectronios((byte) (electronios + cantidadElectronios));
+
+            if (cantidadElectronios > 0) {
+                hts.addMoreElectroniosToHistorial(alumno.getId(), cantidadElectronios);
+            } else {
+                hts.addLessElectroniosToHistorial(alumno.getId(), -cantidadElectronios);
+            }
+
+            saveUser(alumno);
+        }
+    }
+
+    @Transactional
+    public void darElectroniosAlumnos(List<Long> idsAlumnos, int cantidadElectronios) {
+        for (Long idAlumno : idsAlumnos) {
+            UsuarioDTO alumno = getUserById(idAlumno);
+            if (alumno != null) {
+                int electronios = alumno.getTarjetaAlumno().getElectronios();
+                alumno.getTarjetaAlumno().setElectronios((byte) (electronios + cantidadElectronios));
+
+                if (cantidadElectronios > 0) {
+                    hts.addMoreElectroniosToHistorial(alumno.getId(), cantidadElectronios);
+                } else {
+                    hts.addLessElectroniosToHistorial(alumno.getId(), -cantidadElectronios);
+                }
+
+                saveUser(alumno);
+            }
+        }
     }
 }

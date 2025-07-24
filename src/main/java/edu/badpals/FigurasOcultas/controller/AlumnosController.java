@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Objects;
 
 /// TODO: Añadir una barra de búsqueda para buscar alumnos
 /// TODO: Añadir paginación para la lista de alumnos
 /// TODO: Poner un botón para desloguearse
 
-/// TODO: Hacer la lógica de dar electronios
 /// mejorar la comunicación conforme los errores (en el email intentar arreglar eso)
-/// cuando le doy a seleccionar curso se desseleciona todo también
+/// extraer las cosas q sean del service al service
 
 @Controller
 public class AlumnosController {
@@ -105,12 +105,12 @@ public class AlumnosController {
 
     @PostMapping("/alumnos/editar/{id}")
     public String editarAlumno(@PathVariable("id") Long idAlumno,
-                               @ModelAttribute UsuarioDTO alumnoEditado, Model model) {
+                               @ModelAttribute UsuarioDTO alumnoEditado) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
         if (usuarioLogeadoId != null) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             if (usuario != null) {
-                // Obtén el alumno original
+
                 UsuarioDTO alumnoOriginal = usuarioService.getUserById(idAlumno);
 
                 int electroniosBefore = alumnoOriginal.getTarjetaAlumno().getElectronios();
@@ -166,16 +166,20 @@ public class AlumnosController {
 
     @PostMapping("/alumnos/darElectronios")
     public String darElectronios(
-            @RequestParam("idsAlumnos") List<Long> idsAlumnos,
-            @RequestParam("cantidadElectronios") int cantidadElectronios
+            @RequestParam String tipoSeleccion,
+            @RequestParam int cantidadElectronios,
+            @RequestParam(required = false) List<Long> idsAlumnos,
+            @RequestParam(required = false) String curso
     ) {
-        // Ejemplo de impresión para debug
-        System.out.println("IDs recibidos: " + idsAlumnos);
-        System.out.println("Cantidad a dar: " + cantidadElectronios);
 
-        // Aquí haces tu lógica: buscar a los alumnos por ID, sumar electronios, guardar...
+        if (Objects.equals(tipoSeleccion, "curso")) {
+            usuarioService.darElectroniosCurso(curso, cantidadElectronios);
+            return "redirect:/alumnos?curso=" + curso;
 
-        return "redirect:/alumnos"; // O donde quieras redirigir tras dar los electronios
+        } else {
+            usuarioService.darElectroniosAlumnos(idsAlumnos, cantidadElectronios);
+        }
+
+        return "redirect:/alumnos";
     }
-
 }

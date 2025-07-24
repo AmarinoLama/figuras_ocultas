@@ -1,4 +1,5 @@
 package edu.badpals.FigurasOcultas.controller;
+
 import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
@@ -18,11 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /// TODO: Poner un botón para desloguearse
 
 /// TODO: Hacer la lógica de dar electronios
-/// TODO: Hacer que no dea errores por entrar en sitios sin estar logueado o ser admin
-/// TODO: Arreglar la ordenación de las columnas en la tabla
-/// curso bien importado?
-/// electronios y exp seteada a 0?
-/// mejorar la comunicación conforme los errores
+/// mejorar la comunicación conforme los errores (en el email intentar arreglar eso)
 
 @Controller
 public class AlumnosController {
@@ -47,7 +44,9 @@ public class AlumnosController {
         if (usuarioLogeado) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             model.addAttribute("usuario", usuario);
-            model.addAttribute("nuevoAlumno", new UsuarioDTO());
+            UsuarioDTO nuevoAlumno = new UsuarioDTO();
+            nuevoAlumno.setTarjetaAlumno(new TarjetaAlumnoDTO());
+            model.addAttribute("nuevoAlumno", nuevoAlumno);
 
             if (curso != null && !curso.isEmpty()) {
                 model.addAttribute("alumnos", usuarioService.getAlumnosFromCurso(curso));
@@ -55,9 +54,11 @@ public class AlumnosController {
                 model.addAttribute("alumnos", usuarioService.getAllAlumnos());
             }
             model.addAttribute("cursoSeleccionado", curso);
-        }
 
-        return "alumnos";
+            return "alumnos";
+        } else {
+            return "redirect:/login";
+        }
     }
 
     @GetMapping("/alumnos/info")
@@ -72,8 +73,10 @@ public class AlumnosController {
             UsuarioDTO alumno = usuarioService.getUserByEmail(email);
             model.addAttribute("alumno", alumno);
             return "fragments/editAlumno :: editAlumno";
+
+        } else {
+            return "redirect:/login";
         }
-        return "alumnos";
     }
 
     @PostMapping("/alumnos/nuevo")
@@ -91,8 +94,10 @@ public class AlumnosController {
             } else {
                 redirectAttributes.addFlashAttribute("showAlert", true);
             }
+            return "redirect:/alumnos";
+        } else {
+            return "redirect:/login";
         }
-        return "redirect:/alumnos";
     }
 
     @PostMapping("/alumnos/editar/{id}")
@@ -109,9 +114,9 @@ public class AlumnosController {
                 int electroniosAfter = alumnoEditado.getTarjetaAlumno().getElectronios();
 
                 if (electroniosBefore > electroniosAfter) {
-                    hts.addLessElectroniosToHistorial(idAlumno, electroniosBefore-electroniosAfter);
+                    hts.addLessElectroniosToHistorial(idAlumno, electroniosBefore - electroniosAfter);
                 } else if (electroniosBefore < electroniosAfter) {
-                    hts.addMoreElectroniosToHistorial(idAlumno, electroniosAfter-electroniosBefore);
+                    hts.addMoreElectroniosToHistorial(idAlumno, electroniosAfter - electroniosBefore);
                 }
 
                 // Actualiza los campos
@@ -119,7 +124,7 @@ public class AlumnosController {
                 if (alumnoEditado.getEmail() != null && !alumnoEditado.getEmail().isEmpty()) {
                     alumnoOriginal.setEmail(alumnoEditado.getEmail());
                     if (usuarioService.getUserByEmail(alumnoEditado.getEmail()) != null &&
-                        !usuarioService.getUserByEmail(alumnoEditado.getEmail()).getId().equals(idAlumno)) {
+                            !usuarioService.getUserByEmail(alumnoEditado.getEmail()).getId().equals(idAlumno)) {
                         alumnoOriginal.setEmail(alumnoOriginal.getEmail());
                     }
                 }
@@ -134,8 +139,10 @@ public class AlumnosController {
 
                 usuarioService.saveUser(alumnoOriginal);
             }
+            return "redirect:/alumnos";
+        } else {
+            return "redirect:/login";
         }
-        return "redirect:/alumnos";
     }
 
     @PostMapping("/alumnos/borrar/{id}")
@@ -148,7 +155,9 @@ public class AlumnosController {
                 usuarioService.deleteUser(idAlumno);
                 tarjetaAlumnoService.borrarTarjetaAlumno(idAlumno);
             }
+            return "redirect:/alumnos";
+        } else {
+            return "redirect:/login";
         }
-        return "redirect:/alumnos";
     }
 }

@@ -64,11 +64,11 @@
                     <thead class="table-dark">
                     <tr>
                         <th id="colSeleccion" style="display:none;">Seleccionar</th>
-                        <th class="sortable" data-col="0">Nombre <span class="flecha"></span></th>
-                        <th class="sortable" data-col="1">Email <span class="flecha"></span></th>
-                        <th class="sortable" data-col="2">Nivel <span class="flecha"></span></th>
-                        <th class="sortable" data-col="3">Experiencia <span class="flecha"></span></th>
-                        <th class="sortable" data-col="4">Electronios <span class="flecha"></span></th>
+                        <th class="sortable" data-col="1">Nombre <span class="flecha"></span></th>
+                        <th class="sortable" data-col="2">Email <span class="flecha"></span></th>
+                        <th class="sortable" data-col="3">Nivel <span class="flecha"></span></th>
+                        <th class="sortable" data-col="4">Experiencia <span class="flecha"></span></th>
+                        <th class="sortable" data-col="5">Electronios <span class="flecha"></span></th>
                         <th>Curso</th>
                         <th>Acciones</th>
                     </tr>
@@ -172,8 +172,8 @@
         });
 
         // Obtener la dirección actual de ordenación
-        const ths = tabla.querySelectorAll("th.sortable");
-        const th = ths[colIndex];
+        const ths = Array.from(tabla.querySelectorAll("th.sortable"));
+        const th = ths.find(header => parseInt(header.getAttribute("data-col")) === colIndex);
         let ordenActual = th.getAttribute("data-orden") || "asc";
 
         // Si ya estaba ordenada ascendente, ahora descendente, y viceversa
@@ -189,7 +189,11 @@
         // Actualizar la columna que se ordena
         th.setAttribute("data-orden", nuevoOrden);
         const flecha = th.querySelector(".flecha");
-        if (flecha) flecha.textContent = (nuevoOrden === "asc") ? "▲" : "▼";
+        if (th) {
+            th.setAttribute("data-orden", nuevoOrden);
+            const flecha = th.querySelector(".flecha");
+            if (flecha) flecha.textContent = (nuevoOrden === "asc") ? "▲" : "▼";
+        }
 
         // Función para comparar dos valores según el tipo y orden
         const comparar = (a, b) => {

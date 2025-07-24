@@ -55,26 +55,14 @@
                             <div class="row g-4">
                                 <!-- Curso -->
                                 <div class="col-md-4">
-                                    <label for="curso" class="form-label fw-semibold"><i
-                                            class="fas fa-graduation-cap me-2"></i>Curso</label>
+                                    <label for="curso" class="form-label fw-semibold">
+                                        <i class="fas fa-graduation-cap me-2"></i>Curso
+                                    </label>
                                     <select class="form-select rounded-3" id="curso" name="curso">
-                                        <option th:value="PRIMERO_ESO" th:selected="${alumno.curso == 'PRIMERO_ESO'}">1º
-                                            ESO
-                                        </option>
-                                        <option th:value="SEGUNDO_ESO" th:selected="${alumno.curso == 'SEGUNDO_ESO'}">2º
-                                            ESO
-                                        </option>
-                                        <option th:value="TERCERO_ESO" th:selected="${alumno.curso == 'TERCERO_ESO'}">3º
-                                            ESO
-                                        </option>
-                                        <option th:value="CUARTO_ESO" th:selected="${alumno.curso == 'CUARTO_ESO'}">4º
-                                            ESO
-                                        </option>
-                                        <option th:value="PRIMERO_BACH" th:selected="${alumno.curso == 'PRIMERO_BACH'}">
-                                            1º BACH
-                                        </option>
-                                        <option th:value="SEGUNDO_BACH" th:selected="${alumno.curso == 'SEGUNDO_BACH'}">
-                                            2º BACH
+                                        <option th:each="curso : ${T(edu.badpals.FigurasOcultas.model.entity.CursoAlumno).values()}"
+                                                th:value="${curso.name()}"
+                                                th:text="${curso.toString()}"
+                                                th:selected="${alumno.curso.name() == curso.name()}">
                                         </option>
                                     </select>
                                 </div>

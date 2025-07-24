@@ -14,12 +14,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 /// TODO: Añadir una barra de búsqueda para buscar alumnos
 /// TODO: Añadir paginación para la lista de alumnos
 /// TODO: Poner un botón para desloguearse
 
 /// TODO: Hacer la lógica de dar electronios
 /// mejorar la comunicación conforme los errores (en el email intentar arreglar eso)
+/// cuando le doy a seleccionar curso se desseleciona todo también
 
 @Controller
 public class AlumnosController {
@@ -160,4 +163,19 @@ public class AlumnosController {
             return "redirect:/login";
         }
     }
+
+    @PostMapping("/alumnos/darElectronios")
+    public String darElectronios(
+            @RequestParam("idsAlumnos") List<Long> idsAlumnos,
+            @RequestParam("cantidadElectronios") int cantidadElectronios
+    ) {
+        // Ejemplo de impresión para debug
+        System.out.println("IDs recibidos: " + idsAlumnos);
+        System.out.println("Cantidad a dar: " + cantidadElectronios);
+
+        // Aquí haces tu lógica: buscar a los alumnos por ID, sumar electronios, guardar...
+
+        return "redirect:/alumnos"; // O donde quieras redirigir tras dar los electronios
+    }
+
 }

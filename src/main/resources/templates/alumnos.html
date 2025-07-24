@@ -56,64 +56,68 @@
                 </div>
             </div>
 
-            <div class="d-flex flex-row align-items-start w-100">
+            <!-- CONTENEDOR FLEX HORIZONTAL -->
+            <div class="d-flex w-100 align-items-start" style="min-width: 0;">
 
-                <table id="tablaAlumnos"
-                       class="table table-bordered table-hover table-striped text-center align-middle flex-grow-1 me-3"
-                       data-orden="asc">
-                    <thead class="table-dark">
-                    <tr>
-                        <th id="colSeleccion" style="display:none;">Seleccionar</th>
-                        <th class="sortable" data-col="1">Nombre <span class="flecha"></span></th>
-                        <th class="sortable" data-col="2">Email <span class="flecha"></span></th>
-                        <th class="sortable" data-col="3">Nivel <span class="flecha"></span></th>
-                        <th class="sortable" data-col="4">Experiencia <span class="flecha"></span></th>
-                        <th class="sortable" data-col="5">Electronios <span class="flecha"></span></th>
-                        <th>Curso</th>
-                        <th>Acciones</th>
-                    </tr>
-                    </thead>
+            <!-- FORMULARIO CON TABLA -->
+                <form id="formElectronios" th:action="@{/alumnos/darElectronios}" method="post"
+                      class="flex-grow-1 me-3" style="min-width: 0;">
 
-                    <tbody>
-                    <tr th:each="alumno : ${alumnos}">
-                        <td style="display:none;" class="col-seleccion">
-                            <input type="checkbox" class="form-check-input selector-checkbox">
-                        </td>
-                        <td th:text="${alumno.nombre}"></td>
-                        <td th:text="${alumno.email}"></td>
-                        <td th:text="${alumno.tarjetaAlumno.nivel}"></td>
-                        <td th:text="${alumno.tarjetaAlumno.exp}"></td>
-                        <td th:text="${alumno.tarjetaAlumno.electronios}"></td>
-                        <td th:text="${alumno.curso}"></td>
-                        <td>
-                            <div class="d-flex justify-content-center align-items-center gap-2">
-                                <button class="btn btn-sm btn-warning btn-editar" th:data-email="${alumno.email}">✏️
-                                </button>
-                                <button type="button"
-                                        class="btn btn-sm btn-danger btn-confirmar-borrado"
-                                        th:data-id="${alumno.id}"
-                                        th:data-nombre="${alumno.nombre}">
-                                    🗑️
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+                    <input type="hidden" id="cantidadElectroniosInput" name="cantidadElectronios" value="1"/>
 
-                <!-- Mini panel a la derecha -->
-                <div id="panelElectronios" class="card p-3" style="display:none;">
+                    <div class="table-responsive">
+                        <table id="tablaAlumnos"
+                               class="table table-striped w-100 text-center align-middle"
+                               data-orden="asc">
+                            <thead class="table-dark">
+                            <tr>
+                                <th id="colSeleccion" style="display:none;">Seleccionar</th>
+                                <th class="sortable" data-col="1">Nombre <span class="flecha"></span></th>
+                                <th class="sortable" data-col="2">Email <span class="flecha"></span></th>
+                                <th class="sortable" data-col="3">Nivel <span class="flecha"></span></th>
+                                <th class="sortable" data-col="4">Experiencia <span class="flecha"></span></th>
+                                <th class="sortable" data-col="5">Electronios <span class="flecha"></span></th>
+                                <th>Curso</th>
+                                <th>Acciones</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="alumno : ${alumnos}">
+                                <td style="display:none;" class="col-seleccion">
+                                    <input type="checkbox" class="form-check-input selector-checkbox"
+                                           name="idsAlumnos" th:value="${alumno.id}">
+                                </td>
+                                <td th:text="${alumno.nombre}"></td>
+                                <td th:text="${alumno.email}"></td>
+                                <td th:text="${alumno.tarjetaAlumno.nivel}"></td>
+                                <td th:text="${alumno.tarjetaAlumno.exp}"></td>
+                                <td th:text="${alumno.tarjetaAlumno.electronios}"></td>
+                                <td th:text="${alumno.curso}"></td>
+                                <td>
+                                    <div class="d-flex justify-content-center align-items-center gap-2">
+                                        <button type="button" class="btn btn-sm btn-warning btn-editar" th:data-email="${alumno.email}">✏️</button>
+                                        <button type="button" class="btn btn-sm btn-danger btn-confirmar-borrado"
+                                                th:data-id="${alumno.id}" th:data-nombre="${alumno.nombre}">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+
+                <!-- PANEL DERECHO -->
+                <div id="panelElectronios" class="card p-3"
+                     style="display: none; width: 300px; flex-shrink: 0; align-self: flex-start;">
                     <h5 class="mb-3">⚙️ Dar Electronios</h5>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="opcionSeleccion" id="opCurso" value="curso"
-                               checked>
+                        <input class="form-check-input" type="radio" name="opcionSeleccion" id="opCurso" value="curso" checked>
                         <label class="form-check-label" for="opCurso">Seleccionar por curso</label>
                     </div>
 
-                    <!-- Combobox de cursos para opción curso -->
-                    <select id="selectCursoElectronios" class="form-select" aria-label="Seleccionar curso" checked>
-                        <option value="">Seleccione un curso</option>
+                    <select id="selectCursoElectronios" class="form-select" aria-label="Seleccionar curso">
                         <option value="PRIMERO_ESO">1º ESO</option>
                         <option value="SEGUNDO_ESO">2º ESO</option>
                         <option value="TERCERO_ESO">3º ESO</option>
@@ -125,10 +129,10 @@
                     <br/>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="opcionSeleccion" id="opManual"
-                               value="manual">
+                        <input class="form-check-input" type="radio" name="opcionSeleccion" id="opManual" value="manual">
                         <label class="form-check-label" for="opManual">Selección simple</label>
                     </div>
+
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="radio" name="opcionSeleccion" id="opTodos" value="todos">
                         <label class="form-check-label" for="opTodos">Seleccionar todos</label>
@@ -137,19 +141,16 @@
                     <div class="input-cantidad">
                         <label class="me-2 fw-bold mb-0">Electronios:</label>
                         <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm"
-                                    onclick="cambiarCantidad(-1)">−
-                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(-1)">−</button>
                             <input type="number" id="cantidadElectronios" class="form-control" value="1" min="1">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(1)">
-                                ＋
-                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(1)">＋</button>
                         </div>
                     </div>
 
-                    <button type="button" class="btn btn-success fw-bold">Aceptar</button>
+                    <button type="submit" class="btn btn-success fw-bold mt-3 w-100" form="formElectronios">Aceptar</button>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
@@ -226,6 +227,17 @@
         const colSeleccion = document.getElementById("colSeleccion");
         const columnas = document.querySelectorAll(".col-seleccion");
 
+        const panelElectronios = document.getElementById("panelElectronios");
+        const electroniosVisible = panelElectronios && panelElectronios.style.display !== "none";
+
+        // Si el panel electronios NO está visible, ocultamos la columna siempre
+        if (!electroniosVisible) {
+            if (colSeleccion) colSeleccion.style.display = "none";
+            columnas.forEach(col => col.style.display = "none");
+            return;  // No hace falta más lógica
+        }
+
+        // Si el panel electronios está visible, aplicamos la lógica según radio seleccionado
         if (opcionSeleccionada && opcionSeleccionada.id === "opCurso") {
             if (colSeleccion) colSeleccion.style.display = "none";
             columnas.forEach(col => col.style.display = "none");
@@ -259,6 +271,11 @@
                         cb.closest("tr").classList.add("fila-seleccionada");
                     });
                 } else if (radio.id === "opManual" && radio.checked) {
+                    checkboxes.forEach(cb => {
+                        cb.checked = false;
+                        cb.closest("tr").classList.remove("fila-seleccionada");
+                    });
+                } else if (radio.id === "opCurso" && radio.checked) {
                     checkboxes.forEach(cb => {
                         cb.checked = false;
                         cb.closest("tr").classList.remove("fila-seleccionada");
@@ -314,8 +331,13 @@
             electroniosActivo = !electroniosActivo;
             const mostrar = electroniosActivo;
             document.getElementById("panelElectronios").style.display = mostrar ? "block" : "none";
-            document.getElementById("colSeleccion").style.display = mostrar ? "" : "none";
-            document.querySelectorAll(".col-seleccion").forEach(col => col.style.display = mostrar ? "" : "none");
+
+            // Forzar que siempre se seleccione "curso"
+            document.getElementById("opCurso").checked = true;
+
+            // Actualizar visibilidad según la opción de radio y estado del panel
+            actualizarVisibilidadSeleccion();
+
             if (!mostrar) {
                 document.querySelectorAll(".selector-checkbox").forEach(cb => {
                     cb.checked = false;

@@ -1,26 +1,5 @@
 <div th:fragment="editAlumno">
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const toggle = document.getElementById('togglePasswordEditar');
-            if (toggle) {
-                toggle.addEventListener('click', () => {
-                    const input = document.getElementById("passwordEditar");
-                    const icon = toggle.querySelector("i");
-                    if (input.type === "password") {
-                        input.type = "text";
-                        icon.classList.remove("fa-eye-slash");
-                        icon.classList.add("fa-eye");
-                    } else {
-                        input.type = "password";
-                        icon.classList.remove("fa-eye");
-                        icon.classList.add("fa-eye-slash");
-                    }
-                });
-            }
-        });
-    </script>
-
     <div th:if="${usuario != null and usuario.isAdmin()}">
         <div class="modal fade" id="modalEditarAlumno" tabindex="-1" aria-labelledby="modalEditarAlumnoLabel"
              aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -35,24 +14,25 @@
                                 aria-label="Cerrar"></button>
                     </div>
 
-                    <form th:action="@{'/alumnos/editar/' + ${alumno.id}}" method="post" class="needs-validation"
-                          novalidate>
+                    <form th:action="@{'/alumnos/editar/' + ${alumno.id}}" method="post" class="">
                         <div class="modal-body py-4 px-5">
 
                             <!-- Nombre -->
                             <div class="mb-4">
                                 <label for="nombre" class="form-label fw-semibold"><i class="fas fa-user me-2"></i>Nombre
                                     completo</label>
-                                <input type="text" class="form-control rounded-3" id="nombre" name="nombre"
-                                       th:value="${alumno.nombre}" required
+                                <input type="text" class="form-control form-control-lg rounded-3" id="nombre" name="nombre"
+                                       th:value="${alumno.nombre}"
                                        placeholder="Introduce el nombre completo del alumno"/>
                             </div>
 
                             <!-- Email -->
                             <div class="mb-4">
-                                <label for="email" class="form-label fw-semibold"><i class="fas fa-envelope me-2"></i>Email</label>
-                                <input type="email" class="form-control rounded-3" id="email" name="email"
-                                       th:value="${alumno.email}" required placeholder="ejemplo@correo.com"/>
+                                <label for="email" class="form-label fw-semibold"><i class="fas fa-envelope me-2"></i>Email (nombre@algo)
+                                    <div class="text-danger" th:if="${error != null}" th:text="${error}"></div>
+                                </label>
+                                <input type="email" class="form-control form-control-lg rounded-3" id="email" name="email"
+                                       th:value="${alumno.email}" placeholder="correo@ejemplo.com"/>
                             </div>
 
                             <!-- Contraseña con ojo -->
@@ -60,15 +40,14 @@
                                 <label for="passwordEditar" class="form-label fw-semibold"><i
                                         class="fas fa-lock me-2"></i>Contraseña</label>
                                 <div class="input-group input-group-lg">
-                                    <input type="password" class="form-control rounded-3 pe-5" id="passwordEditar"
-                                           name="password" th:value="${alumno.password}" required
+                                    <input type="password" class="form-control form-control-lg rounded-3 pe-5" id="passwordEditar"
+                                           name="password" th:value="${alumno.password}"
                                            placeholder="Contraseña segura..."/>
                                     <button type="button"
                                             class="input-group-text bg-transparent border-start-0 toggle-container"
                                             id="togglePasswordEditar" title="Mostrar/Ocultar contraseña">
                                         <i class="fa-solid fa-eye-slash fa-fw"></i>
                                     </button>
-
                                 </div>
                             </div>
 
@@ -78,7 +57,7 @@
                                 <div class="col-md-4">
                                     <label for="curso" class="form-label fw-semibold"><i
                                             class="fas fa-graduation-cap me-2"></i>Curso</label>
-                                    <select class="form-select rounded-3" id="curso" name="curso" required>
+                                    <select class="form-select rounded-3" id="curso" name="curso">
                                         <option th:value="PRIMERO_ESO" th:selected="${alumno.curso == 'PRIMERO_ESO'}">1º
                                             ESO
                                         </option>
@@ -104,8 +83,8 @@
                                 <div class="col-md-4">
                                     <label for="exp" class="form-label fw-semibold"><i class="fas fa-bolt me-2"></i>Exp</label>
                                     <input type="number" class="form-control rounded-3" id="exp"
-                                           name="tarjetaAlumno.exp" min="0" th:value="${alumno.tarjetaAlumno.exp}"
-                                           required/>
+                                           name="tarjetaAlumno.exp" th:value="${alumno.tarjetaAlumno.exp}"
+                                           placeholder="Experiencia acumulada"/>
                                 </div>
 
                                 <!-- Electronios -->
@@ -113,8 +92,8 @@
                                     <label for="electronios" class="form-label fw-semibold"><i
                                             class="fas fa-coins me-2"></i>Electronios</label>
                                     <input type="number" class="form-control rounded-3" id="electronios"
-                                           name="tarjetaAlumno.electronios" min="0"
-                                           th:value="${alumno.tarjetaAlumno.electronios}" required/>
+                                           name="tarjetaAlumno.electronios"
+                                           th:value="${alumno.tarjetaAlumno.electronios}" placeholder="Cantidad de electronios"/>
                                 </div>
                             </div>
                         </div>
@@ -131,27 +110,21 @@
                         </div>
                     </form>
 
-                    <!-- Alerta por email duplicado -->
-                    <script th:if="${showAlert}">
-                        alert('El email ya está en uso');
-                        var myModal = new bootstrap.Modal(document.getElementById('modalEditarAlumno'), {
-                            backdrop: 'static',
-                            keyboard: false
-                        });
-                        myModal.show();
-                    </script>
+                    <!-- Script toggle password (se mantiene solo para UX) -->
                     <script>
                         document.addEventListener('DOMContentLoaded', () => {
                             const toggle = document.getElementById('togglePasswordEditar');
-                            toggle.addEventListener('click', () => {
-                                const input = document.getElementById("passwordEditar");
-                                const icon = toggle.querySelector("i");
-                                const isPassword = input.type === "password";
+                            if (toggle) {
+                                toggle.addEventListener('click', () => {
+                                    const input = document.getElementById("passwordEditar");
+                                    const icon = toggle.querySelector("i");
+                                    const isPassword = input.type === "password";
 
-                                input.type = isPassword ? "text" : "password";
-                                icon.classList.toggle("fa-eye-slash");
-                                icon.classList.toggle("fa-eye");
-                            });
+                                    input.type = isPassword ? "text" : "password";
+                                    icon.classList.toggle("fa-eye-slash");
+                                    icon.classList.toggle("fa-eye");
+                                });
+                            }
                         });
                     </script>
 

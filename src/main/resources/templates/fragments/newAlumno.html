@@ -64,7 +64,7 @@
                                 <!-- Exp -->
                                 <div class="col-md-4">
                                     <label for="exp" class="form-label fw-semibold"><i class="fas fa-bolt me-2"></i>Exp</label>
-                                    <input type="number" th:field="*{tarjetaAlumno.exp}" class="form-control rounded-3"
+                                    <input type="number" th:field="*{tarjetaAlumno.exp}" value="0" class="form-control rounded-3"
                                            id="exp" min="0" required/>
                                 </div>
 
@@ -72,8 +72,8 @@
                                 <div class="col-md-4">
                                     <label for="electronios" class="form-label fw-semibold"><i
                                             class="fas fa-coins me-2"></i>Electronios</label>
-                                    <input type="number" th:field="*{tarjetaAlumno.electronios}"
-                                           class="form-control rounded-3" id="electronios" min="0" required/>
+                                    <input type="number" th:field="*{tarjetaAlumno.electronios}" value="0"
+                                           class="form-control rounded-3" id="electronios" required/>
                                 </div>
                             </div>
                         </div>
@@ -91,12 +91,17 @@
 
                         <!-- Alerta por email duplicado -->
                         <script th:if="${showAlert}">
-                            alert('El email ya está en uso');
-                            var myModal = new bootstrap.Modal(document.getElementById('modalNuevoAlumno'), {
-                                backdrop: 'static',
-                                keyboard: false
+                            document.addEventListener('DOMContentLoaded', () => {
+                                // Cambiar el texto del modal
+                                document.getElementById('textoErrorModal').textContent = "Ese email ya está en uso";
+
+                                // Crear y mostrar el modal
+                                var myModal = new bootstrap.Modal(document.getElementById('modalErrorGenerico'), {
+                                    backdrop: 'static',
+                                    keyboard: false
+                                });
+                                myModal.show();
                             });
-                            myModal.show();
                         </script>
                     </form>
                 </div>

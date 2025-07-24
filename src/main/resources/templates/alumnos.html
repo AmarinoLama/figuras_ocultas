@@ -13,7 +13,8 @@
 <body>
 
 <div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/alumnos'"></div>
-<div th:insert="~{modalesConfirmacion/borradoAlumno :: modalConfirmarBorrado}"></div>
+<div th:insert="~{modalesAvisos/borradoAlumno :: modalConfirmarBorrado}"></div>
+<div th:insert="~{modalesAvisos/errorTexto :: modalErrorGenerico}"></div>
 
 <!-- Contenido principal -->
 <div class="mt-1 position-relative" style="width: 90%; margin: 0 auto;">
@@ -156,56 +157,104 @@
 <div id="modalContainer"></div>
 
 <script>
+
+    // -------- ORDENAR LA TABLA  ----------
+
     function ordenarTabla(colIndex) {
         const tabla = document.getElementById("tablaAlumnos");
-        let orden = tabla.getAttribute("data-orden") === "asc" ? "desc" : "asc";
-        tabla.setAttribute("data-orden", orden);
+        const tbody = tabla.tBodies[0];
+        const filas = Array.from(tbody.rows);
 
-        const filas = Array.from(tabla.querySelectorAll("tbody tr"));
-        filas.sort((a, b) => {
-            let valA = a.children[colIndex].innerText.trim().toLowerCase();
-            let valB = b.children[colIndex].innerText.trim().toLowerCase();
-            if (!isNaN(valA) && !isNaN(valB)) {
-                valA = parseFloat(valA);
-                valB = parseFloat(valB);
-                return orden === "asc" ? valA - valB : valB - valA;
-            }
-            return orden === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        // Detectar el tipo de dato de la columna (número o texto)
+        const esNumerico = filas.every(fila => {
+            const valor = fila.cells[colIndex].textContent.trim();
+            return !isNaN(valor) && valor !== "";
         });
 
-        const tbody = tabla.querySelector("tbody");
-        filas.forEach(fila => tbody.appendChild(fila));
+        // Obtener la dirección actual de ordenación
+        const ths = tabla.querySelectorAll("th.sortable");
+        const th = ths[colIndex];
+        let ordenActual = th.getAttribute("data-orden") || "asc";
 
-        // Actualizar flechas visuales
-        document.querySelectorAll("th.sortable .flecha").forEach(f => f.textContent = "");
-        const header = document.querySelector(`th.sortable[data-col="${colIndex}"] .flecha`);
-        if (header) header.textContent = orden === "asc" ? "↑" : "↓";
+        // Si ya estaba ordenada ascendente, ahora descendente, y viceversa
+        let nuevoOrden = (ordenActual === "asc") ? "desc" : "asc";
+
+        // Quitar indicador de orden de todas las columnas
+        ths.forEach(header => {
+            header.setAttribute("data-orden", "");
+            const flecha = header.querySelector(".flecha");
+            if (flecha) flecha.textContent = "";
+        });
+
+        // Actualizar la columna que se ordena
+        th.setAttribute("data-orden", nuevoOrden);
+        const flecha = th.querySelector(".flecha");
+        if (flecha) flecha.textContent = (nuevoOrden === "asc") ? "▲" : "▼";
+
+        // Función para comparar dos valores según el tipo y orden
+        const comparar = (a, b) => {
+            let valA = a.cells[colIndex].textContent.trim();
+            let valB = b.cells[colIndex].textContent.trim();
+
+            if (esNumerico) {
+                valA = parseFloat(valA);
+                valB = parseFloat(valB);
+            } else {
+                valA = valA.toLowerCase();
+                valB = valB.toLowerCase();
+            }
+
+            if (valA < valB) return (nuevoOrden === "asc") ? -1 : 1;
+            if (valA > valB) return (nuevoOrden === "asc") ? 1 : -1;
+            return 0;
+        };
+
+        // Ordenar las filas
+        filas.sort(comparar);
+
+        // Volver a añadir las filas ordenadas al tbody
+        filas.forEach(fila => tbody.appendChild(fila));
     }
 
+    // -------- ACTUALIZAR VISIBILIDAD DE SELECCIÓN SEGÚN RADIO ----------
+    function actualizarVisibilidadSeleccion() {
+        const opcionSeleccionada = document.querySelector('input[name="opcionSeleccion"]:checked');
+        const colSeleccion = document.getElementById("colSeleccion");
+        const columnas = document.querySelectorAll(".col-seleccion");
+
+        if (opcionSeleccionada && opcionSeleccionada.id === "opCurso") {
+            if (colSeleccion) colSeleccion.style.display = "none";
+            columnas.forEach(col => col.style.display = "none");
+        } else {
+            if (colSeleccion) colSeleccion.style.display = "";
+            columnas.forEach(col => col.style.display = "");
+        }
+    }
+
+    // --------- CONFIGURAR EVENTOS AL CARGAR LA PÁGINA ----------
     document.addEventListener("DOMContentLoaded", () => {
+
+        // Ordenación por columnas
         document.querySelectorAll("th.sortable").forEach(th => {
             th.addEventListener("click", () => {
                 ordenarTabla(parseInt(th.getAttribute("data-col")));
             });
         });
-    });
 
-
-    document.addEventListener("DOMContentLoaded", () => {
-
+        // Radios de opción (selección de alumnos)
         const radios = document.querySelectorAll('input[name="opcionSeleccion"]');
         radios.forEach(radio => {
             radio.addEventListener("change", () => {
+                actualizarVisibilidadSeleccion();
+
                 const checkboxes = document.querySelectorAll("#tablaAlumnos tbody tr:not([style*='display: none']) .selector-checkbox");
 
                 if (radio.id === "opTodos" && radio.checked) {
-// Seleccionar todos los checkboxes visibles
                     checkboxes.forEach(cb => {
                         cb.checked = true;
                         cb.closest("tr").classList.add("fila-seleccionada");
                     });
                 } else if (radio.id === "opManual" && radio.checked) {
-// Deseleccionar todos los checkboxes visibles
                     checkboxes.forEach(cb => {
                         cb.checked = false;
                         cb.closest("tr").classList.remove("fila-seleccionada");
@@ -213,10 +262,11 @@
                 }
             });
         });
-    });
 
+        // Aplicar visibilidad inicial
+        actualizarVisibilidadSeleccion();
 
-    document.addEventListener("DOMContentLoaded", () => {
+        // Botón editar (modal con datos del alumno)
         document.querySelectorAll(".btn-editar").forEach(btn => {
             btn.addEventListener("click", async () => {
                 const email = btn.getAttribute("data-email");
@@ -224,7 +274,6 @@
                 const html = await response.text();
                 document.querySelector("#modalContainer").innerHTML = html;
 
-                // Aquí asignamos el event listener del ojo después de insertar el modal
                 const toggle = document.getElementById('togglePasswordEditar');
                 if (toggle) {
                     toggle.addEventListener('click', () => {
@@ -247,6 +296,7 @@
             });
         });
 
+        // Checkbox fila seleccionada visualmente
         document.addEventListener('change', (e) => {
             if (e.target.classList.contains('selector-checkbox')) {
                 const fila = e.target.closest('tr');
@@ -254,6 +304,7 @@
             }
         });
 
+        // Botón Electronios (mostrar/ocultar panel)
         let electroniosActivo = false;
         document.getElementById("btnElectronios").addEventListener("click", () => {
             electroniosActivo = !electroniosActivo;
@@ -268,34 +319,30 @@
                 });
             }
         });
+
+        // Modal de confirmación de borrado
+        document.querySelectorAll(".btn-confirmar-borrado").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const id = btn.getAttribute("data-id");
+                const nombre = btn.getAttribute("data-nombre");
+
+                document.getElementById("nombreAlumnoAEliminar").textContent = nombre;
+                const form = document.getElementById("formBorrarAlumno");
+                form.setAttribute("action", `/alumnos/borrar/${id}`);
+
+                const modal = new bootstrap.Modal(document.getElementById("modalConfirmarBorrado"));
+                modal.show();
+            });
+        });
     });
 
+    // ------- CAMBIAR CANTIDAD DE ELECTRONIOS -------
     function cambiarCantidad(cambio) {
         const input = document.getElementById("cantidadElectronios");
         let valor = parseInt(input.value) || 0;
         valor += cambio;
         input.value = valor;
     }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".btn-confirmar-borrado").forEach(btn => {
-            btn.addEventListener("click", () => {
-                const id = btn.getAttribute("data-id");
-                const nombre = btn.getAttribute("data-nombre");
-
-                // Mostrar el nombre del alumno en el modal
-                document.getElementById("nombreAlumnoAEliminar").textContent = nombre;
-
-                // Cambiar la acción del formulario
-                const form = document.getElementById("formBorrarAlumno");
-                form.setAttribute("action", `/alumnos/borrar/${id}`);
-
-                // Mostrar el modal
-                const modal = new bootstrap.Modal(document.getElementById("modalConfirmarBorrado"));
-                modal.show();
-            });
-        });
-    });
 </script>
 
 </body>

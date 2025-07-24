@@ -19,6 +19,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /// TODO: Hacer la lógica de dar electronios
 /// TODO: Hacer que no dea errores por entrar en sitios sin estar logueado o ser admin
+/// TODO: Arreglar la ordenación de las columnas en la tabla
+/// curso bien importado?
+/// electronios y exp seteada a 0?
+/// mejorar la comunicación conforme los errores
 
 @Controller
 public class AlumnosController {
@@ -93,7 +97,7 @@ public class AlumnosController {
 
     @PostMapping("/alumnos/editar/{id}")
     public String editarAlumno(@PathVariable("id") Long idAlumno,
-                               @ModelAttribute UsuarioDTO alumnoEditado) {
+                               @ModelAttribute UsuarioDTO alumnoEditado, Model model) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
         if (usuarioLogeadoId != null) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
@@ -111,9 +115,19 @@ public class AlumnosController {
                 }
 
                 // Actualiza los campos
+
+                if (alumnoEditado.getEmail() != null && !alumnoEditado.getEmail().isEmpty()) {
+                    alumnoOriginal.setEmail(alumnoEditado.getEmail());
+                    if (usuarioService.getUserByEmail(alumnoEditado.getEmail()) != null &&
+                        !usuarioService.getUserByEmail(alumnoEditado.getEmail()).getId().equals(idAlumno)) {
+                        alumnoOriginal.setEmail(alumnoOriginal.getEmail());
+                    }
+                }
+
                 alumnoOriginal.setNombre(alumnoEditado.getNombre());
                 alumnoOriginal.setPassword(alumnoEditado.getPassword());
                 alumnoOriginal.setCurso(alumnoEditado.getCurso());
+
 
                 alumnoOriginal.getTarjetaAlumno().setExp(alumnoEditado.getTarjetaAlumno().getExp());
                 alumnoOriginal.getTarjetaAlumno().setElectronios(alumnoEditado.getTarjetaAlumno().getElectronios());

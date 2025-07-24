@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -172,14 +173,65 @@ public class AlumnosController {
             @RequestParam(required = false) String curso
     ) {
 
-        if (Objects.equals(tipoSeleccion, "curso")) {
-            usuarioService.darElectroniosCurso(curso, cantidadElectronios);
-            return "redirect:/alumnos?curso=" + curso;
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        boolean usuarioLogeado = usuarioLogeadoId != null;
+        if (usuarioLogeado) {
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            if (usuario != null) {
 
+                if (Objects.equals(tipoSeleccion, "curso")) {
+                    usuarioService.darElectroniosCurso(curso, cantidadElectronios);
+                    return "redirect:/alumnos?curso=" + curso;
+
+                } else {
+                    usuarioService.darElectroniosAlumnos(idsAlumnos, cantidadElectronios);
+                }
+            }
         } else {
-            usuarioService.darElectroniosAlumnos(idsAlumnos, cantidadElectronios);
+            return "redirect:/login";
         }
 
         return "redirect:/alumnos";
+    }
+
+    @GetMapping("/perfil")
+    public String perfil(Model model) {
+
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        boolean usuarioLogeado = usuarioLogeadoId != null;
+
+        if (usuarioLogeado) {
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            model.addAttribute("usuario", usuario);
+
+            return "perfil";
+        } else {
+            return "redirect:/login";
+        }
+    }
+
+    @PostMapping("/perfil/actualizar")
+    public String actualizarPerfil(@Valid @ModelAttribute("usuario") UsuarioDTO usuarioForm, Model model) {
+
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        boolean usuarioLogeado = usuarioLogeadoId != null;
+
+        if (usuarioLogeado) {
+
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            usuario.setNombre(usuarioForm.getNombre());
+            usuario.setEmail(usuarioForm.getEmail());
+            if (usuarioForm.getPassword() != null && !usuarioForm.getPassword().isEmpty()) {
+                usuario.setPassword(usuarioForm.getPassword());
+            }
+            usuarioService.saveUser(usuario);
+
+            model.addAttribute("usuario", usuario);
+            model.addAttribute("successMessage", "Perfil actualizado");
+            return "perfil";
+
+        } else {
+            return "redirect:/login";
+        }
     }
 }

@@ -33,6 +33,11 @@
                     </li>
                 </ul>
                 <span class="navbar-text text-light fw-bold" th:text="'👑 Hola, ' + ${usuario.nombre}"></span>
+                <div class="d-flex align-items-center ms-3">
+                    <a class="btn btn-outline-light rounded-circle" href="/perfil" title="Ver perfil">
+                        <i class="fas fa-user-circle fs-4"></i>
+                    </a>
+                </div>
             </div>
             </div>
         </nav>
@@ -71,6 +76,11 @@
                     </li>
                 </ul>
                 <span class="navbar-text text-light fw-bold" th:text="'🎮 Bienvenido, ' + ${usuario.nombre}"></span>
+                <div class="d-flex align-items-center ms-3">
+                    <a class="nav-link text-white" href="/perfil" title="Ver perfil">
+                        <i class="fas fa-user-circle fs-4"></i>
+                    </a>
+                </div>
             </div>
             </div>
         </nav>

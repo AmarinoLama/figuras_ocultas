@@ -4,16 +4,24 @@
     <div th:if="${usuario.isAdmin()}">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow p-3 mb-5"
              style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7);">
-        <div class="container-fluid">
-                <a class="navbar-brand fw-bold fs-3 text-gradient" href="#">✨ Figuras Ocultas ✨</a>
+            <div class="container-fluid d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center position-relative" style="height: 100%;">
+                    <p class="navbar-brand fw-bold fs-3 text-gradient mb-0 d-flex align-items-center" style="height: 100%;" th:text="'✨ ' + ${nombreWeb} + ' ✨'"></p>
+                    <a th:href="@{/webConfig}"
+                       class="position-absolute text-white"
+                       style="top: 0; right: 0; font-size: 0.9rem;"
+                       title="Configurar web">
+                        <i class="fas fa-cog"></i>
+                    </a>
+                </div>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
                         aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
-                    <li class="nav-item">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3 px-4">
+                <li class="nav-item">
                         <a class="nav-link text-white" th:href="@{/alumnos}"
                            th:classappend="${currentPath == '/alumnos'} ? 'active'">
                             <i class="fas fa-user-graduate"></i> Alumnado
@@ -49,9 +57,9 @@
     <div th:if="${!usuario.isAdmin()}">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow p-3 mb-5"
              style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background-color: rgba(0, 0, 0, 0.7);">
-        <div class="container-fluid">
-                <a class="navbar-brand fw-bold fs-3 text-gradient" href="#">✨ Figuras Ocultas ✨</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+        <div class="container-fluid d-flex align-items-center justify-content-between">
+            <p class="navbar-brand fw-bold fs-3 text-gradient mb-0 d-flex align-items-center" style="height: 100%;" th:text="'✨ ' + ${nombreWeb} + ' ✨'"></p>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
                         aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>

@@ -9,6 +9,8 @@ DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS cartas;
 DROP TABLE IF EXISTS historial_transacciones;
 DROP TABLE IF EXISTS cartas_usuario;
+DROP TABLE IF EXISTS web_config;
+DROP TABLE IF EXISTS insignias;
 
 CREATE TABLE IF NOT EXISTS usuarios
 (
@@ -18,6 +20,19 @@ CREATE TABLE IF NOT EXISTS usuarios
     password VARCHAR(255) NOT NULL,
     curso    ENUM ('PRIMERO_ESO', 'SEGUNDO_ESO', 'TERCERO_ESO', 'CUARTO_ESO', 'PRIMERO_BACH', 'SEGUNDO_BACH') NULL,
     rol      ENUM ('ADMIN', 'ALUMNO') NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS webConfig (
+     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+     nombre VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS insignias (
+     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+     nombre VARCHAR(50) NOT NULL,
+     imagen MEDIUMBLOB,
+     alumno_id BIGINT NOT NULL,
+     FOREIGN KEY (alumno_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS tarjeta_alumno 
@@ -158,3 +173,5 @@ INSERT INTO cartas (imagen, precio, titulo, descripcion, activa) VALUES
                                                                      (NULL, 3, 'Carta de Veneno', 'Aplica veneno que causa daño durante 10 segundos.', TRUE),
                                                                      (NULL, 3, 'Carta de Escudo Mágico', 'Bloquea el siguiente ataque recibido.', TRUE),
                                                                      (NULL, 1, 'Carta de Ilusión', 'Crea un clon que distrae al enemigo.', TRUE);
+
+INSERT INTO webConfig (nombre) VALUES ('Almas Sagradas');

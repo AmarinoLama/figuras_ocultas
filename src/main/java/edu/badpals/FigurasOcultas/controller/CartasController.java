@@ -7,6 +7,7 @@ import edu.badpals.FigurasOcultas.model.entity.Carta;
 import edu.badpals.FigurasOcultas.service.CartaService;
 import edu.badpals.FigurasOcultas.service.CartaUsuarioService;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
+import edu.badpals.FigurasOcultas.service.WebConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,9 @@ public class CartasController {
     @Autowired
     private CartaUsuarioService cartaUsuarioService;
 
+    @Autowired
+    private WebConfigService webConfigService;
+
     @GetMapping("/cartas")
     public String loadCartas(Model model) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
@@ -55,6 +59,7 @@ public class CartasController {
         UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
         model.addAttribute("usuario", usuario);
         model.addAttribute("nuevaCarta", new Carta());
+        model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
         if (usuario.isAdmin()) {
             model.addAttribute("cartas", cartaService.getAllCartasDTO());
@@ -71,7 +76,6 @@ public class CartasController {
 
     @PostMapping("/cartas/alternarVisibilidad/{id}")
     public String alternarVisibilidad(@PathVariable Long id) throws IOException {
-        System.out.println("Alternando visibilidad de la carta con ID: " + id);
         CartaDTO carta = cartaService.getCartaById(id);
         carta.setActiva(!carta.getActiva());
         cartaService.actualizarCarta(carta, id, null);
@@ -124,6 +128,8 @@ public class CartasController {
 
             CartaDTO carta = cartaService.getCartaById(id);
             model.addAttribute("carta", carta);
+
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
             if (usuario.isAdmin()) {
                 return "fragments/editCarta :: editCarta";

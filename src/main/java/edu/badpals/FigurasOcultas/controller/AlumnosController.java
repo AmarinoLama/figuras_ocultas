@@ -7,6 +7,7 @@ import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import edu.badpals.FigurasOcultas.service.HistorialTransaccionesService;
 import edu.badpals.FigurasOcultas.service.TarjetaAlumnoService;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
+import edu.badpals.FigurasOcultas.service.WebConfigService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,6 +41,9 @@ public class AlumnosController {
     @Autowired
     private TarjetaAlumnoService tarjetaAlumnoService;
 
+    @Autowired
+    private WebConfigService webConfigService;
+
     @GetMapping("/alumnos")
     public String loadIndex(Model model, @RequestParam(required = false) String curso) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
@@ -51,6 +55,7 @@ public class AlumnosController {
             UsuarioDTO nuevoAlumno = new UsuarioDTO();
             nuevoAlumno.setTarjetaAlumno(new TarjetaAlumnoDTO());
             model.addAttribute("nuevoAlumno", nuevoAlumno);
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
             if (curso != null && !curso.isEmpty()) {
                 model.addAttribute("alumnos", usuarioService.getAlumnosFromCurso(curso));
@@ -76,6 +81,9 @@ public class AlumnosController {
 
             UsuarioDTO alumno = usuarioService.getUserByEmail(email);
             model.addAttribute("alumno", alumno);
+
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
+
             return "fragments/editAlumno :: editAlumno";
 
         } else {
@@ -203,6 +211,7 @@ public class AlumnosController {
         if (usuarioLogeado) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             model.addAttribute("usuario", usuario);
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
             return "perfil";
         } else {
@@ -246,6 +255,7 @@ public class AlumnosController {
             model.addAttribute("usuario", usuario);
             UsuarioDTO alumno = usuarioService.getUserById(idAlumno);
             model.addAttribute("alumno", alumno);
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
             return "insignias";
         } else {
             return "redirect:/login";

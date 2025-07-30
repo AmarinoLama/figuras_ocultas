@@ -4,6 +4,7 @@ import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import edu.badpals.FigurasOcultas.service.CartaUsuarioService;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
+import edu.badpals.FigurasOcultas.service.WebConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,14 +28,18 @@ public class AlumnosCartasController {
     @Autowired
     private CartaUsuarioService cartaUsuarioService;
 
+    @Autowired
+    private WebConfigService webConfigService;
+
     @GetMapping("/inventario")
-    public String loadIndex(Model model, @RequestParam(required = false) String curso) {
+    public String loadIndex(Model model) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
         boolean usuarioLogeado = usuarioLogeadoId != null;
 
         if (usuarioLogeado) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             model.addAttribute("usuario", usuario);
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
             if (usuario.getRol() == RolUsuario.ALUMNO) {
                 model.addAttribute("cartas", cartaUsuarioService.getCartasDisponiblesByUsuario(usuarioLogeadoId));
@@ -92,6 +97,7 @@ public class AlumnosCartasController {
 
             model.addAttribute("usuario", usuario);
             model.addAttribute("historial", cartaUsuarioService.getHistorial(usuarioLogeadoId));
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
             return "historial";
         }

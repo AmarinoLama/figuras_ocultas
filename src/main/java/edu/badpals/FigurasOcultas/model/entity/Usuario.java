@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
@@ -30,12 +32,14 @@ public class Usuario implements Serializable {
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private TarjetaAlumno tarjetaAlumno = new TarjetaAlumno();
 
-    // Crear tarjetaAlumno automáticamente antes de persistir el usuario
+    @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Insignia> insignias = new ArrayList<>();
+
     @PrePersist
     public void prePersist() {
         if (this.tarjetaAlumno == null) {
             this.tarjetaAlumno = new TarjetaAlumno();
-            this.tarjetaAlumno.setUsuario(this); // Establecer la relación inversa
+            this.tarjetaAlumno.setUsuario(this);
         }
     }
 

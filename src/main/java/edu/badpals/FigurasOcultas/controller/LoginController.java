@@ -4,6 +4,7 @@ import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.Usuario;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
+import edu.badpals.FigurasOcultas.service.WebConfigService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,9 +27,13 @@ public class LoginController {
     @Autowired
     private ManagerUserSession managerUserSession;
 
+    @Autowired
+    private WebConfigService webConfigService;
+
     @GetMapping({"/login", "/"})
     public String loginForm(Model model) {
         model.addAttribute("loginData", new UsuarioDTO());
+        model.addAttribute("nombreWeb", webConfigService.getWebConfig());
         return "formLogin";
     }
 

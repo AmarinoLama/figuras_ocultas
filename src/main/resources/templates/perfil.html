@@ -27,12 +27,15 @@
     </style>
 </head>
 
-<body>
+<body class="pt-5">
 
 <div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/cartas'"></div>
 
 <div class="container mt-5 pt-4">
     <div th:if="${usuario}">
+
+        <!-- VISUALIZACIÓN DE ADMINISTRADOR -->
+
         <div th:if="${usuario.isAdmin()}">
             <div class="container mt-5 pt-4">
                 <h2 class="mb-4 text-center fw-bold" style="color: #ffffff;">👤 Mi Perfil</h2>
@@ -44,18 +47,18 @@
 
                                 <div class="mb-3">
                                     <label for="nombre" class="form-label fw-bold">Nombre</label>
-                                    <input type="text" class="form-control rounded-3" id="nombre" name="nombre" th:value="${usuario.nombre}" required>
+                                    <input type="text" class="form-control rounded-3" id="nombreAdmin" name="nombre" th:value="${usuario.nombre}" required>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="email" class="form-label fw-bold">Email</label>
-                                    <input type="email" class="form-control rounded-3" id="email" name="email" th:value="${usuario.email}" required>
+                                    <input type="email" class="form-control rounded-3" id="emailAdmin" name="email" th:value="${usuario.email}" required>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="password" class="form-label fw-bold">Contraseña</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control rounded-start-3" id="password" name="password" placeholder="••••••" required>
+                                        <input type="password" class="form-control rounded-start-3" id="passwordAdmin" name="password" placeholder="••••••" required>
                                         <span class="input-group-text bg-white border-start-0 toggle-container btn-ojo-fijo"
                                               onclick="togglePassword('password', this)" title="Mostrar/Ocultar contraseña">
                                             <i class="fa-solid fa-eye-slash"></i>
@@ -66,20 +69,6 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Rol</label>
                                     <input type="text" class="form-control rounded-3" th:value="${usuario.rol}" readonly disabled>
-                                </div>
-
-                                <div th:if="${!usuario.isAdmin()}">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Curso</label>
-                                        <input type="text" class="form-control rounded-3" th:value="${usuario.curso}" readonly disabled>
-                                    </div>
-
-                                    <div class="mb-3 bg-light p-3 rounded-3 shadow-sm">
-                                        <h5 class="fw-bold">🎮 Tarjeta Alumno</h5>
-                                        <p><strong>Nivel:</strong> <span th:text="${usuario.tarjetaAlumno.nivel}">0</span></p>
-                                        <p><strong>Experiencia:</strong> <span th:text="${usuario.tarjetaAlumno.exp}">0</span></p>
-                                        <p><strong>Electronios:</strong> ⚡ <span th:text="${usuario.tarjetaAlumno.electronios}">0</span></p>
-                                    </div>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mt-3">
@@ -96,6 +85,90 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- VISUALIZACIÓN PARA LOS ALUMNOS -->
+
+        <div th:if="${!usuario.isAdmin()}">
+
+            <h2 class="mb-4 text-center fw-bold" style="color: #ffffff;">👤 Mi Perfil</h2>
+
+            <div class="container">
+                <div class="row g-4">
+
+                    <!-- IZQUIERDA: Tarjeta alumno -->
+                    <div class="col-md-3">
+                        <div class="bg-white p-4 rounded-4 shadow-lg border border-secondary-subtle" style="color: #222222; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                            <h5 class="fw-bold mb-4 text-center" style="color: #111111; letter-spacing: 1px;">🎮 Tarjeta Alumno</h5>
+                            <p class="mb-3 fs-6"><strong style="color: #333333;">Nivel:</strong> <span th:text="${usuario.tarjetaAlumno.nivel}">0</span></p>
+                            <p class="mb-3 fs-6"><strong style="color: #333333;">Experiencia:</strong> <span th:text="${usuario.tarjetaAlumno.exp}">0</span></p>
+                            <p class="mb-0 fs-6"><strong style="color: #333333;">Electronios:</strong> ⚡ <span th:text="${usuario.tarjetaAlumno.electronios}">0</span></p>
+                        </div>
+                    </div>
+
+                    <!-- CENTRO: Formulario -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm p-4 rounded-4" style="background-color: #f3e8ff;">
+                            <form th:action="@{/perfil/actualizar}" method="post">
+
+                                <div class="mb-3">
+                                    <label for="nombre" class="form-label fw-bold">Nombre</label>
+                                    <input type="text" class="form-control rounded-3" id="nombre" name="nombre" th:value="${usuario.nombre}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-bold">Email</label>
+                                    <input type="email" class="form-control rounded-3" id="email" name="email" th:value="${usuario.email}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="password" class="form-label fw-bold">Contraseña</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control rounded-start-3" id="password" name="password" placeholder="••••••">
+                                        <span class="input-group-text bg-white border-start-0 toggle-container btn-ojo-fijo"
+                                              onclick="togglePassword('password', this)" title="Mostrar/Ocultar contraseña">
+                                        <i class="fa-solid fa-eye-slash"></i>
+                                    </span>
+                                    </div>
+                                    <small class="text-muted">Deja vacío para no cambiar la contraseña</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="curso" class="form-label fw-bold">Curso</label>
+                                    <input type="text" class="form-control rounded-3" id="curso" name="curso" th:value="${usuario.curso}" readonly disabled>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <div th:if="${successMessage}" class="text-success fw-bold me-auto">
+                                        ✅ <span th:text="${successMessage}"></span>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary fw-bold rounded-3 ms-auto">
+                                        💾 Guardar Cambios
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- DERECHA: Insignias -->
+                    <div class="col-md-3">
+                        <h5 class="fw-bold mb-3 text-white">🏅 Mis Insignias</h5>
+                        <div class="row row-cols-3 g-2">
+<!--                            <div class="col" th:each="insignia : ${usuario.insignias}">-->
+<!--                                <img th:src="@{${insignia.url}}" alt="Insignia" class="img-fluid rounded shadow-sm" style="aspect-ratio: 1 / 1; object-fit: cover; width: 100%;">-->
+<!--                            </div>-->
+<!--                            <div th:if="${#lists.isEmpty(usuario.insignias)}" class="text-white">-->
+<!--                                No tienes insignias aún.-->
+<!--                            </div>-->
+                            <div class="text-white">
+                                No tienes insignias aún.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

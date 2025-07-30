@@ -234,4 +234,21 @@ public class AlumnosController {
             return "redirect:/login";
         }
     }
+
+    @GetMapping("/alumnos/insignias/{id}")
+    public String insigniasAlumnos(@PathVariable(value = "id") Long idAlumno, Model model) {
+
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        boolean usuarioLogeado = usuarioLogeadoId != null;
+
+        if (usuarioLogeado) {
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            model.addAttribute("usuario", usuario);
+            UsuarioDTO alumno = usuarioService.getUserById(idAlumno);
+            model.addAttribute("alumno", alumno);
+            return "insignias";
+        } else {
+            return "redirect:/login";
+        }
+    }
 }

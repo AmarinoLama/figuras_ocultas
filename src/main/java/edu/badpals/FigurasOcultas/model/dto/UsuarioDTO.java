@@ -1,11 +1,20 @@
 package edu.badpals.FigurasOcultas.model.dto;
 
 import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
+import edu.badpals.FigurasOcultas.model.entity.Insignia;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
+import edu.badpals.FigurasOcultas.model.entity.TarjetaAlumno;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -24,8 +33,9 @@ public class UsuarioDTO {
     private CursoAlumno curso;
     private RolUsuario rol;
 
-    // Aquí agregamos la propiedad tarjetaAlumno
     private TarjetaAlumnoDTO tarjetaAlumno = new TarjetaAlumnoDTO();
+
+    private List<Insignia> insignias = new ArrayList<>();
 
     public boolean isAdmin() {
         return this.rol == RolUsuario.ADMIN;

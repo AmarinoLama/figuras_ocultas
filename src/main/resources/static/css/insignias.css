@@ -15,12 +15,3 @@
     background: linear-gradient(45deg, #8b6ec6, #b68be5);
     color: white;
 }
-
-.vertical-separator,
-.separator-vertical {
-    width: 1px !important;
-    background-color: #b49cff !important;
-    align-self: stretch !important;
-    height: auto !important;
-    min-height: 100% !important;
-}

@@ -36,7 +36,7 @@
                 <div class="row gy-5 gx-4 align-items-stretch">
 
                 <!-- Insignias obtenidas -->
-                    <section class="col-md-4 d-flex flex-column">
+                    <section class="col-md-4 d-flex flex-column me-3">
                         <h5 class="fw-bold mb-3">🎖️ Insignias obtenidas:</h5>
                         <ul class="list-group list-group-flush border rounded-3 shadow-sm overflow-auto flex-grow-1" style="max-height: 280px;">
                             <li class="list-group-item d-flex align-items-center border-0"
@@ -68,11 +68,8 @@
                         </ul>
                     </section>
 
-                    <!-- Separador vertical -->
-                    <div class="d-none d-md-block vertical-separator"></div>
-
                     <!-- Formulario -->
-                    <section class="col-md-4 d-flex flex-column">
+                    <section class="col-md-4 d-flex flex-column me-5 ms-5">
                         <h5 class="fw-bold mb-3">➕ Asignar nueva insignia</h5>
                         <form id="formInsignia" th:action="@{/insignias/asignar}" method="post" enctype="multipart/form-data" class="mb-4">
                             <input type="hidden" name="alumnoId" th:value="${usuario.id}"/>
@@ -95,12 +92,9 @@
                         </form>
                     </section>
 
-                    <!-- Separador vertical -->
-                    <div class="d-none d-md-block vertical-separator"></div>
-
                     <!-- Previsualización -->
-                    <section class="col-md-2 d-flex flex-column align-items-center">
-                        <h6 class="fw-semibold mb-3 text-center">👁️ Previsualización</h6>
+                    <section class="col-md-2 d-flex flex-column align-items-center ms-5">
+                    <h6 class="fw-semibold mb-3 text-center">👁️ Previsualización</h6>
                         <div id="previewContainer"
                              style="width: 160px; height: 160px; border-radius: 50%; background-color: #ddd; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 3px solid #6f42c1;">
                             <i id="previewIcon" class="fas fa-image text-secondary fs-1"></i>

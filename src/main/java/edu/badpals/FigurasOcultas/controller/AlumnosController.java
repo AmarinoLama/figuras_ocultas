@@ -10,6 +10,10 @@ import edu.badpals.FigurasOcultas.service.UsuarioService;
 import edu.badpals.FigurasOcultas.service.WebConfigService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -239,24 +243,6 @@ public class AlumnosController {
             model.addAttribute("successMessage", "Perfil actualizado");
             return "perfil";
 
-        } else {
-            return "redirect:/login";
-        }
-    }
-
-    @GetMapping("/alumnos/insignias/{id}")
-    public String insigniasAlumnos(@PathVariable(value = "id") Long idAlumno, Model model) {
-
-        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
-        boolean usuarioLogeado = usuarioLogeadoId != null;
-
-        if (usuarioLogeado) {
-            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
-            model.addAttribute("usuario", usuario);
-            UsuarioDTO alumno = usuarioService.getUserById(idAlumno);
-            model.addAttribute("alumno", alumno);
-            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
-            return "insignias";
         } else {
             return "redirect:/login";
         }

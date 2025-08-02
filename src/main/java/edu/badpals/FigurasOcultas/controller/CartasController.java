@@ -58,7 +58,9 @@ public class CartasController {
 
         UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
         model.addAttribute("usuario", usuario);
-        model.addAttribute("nuevaCarta", new Carta());
+        Carta cartanew = new Carta();
+        cartanew.setPrecio(0);
+        model.addAttribute("nuevaCarta", cartanew);
         model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
         if (usuario.isAdmin()) {
@@ -88,7 +90,6 @@ public class CartasController {
                                @RequestParam("descripcion") String descripcion,
                                @RequestParam(value = "activa", required = false) Boolean activa,
                                @RequestParam("imagenFile") MultipartFile imagenFile) {
-        System.out.println(imagenFile.getSize());
         cartaService.guardarCarta(titulo, precio, descripcion, activa, imagenFile);
         return "redirect:/cartas";
     }

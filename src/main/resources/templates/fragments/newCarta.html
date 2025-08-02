@@ -1,66 +1,69 @@
 <div th:fragment="newCarta">
     <div th:if="${usuario.isAdmin()}">
-        <div class="modal fade" id="modalNuevaCarta" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal fade" id="modalNuevaCarta" tabindex="-1" aria-labelledby="modalNuevaCartaLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Crear Nueva Carta</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-content p-3">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-bold fs-4" id="modalNuevaCartaLabel">Crear Nueva Carta</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
 
-                    <form th:action="@{/cartas/nueva}" th:object="${nuevaCarta}" method="post" enctype="multipart/form-data">
-                        <div class="modal-body">
-                            <!-- Título -->
-                            <div class="mb-3">
-                                <label for="titulo" class="form-label">Título</label>
-                                <input type="text" class="form-control" id="titulo" th:field="*{titulo}" required />
-                            </div>
+                    <form th:action="@{/cartas/nueva}" th:object="${nuevaCarta}" method="post" enctype="multipart/form-data" class="row g-3 needs-validation" novalidate>
+                        <div class="modal-body d-flex flex-column flex-lg-row gap-4">
+                            <div class="form-section flex-fill">
+                                <!-- Título -->
+                                <div class="mb-3">
+                                    <label for="titulo" class="form-label fw-semibold">Título</label>
+                                    <input type="text" class="form-control form-control-lg" id="titulo" th:field="*{titulo}" placeholder="Introduce el título" required />
+                                </div>
 
-                            <!-- Descripción -->
-                            <div class="mb-3">
-                                <label for="descripcion" class="form-label">Descripción</label>
-                                <textarea class="form-control" id="descripcion" rows="3" th:field="*{descripcion}" required></textarea>
-                            </div>
+                                <!-- Descripción -->
+                                <div class="mb-3">
+                                    <label for="descripcion" class="form-label fw-semibold">Descripción</label>
+                                    <textarea class="form-control form-control-lg" id="descripcion" rows="4" th:field="*{descripcion}" placeholder="Introduce la descripción" required></textarea>
+                                </div>
 
-                            <!-- Precio -->
-                            <div class="mb-3">
-                                <label for="precio" class="form-label">Precio (Electronios)</label>
-                                <input type="number" class="form-control" id="precio" min="0" th:field="*{precio}" required />
-                            </div>
+                                <!-- Precio -->
+                                <div class="mb-3">
+                                    <label for="precio" class="form-label fw-semibold">Precio (Electronios)</label>
+                                    <input type="number" class="form-control form-control-lg" id="precio" min="1" th:field="*{precio}" placeholder="0" required />
+                                </div>
 
-                            <!-- Imagen -->
-                            <div class="mb-3">
-                                <label for="imagen" class="form-label">Imagen</label>
-                                <input type="file" class="form-control" id="imagen" name="imagenFile" accept="image/*" required />
-                            </div>
+                                <!-- Imagen -->
+                                <div class="mb-3">
+                                    <label for="imagen" class="form-label fw-semibold">Imagen</label>
+                                    <input type="file" class="form-control" id="imagen" name="imagenFile" accept="image/*" required />
+                                </div>
 
-                            <!-- Activa -->
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="activa" th:field="*{activa}" />
-                                <label class="form-check-label" for="activa">¿Carta activa?</label>
-                            </div>
-
-                            <!-- Vista previa -->
-                            <div class="card mt-4 border border-primary">
-                                <div class="row g-0">
-                                    <div class="col-md-4">
-                                        <img id="previewImagen" src="#" class="img-fluid rounded-start" alt="Previsualización" style="display: none;" />
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="card-body">
-                                            <h5 class="card-title" id="previewTitulo">Título</h5>
-                                            <p class="card-text" id="previewDescripcion">Descripción</p>
-                                            <p class="card-text"><small class="text-muted" id="previewPrecio">Precio: 0 electronios</small></p>
-                                            <p class="card-text" id="previewActiva">Estado: Inactiva</p>
-                                        </div>
-                                    </div>
+                                <!-- Activa -->
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="activa" th:field="*{activa}" />
+                                    <label class="form-check-label fw-semibold" for="activa">¿Carta activa?</label>
                                 </div>
                             </div>
+
+                            <div class="preview-section flex-fill">
+                                <h5 class="card-title fw-bold fs-5" id="previewTitulo">Título</h5>
+
+                                <img id="previewImagen" src="#" alt="Previsualización" style="display:none;" />
+
+                                <p id="previewDescripcion">Descripción</p>
+
+                                <div class="bottom-row">
+                                    <p id="previewActiva">Inactiva</p>
+
+                                    <p id="previewPrecio">
+                                        <span id="previewPrecioValor">Precio: 0</span>
+                                        <img src="/images/electronio.png" alt="Electronio" />
+                                    </p>
+                                </div>
+                            </div>
+
                         </div>
 
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Guardar Carta</button>
+                        <div class="modal-footer border-0 pt-3 justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary btn-lg">Guardar Carta</button>
                         </div>
 
                         <script th:if="${showAlert}">
@@ -79,15 +82,15 @@
                             });
 
                             document.getElementById("descripcion").addEventListener("input", function () {
-                                document.getElementById("previewDescripcion").textContent = this.value || "Descripción";
+                                document.getElementById("previewDescripcion").textContent = this.value || "Description";
                             });
 
                             document.getElementById("precio").addEventListener("input", function () {
-                                document.getElementById("previewPrecio").textContent = "Precio: " + (this.value || 0) + " electronios";
+                                document.getElementById("previewPrecioValor").textContent = "Precio: " + (this.value || 0);
                             });
 
                             document.getElementById("activa").addEventListener("change", function () {
-                                document.getElementById("previewActiva").textContent = "Estado: " + (this.checked ? "Activa" : "Inactiva");
+                                document.getElementById("previewActiva").textContent = (this.checked ? "Activa" : "Inactiva");
                             });
 
                             document.getElementById("imagen").addEventListener("change", function (event) {

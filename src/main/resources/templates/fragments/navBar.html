@@ -33,12 +33,6 @@
                             <i class="fas fa-clone"></i> Cartas
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" th:href="@{/admin}"
-                           th:classappend="${currentPath == '/admin'} ? 'active'">
-                            <i class="fas fa-user-shield"></i> Administradores
-                        </a>
-                    </li>
                 </ul>
                 <span class="navbar-text text-light fw-bold" th:text="'👑 Hola, ' + ${usuario.nombre}"></span>
                 <div class="d-flex align-items-center ms-3">

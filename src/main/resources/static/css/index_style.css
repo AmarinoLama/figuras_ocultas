@@ -5,7 +5,6 @@ html, body {
     padding: 0;
     background: linear-gradient(135deg, #3a0ca3, #7209b7, #b5179e);
     background-attachment: fixed; /* Fondo fijo mientras se hace scroll */
-    color: #fff;
     font-family: 'Segoe UI', sans-serif;
 }
 

@@ -2,21 +2,21 @@
     <div th:if="${usuario.isAdmin()}">
         <div class="modal fade" id="modalEditarCarta" tabindex="-1" aria-labelledby="modalEditarCartaLabel"
              aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalEditarCartaLabel">Editar Carta</h5>
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-editar-carta">
+                <div class="modal-content modal-editar-carta-content">
+                    <div class="modal-header modal-editar-carta-header">
+                        <h4 class="modal-title" id="modalEditarCartaLabel">Editar Carta</h4>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
 
-                    <form th:action="@{'/cartas/editar/' + ${carta.id}}" method="post" enctype="multipart/form-data">
-                        <div class="modal-body">
+                    <form th:action="@{'/cartas/editar/' + ${carta.id}}" method="post" enctype="multipart/form-data" class="modal-editar-carta-form">
+                        <div class="modal-body modal-editar-carta-body">
 
-                            <!-- Titulo -->
+                            <!-- Título -->
                             <div class="mb-3">
                                 <label for="titulo" class="form-label">Título</label>
                                 <input type="text" class="form-control" id="titulo" name="titulo"
-                                       th:value="${carta.titulo}" required/>
+                                       th:value="${carta.titulo}" required />
                             </div>
 
                             <!-- Descripción -->
@@ -30,28 +30,27 @@
                             <div class="mb-3">
                                 <label for="precio" class="form-label">Precio (Electronios)</label>
                                 <input type="number" class="form-control" id="precio" min="0" th:field="*{carta.precio}"
-                                       required/>
+                                       required />
                             </div>
 
                             <!-- Imagen -->
                             <div class="mb-3">
                                 <label for="imagenEditar" class="form-label">Nueva Imagen (opcional)</label>
-                                <input type="file" class="form-control" id="imagenEditar" name="imagenFile"
-                                       accept="image/*"/>
+                                <input type="file" class="form-control" id="imagenEditar" name="imagenFile" accept="image/*" />
+                                <small class="text-muted fst-italic">Si quieres conservar la imagen anterior, deja este campo vacío.</small>
                             </div>
 
                             <!-- Activa -->
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="activa" th:field="*{carta.activa}"/>
+                                <input class="form-check-input" type="checkbox" id="activa" th:field="*{carta.activa}" />
                                 <label class="form-check-label" for="activa">¿Carta activa?</label>
                             </div>
 
-                            <!-- Botones -->
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar
-                                </button>
-                                <button type="submit" class="btn btn-primary">Actualizar Carta</button>
-                            </div>
+                        </div>
+
+                        <div class="modal-footer modal-editar-carta-footer d-flex justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Actualizar Carta</button>
                         </div>
                     </form>
                 </div>

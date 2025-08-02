@@ -1,0 +1,27 @@
+<div th:fragment="modalConfirmarComprarCarta">
+    <div class="modal fade" id="modalConfirmarComprarCarta" tabindex="-1" aria-labelledby="modalComprarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <!-- Cabecera en amarillo -->
+                <div class="modal-header bg-warning text-dark rounded-top">
+                    <h5 class="modal-title" id="modalComprarLabel">
+                        <i class="fas fa-coins me-2"></i>Confirmar compra
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body text-dark">
+                    <p>¿Estás seguro de que quieres comprar la carta <strong id="nombreCartaAComprar"></strong>?</p>
+                </div>
+
+                <div class="modal-footer">
+                    <form id="formComprarCarta" method="post">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <!-- Botón de compra en amarillo -->
+                        <button type="submit" class="btn btn-warning fw-bold text-dark">Sí, comprar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

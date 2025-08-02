@@ -11,6 +11,7 @@
 <body class="pt-5">
 
 <div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/cartas'"></div>
+<div th:insert="~{modalesAvisos/usarCarta :: modalConfirmarUsoCarta}"></div>
 
 <div class="container mt-5 pt-4">
 
@@ -52,11 +53,12 @@
                         <!-- Botones -->
                         <div class="d-flex justify-content-between align-items-center px-3 pb-3">
                             <div class="d-flex gap-2">
-                                <form th:action="@{'/inventario/usar/' + ${carta.id}}" method="post" style="display:inline;">
-                                    <button type="submit" class="btn btn-sm btn-light fw-bold"
-                                            onclick="return confirm('¿Quieres usar esta carta?');"
-                                            title="Usar carta">🎮</button>
-                                </form>
+
+                                <!-- Botón que abre el modal -->
+                                <button type="button" class="btn btn-sm btn-light fw-bold btn-abrir-modal-uso"
+                                        th:attr="data-id=${carta.id}, data-nombre=${carta.titulo}">
+                                    🎮
+                                </button>
 
                                 <button class="btn btn-sm btn-outline-dark btn-info-carta fw-bold"
                                         th:data-id="${carta.id}" title="Info">
@@ -107,6 +109,28 @@
             });
         });
     });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const modalUso = document.getElementById('modalConfirmarUsoCarta');
+        const nombreCartaSpan = modalUso.querySelector('#nombreCartaAUsar');
+        const formUsarCarta = modalUso.querySelector('#formUsarCarta');
+
+        document.querySelectorAll('.btn-abrir-modal-uso').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idCarta = btn.getAttribute('data-id');
+                const nombreCarta = btn.getAttribute('data-nombre');
+
+                nombreCartaSpan.textContent = nombreCarta;
+                formUsarCarta.setAttribute('action', `/inventario/usar/${idCarta}`);
+
+                const modal = new bootstrap.Modal(modalUso);
+                modal.show();
+            });
+        });
+    });
+
 </script>
 
 </body>

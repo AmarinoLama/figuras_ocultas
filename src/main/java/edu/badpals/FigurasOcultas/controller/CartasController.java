@@ -100,7 +100,6 @@ public class CartasController {
         if (usuarioLogeado) {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             if (usuario != null) {
-                usuarioService.deleteUser(idCarta);
                 cartaService.borrarCarta(idCarta);
             }
         }

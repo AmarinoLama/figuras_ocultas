@@ -57,6 +57,7 @@ public class LoginController {
             }
         } else {
             model.addAttribute("error", "Contraseña o usuario incorrectos");
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
             return "formLogin";
         }
     }

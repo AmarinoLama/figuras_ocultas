@@ -1,0 +1,21 @@
+<div th:fragment="modalConfirmarBorradoCarta">
+    <div class="modal fade" id="modalConfirmarBorradoCarta" tabindex="-1" aria-labelledby="modalBorrarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header bg-danger text-white rounded-top">
+                    <h5 class="modal-title" id="modalBorrarLabel"><i class="fas fa-exclamation-triangle me-2"></i>Confirmar eliminación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-dark">
+                    <p>¿Estás seguro de que quieres eliminar la carta <strong id="nombreCartaABorrar"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <form id="formBorrarCarta" method="post">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Sí, borrar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

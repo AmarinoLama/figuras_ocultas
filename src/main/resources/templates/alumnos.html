@@ -99,7 +99,7 @@
                                     <div class="d-flex justify-content-center align-items-center gap-2">
                                         <a class="btn btn-sm btn-warning" style="background-color: deepskyblue;" th:href="@{/alumnos/insignias/{id}(id=${alumno.id})}">🎖️</a>
                                         <button type="button" class="btn btn-sm btn-warning btn-editar" th:data-email="${alumno.email}">✏️</button>
-                                        <button type="button" class="btn btn-sm btn-danger btn-confirmar-borrado"
+                                        <button type="button" class="btn btn-sm btn-danger btn-confirmar-borrado-alumno"
                                                 th:data-id="${alumno.id}" th:data-nombre="${alumno.nombre}">🗑️</button>
                                     </div>
                                 </td>
@@ -349,7 +349,7 @@
         });
 
         // Modal de confirmación de borrado
-        document.querySelectorAll(".btn-confirmar-borrado").forEach(btn => {
+        document.querySelectorAll(".btn-confirmar-borrado-alumno").forEach(btn => {
             btn.addEventListener("click", () => {
                 const id = btn.getAttribute("data-id");
                 const nombre = btn.getAttribute("data-nombre");

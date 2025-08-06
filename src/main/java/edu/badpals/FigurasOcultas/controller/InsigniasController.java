@@ -59,19 +59,42 @@ public class InsigniasController {
 
         try {
 
-            System.out.println("Asignando insignia a alumno con ID: " + idAlumno + ", Nombre: " + nombreInsignia +
-                    ", Imagen: " + imagenFile.getOriginalFilename());
+            Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+            boolean usuarioLogeado = usuarioLogeadoId != null;
 
-            Insignia insignia = new Insignia();
-            insignia.setNombre(nombreInsignia);
-            insignia.setImagen(imagenFile.getBytes());
+            if (usuarioLogeado) {
 
-            insigniaService.saveInsignia(insignia, idAlumno);
+                Insignia insignia = new Insignia();
+                insignia.setNombre(nombreInsignia);
+                insignia.setImagen(imagenFile.getBytes());
+
+                insigniaService.saveInsignia(insignia, idAlumno);
+
+                return "redirect:/alumnos/insignias/" + idAlumno;
+
+            } else {
+                return "redirect:/login";
+            }
 
         } catch (IOException e) {
             return "redirect:/alumnos?error=Error al procesar la imagen.";
         }
-
-        return "redirect:/alumnos/insignias/" + idAlumno;
     }
+
+    @PostMapping("/alumnos/insignias/eliminar/{id}")
+    public String eliminarInsignia(
+            @PathVariable("id") Long idInsignia,
+            @RequestParam("alumnoId") Long alumnoId) {
+
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        boolean usuarioLogeado = usuarioLogeadoId != null;
+
+        if (usuarioLogeado) {
+            insigniaService.deleteInsignia(idInsignia);
+            return "redirect:/alumnos/insignias/" + alumnoId;
+        } else {
+            return "redirect:/login";
+        }
+    }
+
 }

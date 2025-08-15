@@ -43,4 +43,21 @@ public class InsigniaService {
     public void deleteInsignia(Long id) {
         insigniaRepository.deleteById(id);
     }
+
+    public byte[] obtenerImagenInsignia(Long id) {
+        Insignia insignia = insigniaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Insignia no encontrada"));
+        if (insignia.getImagen() == null) {
+            throw new RuntimeException("La insignia no tiene imagen");
+        }
+        return insignia.getImagen();
+    }
+
+    public List<Insignia> getInsigniasAlumno(Long idAlumno) {
+        UsuarioDTO alumno = usuarioService.getUserById(idAlumno);
+        if (alumno == null) {
+            throw new RuntimeException("Alumno no encontrado");
+        }
+        return insigniaRepository.findByAlumno(modelMapper.map(alumno, Usuario.class));
+    }
 }

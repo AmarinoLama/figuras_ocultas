@@ -4,10 +4,7 @@ import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
-import edu.badpals.FigurasOcultas.service.HistorialTransaccionesService;
-import edu.badpals.FigurasOcultas.service.TarjetaAlumnoService;
-import edu.badpals.FigurasOcultas.service.UsuarioService;
-import edu.badpals.FigurasOcultas.service.WebConfigService;
+import edu.badpals.FigurasOcultas.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +41,9 @@ public class AlumnosController {
 
     @Autowired
     private TarjetaAlumnoService tarjetaAlumnoService;
+
+    @Autowired
+    private InsigniaService insigniasService;
 
     @Autowired
     private WebConfigService webConfigService;
@@ -216,6 +216,10 @@ public class AlumnosController {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             model.addAttribute("usuario", usuario);
             model.addAttribute("nombreWeb", webConfigService.getWebConfig());
+
+            if (usuario.getRol() == RolUsuario.ALUMNO) {
+                model.addAttribute("insigniasAlumno", insigniasService.getInsigniasAlumno(usuarioLogeadoId));
+            }
 
             return "perfil";
         } else {

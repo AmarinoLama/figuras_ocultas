@@ -1,0 +1,43 @@
+.toggle-container {
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.toggle-container:hover {
+    color: #6f42c1; /* morado pastel bonito */
+}
+
+/* 🎯 Clase para fijar tamaño del botón del ojito */
+.btn-ojo-fijo {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Insignia circular “tipo imagen” */
+.badge-level {
+    width: 96px;
+    height: 96px;
+    margin: 5px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.6rem;
+    border: 3px solid rgba(255,255,255,0.6);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25), inset 0 4px 8px rgba(255,255,255,0.15);
+    color: #D4AF37;                     /* dorado para el número */
+    text-shadow: 0 1px 0 rgba(0,0,0,0.4), 0 0 8px rgba(212,175,55,0.6);
+    background: var(--bg);
+}
+
+/* Fondos por nivel (degradado para “look” de medalla) */
+.badge-level.lvl-1 { --bg: radial-gradient(circle at 30% 30%, #3b82f6, #1e3a8a 70%); } /* azul */
+.badge-level.lvl-2 { --bg: radial-gradient(circle at 30% 30%, #a78bfa, #6d28d9 70%); } /* violeta */
+.badge-level.lvl-3 { --bg: radial-gradient(circle at 30% 30%, #34d399, #065f46 70%); } /* verde */
+.badge-level.lvl-4 { --bg: radial-gradient(circle at 30% 30%, #fb7624, #92400e 70%); } /* ámbar */
+.badge-level.lvl-5 { --bg: radial-gradient(circle at 30% 30%, #f472b6, #9d174d 70%); } /* rosa */
+.badge-level.lvl-6 { --bg: radial-gradient(circle at 30% 30%, #f87171, #7f1d1d 70%); } /* rojo */

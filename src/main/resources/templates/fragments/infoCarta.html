@@ -2,35 +2,55 @@
     <div th:if="${!usuario.isAdmin()}">
         <div class="modal fade" id="modalInfoCarta" tabindex="-1" aria-labelledby="modalInfoCartaLabel"
              aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
+
+            <div class="modal-dialog modal-dialog-centered modal-md">
                 <div class="modal-content border-0 bg-transparent">
-                    <div class="card mx-auto p-4"
-                         style="max-width: 420px; background: linear-gradient(135deg, #3a2b5c, #5e4b8b);
-                                border: 4px solid #bba0e3; border-radius: 20px;
-                                box-shadow: 0 0 20px #a288e3; color: #f5f5f5; font-family: 'Segoe UI', sans-serif;">
 
+                    <!-- Carta principal -->
+                    <div id="carta-especial" class="card mx-auto p-3"
+                         style="max-width: 400px;
+                                background: linear-gradient(135deg, #3a2b5c, #5e4b8b);
+                                border: 3px solid #bba0e3;
+                                border-radius: 20px;
+                                box-shadow: 0 8px 25px rgba(162,136,227,0.6);
+                                color: #f5f5f5;
+                                font-family: 'Segoe UI', sans-serif;">
+
+                        <!-- Título de la carta -->
                         <div class="text-center mb-3">
-                            <h3 th:text="${carta.titulo}" class="fw-semibold text-light">Nombre de la Carta</h3>
+                            <h3 th:text="${carta.titulo}" class="fw-bold text-light"
+                                style="text-shadow: 1px 1px 4px rgba(0,0,0,0.6);">
+                                Nombre de la Carta
+                            </h3>
                         </div>
 
-                        <div class="text-center mb-4">
-                            <img th:src="@{'/cartas/imagen/' + ${carta.id}}" alt="Imagen de la carta"
-                                 class="img-fluid rounded shadow" style="max-height: 220px; border: 2px solid #ddd;">
+                        <!-- Imagen de la carta -->
+                        <div class="carta-imagen">
+                            <img th:src="@{'/cartas/imagen/' + ${carta.id}}" alt="Imagen de la carta">
                         </div>
 
-                        <div class="mb-3">
-                            <h5 class="text-light">Descripción</h5>
-                            <p th:text="${carta.descripcion}" style="min-height: 60px;">Texto de la carta</p>
+                        <!-- Descripción de la carta -->
+                        <div class="mb-3 mt-5 p-2 descripcion">
+                            <h5 class="text-light fw-semibold">Descripción</h5>
+                            <p th:text="${carta.descripcion}">Texto de la carta</p>
                         </div>
 
-                        <div class="mb-3">
-                            <h5 class="text-light">Precio</h5>
-                            <p class="fs-5"><strong th:text="${carta.precio}">0</strong> electronios</p>
+                        <!-- Precio de la carta -->
+                        <div class="mb-3 p-2 d-flex justify-content-between align-items-center precio">
+                            <h5 class="text-light mb-0 fw-semibold">Precio</h5>
+                            <div class="fs-5 mb-0 d-flex align-items-center gap-1">
+                                <strong th:text="${carta.precio}">0</strong>
+                                <img src="/images/electronio.png" alt="Electronio" style="width: 30px; height: 30px;">
+                            </div>
                         </div>
 
-                        <div class="text-center mt-4">
-                            <button type="button" class="btn btn-outline-light btn-sm px-4" data-bs-dismiss="modal">Cerrar</button>
+                        <!-- Botón cerrar -->
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-light btn-sm px-4" data-bs-dismiss="modal">
+                                Cerrar
+                            </button>
                         </div>
+
                     </div>
                 </div>
             </div>

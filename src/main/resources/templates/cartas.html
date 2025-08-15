@@ -5,7 +5,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" th:href="@{/css/index_style.css?v=1}">
-    <link rel="stylesheet" th:href="@{/css/cartas.css?v=1}">
+    <link rel="stylesheet" th:href="@{/css/cartas.css?v=3}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
@@ -29,7 +29,7 @@
 
         <div th:if="${usuario.isAdmin()}">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h2 class="mb-0">Listado de Cartas</h2>
+                <h2 class="mb-0" style="color: white !important;">Listado de Cartas</h2>
 
                 <div class="d-flex align-items-center gap-3">
 
@@ -83,35 +83,31 @@
 
             <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
                 <div th:each="carta : ${cartas}" class="col">
-                    <div class="card text-dark border-0 shadow-sm">
-                        <div class="card-header-custom">
-                            <h5 class="card-title fw-bold mb-0" th:text="${carta.titulo}">Nombre</h5>
-                            <div class="inventario-badge">
-                                🎒 <span th:text="${inventario[carta.id]} ?: 0">0</span>
-                            </div>
-                        </div>
-
-                        <img th:src="@{'/cartas/imagen/' + ${carta.id}}"
-                             class="img-fluid rounded border border-3 mx-auto"
-                             style="max-height: 160px; border-color: #bbaaff;"
-                             alt="Imagen de la carta">
-
-                        <div class="card-body d-flex justify-content-between align-items-center p-3 pb-2 pt-3">
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-light btn-sm btn-confirmar-compra-carta fw-bold"
-                                        th:attr="data-id=${carta.id}, data-nombre=${carta.titulo}" title="Comprar">
-                                    💰
-                                </button>
-                                <button class="btn btn-outline-dark btn-sm btn-info-carta fw-bold"
-                                        th:data-id="${carta.id}" title="Info">
-                                    ℹ️
-                                </button>
-                            </div>
-
-                            <p class="mb-0 fw-bold fs-5 d-flex align-items-center gap-1" style="color: #4a148c;">
-                                <span th:text="${carta.precio}">0</span>
-                                <img src="/images/electronio.png" alt="Electronio" style="width: 20px; height: 20px;">
+                    <div class="card shadow-sm p-0">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${carta.titulo}">Título</h5>
+                            <img th:src="@{'/cartas/imagen/' + ${carta.id}}"
+                                 class="card-img-top"
+                                 alt="Imagen de la carta">
+                            <p class="card-text d-flex justify-content-between align-items-center">
+                                <strong>
+                                    <span th:text="${carta.precio}">Precio</span>
+                                    <img src="/images/electronio.png" alt="Electronio" style="width: 20px; height: 20px;">
+                                </strong>
+                                <span class="badge bg-primary">
+                            🎒 <span th:text="${inventario[carta.id]} ?: 0">0</span>
+                        </span>
                             </p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <button type="button" class="btn btn-success btn-sm btn-confirmar-compra-carta fw-bold"
+                                    th:attr="data-id=${carta.id}, data-nombre=${carta.titulo}" title="Comprar">
+                                💰
+                            </button>
+                            <button class="btn btn-info btn-sm btn-info-carta fw-bold"
+                                    th:data-id="${carta.id}" title="Info">
+                                ℹ️
+                            </button>
                         </div>
                     </div>
                 </div>

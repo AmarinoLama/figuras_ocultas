@@ -61,4 +61,11 @@ public class LoginController {
             return "formLogin";
         }
     }
+
+    @PostMapping("/logout")
+    public String logout() {
+        managerUserSession.logout();
+        return "redirect:/login";
+    }
+
 }

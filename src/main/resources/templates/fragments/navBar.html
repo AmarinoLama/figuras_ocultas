@@ -33,14 +33,21 @@
                             <i class="fas fa-clone"></i> Cartas
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/perfil}"
+                           th:classappend="${currentPath == '/perfil'} ? 'active'">
+                            <i class="fas fa-user-circle"></i> Perfil
+                        </a>
+                    </li>
                 </ul>
-                <span class="navbar-text text-light fw-bold" th:text="'👑 Hola, ' + ${usuario.nombre}"></span>
                 <div class="d-flex align-items-center ms-3">
-                    <a class="btn btn-outline-light d-flex justify-content-center align-items-center rounded-circle"
-                       href="/perfil" title="Ver perfil"
-                       style="width: 40px; height: 40px; padding: 0;">
-                        <i class="fas fa-user-circle fs-4"></i>
-                    </a>
+                    <span class="navbar-text text-light fw-bold me-2" th:text="'👑 Hola, ' + ${usuario.nombre}"></span>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-light d-flex justify-content-center align-items-center rounded-circle"
+                                style="width: 40px; height: 40px; padding: 0;" title="Cerrar sesión">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
             </div>
@@ -54,10 +61,10 @@
         <div class="container-fluid d-flex align-items-center justify-content-between">
             <p class="navbar-brand fw-bold fs-3 text-gradient mb-0 d-flex align-items-center" style="height: 100%;" th:text="'✨ ' + ${nombreWeb} + ' ✨'"></p>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
-                        aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                    data-bs-target="#navbarAlumnos" aria-controls="navbarAlumnos" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarAlumnos">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-3">
                     <li class="nav-item">
@@ -78,15 +85,25 @@
                             <i class="fas fa-history"></i> Historial
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/perfil}"
+                           th:classappend="${currentPath == '/perfil'} ? 'active'">
+                            <i class="fas fa-user-circle"></i> Perfil
+                        </a>
+                    </li>
+
                 </ul>
-                <span class="navbar-text text-light fw-bold" th:text="'🎮 Bienvenido, ' + ${usuario.nombre}"></span>
+
                 <div class="d-flex align-items-center ms-3">
-                    <a class="btn btn-outline-light d-flex justify-content-center align-items-center rounded-circle"
-                       href="/perfil" title="Ver perfil"
-                       style="width: 40px; height: 40px; padding: 0;">
-                        <i class="fas fa-user-circle fs-4"></i>
-                    </a>
+                    <span class="navbar-text text-light fw-bold me-2" th:text="'🎮 Bienvenido, ' + ${usuario.nombre}"></span>
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-light d-flex justify-content-center align-items-center rounded-circle"
+                                style="width: 40px; height: 40px; padding: 0;" title="Cerrar sesión">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
                 </div>
+
             </div>
             </div>
         </nav>

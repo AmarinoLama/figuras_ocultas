@@ -5,6 +5,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" th:href="@{/css/index_style.css?v=1}">
+    <link rel="stylesheet" th:href="@{/css/inventario_style.css?v=2}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
@@ -24,56 +25,38 @@
         </div>
 
         <div th:if="${!usuario.isAdmin()}">
-            <div class="mb-4 p-3 bg-light rounded shadow-sm text-center" style="font-size: 1.5rem; font-weight: bold; color: #0d6efd;">
+
+            <div class="mb-4 p-3 bg-light rounded shadow-sm text-center"
+                 style="font-size: 1.5rem; font-weight: bold; color: #0d6efd;">
                 🧠 Tus Cartas en el Inventario
             </div>
 
             <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
                 <div th:each="carta : ${cartas}" class="col">
-                    <div class="card text-dark border-0 shadow-sm"
-                         style="background-color: #ffd580; border-radius: 20px; position: relative; overflow: hidden;">
-
-                        <!-- Título -->
-                        <div class="d-flex justify-content-between align-items-start p-3">
-                            <h5 class="card-title fw-bold mb-0"
-                                th:text="${carta.titulo}"
-                                style="font-size: 1.2rem; line-height: 1.2; max-width: 70%; word-wrap: break-word; white-space: normal;">
-                                Nombre de la carta
-                            </h5>
-                        </div>
-
-                        <!-- Imagen -->
-                        <div class="d-flex justify-content-center p-3 pt-0">
+                    <div class="card shadow-sm p-0">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${carta.titulo}">Título</h5>
                             <img th:src="@{'/cartas/imagen/' + ${carta.id}}"
-                                 class="img-fluid rounded border border-3"
-                                 style="max-height: 160px; border-color: #ffc107;"
+                                 class="card-img-top"
                                  alt="Imagen de la carta">
+                            <p class="card-text d-flex justify-content-between align-items-center">
+                                <span class="badge bg-primary">
+                                    🎒 <span th:text="${inventario[carta.id]} ?: 0">0</span>
+                                </span>
+                            </p>
                         </div>
-
-                        <!-- Botones -->
-                        <div class="d-flex justify-content-between align-items-center px-3 pb-3">
-                            <div class="d-flex gap-2">
-
-                                <!-- Botón que abre el modal -->
-                                <button type="button" class="btn btn-sm btn-light fw-bold btn-abrir-modal-uso"
-                                        th:attr="data-id=${carta.id}, data-nombre=${carta.titulo}">
-                                    🎮
-                                </button>
-
-                                <button class="btn btn-sm btn-outline-dark btn-info-carta fw-bold"
-                                        th:data-id="${carta.id}" title="Info">
-                                    ℹ️
-                                </button>
-                            </div>
-
-                            <div class="bg-light text-dark rounded px-2 py-1 d-flex align-items-center"
-                                 style="font-weight: bold; font-size: 1rem; box-shadow: 0 0 6px rgba(0,0,0,0.1); user-select: none;">
-                                🎒 <span th:text="${inventario[carta.id]} ?: 0">0</span>
-                            </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <button type="button" class="btn btn-success btn-sm fw-bold btn-abrir-modal-uso"
+                                    th:attr="data-id=${carta.id}, data-nombre=${carta.titulo}">
+                                🎮
+                            </button>
+                            <button class="btn btn-info btn-sm btn-info-carta fw-bold"
+                                    th:data-id="${carta.id}" title="Info">
+                                ℹ️
+                            </button>
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div th:if="${#lists.isEmpty(cartas)}" class="alert alert-warning text-center mt-4">

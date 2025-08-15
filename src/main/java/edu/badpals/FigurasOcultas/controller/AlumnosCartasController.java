@@ -46,9 +46,11 @@ public class AlumnosCartasController {
                 Map<Long, Integer> inventario = cartaUsuarioService.getCartasByAlumno(usuario.getId());
                 model.addAttribute("inventario", inventario);
             }
-        }
 
-        return "inventario";
+            return "inventario";
+        } else {
+            return "redirect:/login";
+        }
     }
 
     @PostMapping("/cartas/comprar/{id}")

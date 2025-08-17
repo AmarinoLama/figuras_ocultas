@@ -64,11 +64,18 @@ public class UsuarioService {
             TarjetaAlumno tarjetaAlumno = modelMapper.map(usuarioDTO.getTarjetaAlumno(), TarjetaAlumno.class);
             tarjetaAlumno.setUsuario(usuario);
             usuario.setTarjetaAlumno(tarjetaAlumno);
+        } else {
+            return;
         }
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
         modelMapper.map(usuarioGuardado, UsuarioDTO.class);
     }
 
+    @Transactional
+    public boolean checkValidEmail(String email) {
+        if (email == null || email.isBlank()) return false;
+        return usuarioRepository.findByEmail(email).isEmpty();
+    }
 
     @Transactional
     public void deleteUser(Long id) {
@@ -89,7 +96,13 @@ public class UsuarioService {
         for (UsuarioDTO alumno : alumnos) {
 
             int electronios = alumno.getTarjetaAlumno().getElectronios();
-            alumno.getTarjetaAlumno().setElectronios((byte) (electronios + cantidadElectronios));
+
+            int nuevos = electronios + cantidadElectronios;
+
+            nuevos = Math.max(-100, Math.min(100, nuevos));
+
+            alumno.getTarjetaAlumno().setElectronios((byte) nuevos);
+            System.out.println("Electronios actualizados: " + nuevos);
 
             if (cantidadElectronios > 0) {
                 hts.addMoreElectroniosToHistorial(alumno.getId(), cantidadElectronios);
@@ -106,8 +119,15 @@ public class UsuarioService {
         for (Long idAlumno : idsAlumnos) {
             UsuarioDTO alumno = getUserById(idAlumno);
             if (alumno != null) {
+
                 int electronios = alumno.getTarjetaAlumno().getElectronios();
-                alumno.getTarjetaAlumno().setElectronios((byte) (electronios + cantidadElectronios));
+
+                int nuevos = electronios + cantidadElectronios;
+
+                nuevos = Math.max(-100, Math.min(100, nuevos));
+
+                alumno.getTarjetaAlumno().setElectronios((byte) nuevos);
+                System.out.println("Electronios actualizados: " + nuevos);
 
                 if (cantidadElectronios > 0) {
                     hts.addMoreElectroniosToHistorial(alumno.getId(), cantidadElectronios);

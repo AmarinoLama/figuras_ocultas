@@ -43,6 +43,7 @@ public class LoginController {
                               Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("loginData", userdto);
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
             return "formLogin";
         }
 

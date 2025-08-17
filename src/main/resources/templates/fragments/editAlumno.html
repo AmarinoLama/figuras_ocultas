@@ -7,8 +7,8 @@
                 <div class="modal-content shadow-lg border-0 rounded-4" style="background-color: #f3e8ff; color: #000;">
                     <div class="modal-header"
                          style="background-color: #8e44ad; color: #000; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
-                        <h5 class="modal-title" id="modalEditarAlumnoLabel">
-                            <i class="fas fa-user-edit me-2"></i>Modificar Alumno
+                        <h5 class="modal-title" id="modalEditarAlumnoLabel" style="color: white !important;">
+                            <i class="fas fa-user-edit me-2" style="color: white !important;"></i>Modificar Alumno
                         </h5>
                         <button type="button" class="btn-close" style="filter: invert(1);" data-bs-dismiss="modal"
                                 aria-label="Cerrar"></button>
@@ -72,15 +72,18 @@
                                     <label for="exp" class="form-label fw-semibold"><i class="fas fa-bolt me-2"></i>Exp</label>
                                     <input type="number" class="form-control rounded-3" id="exp"
                                            name="tarjetaAlumno.exp" th:value="${alumno.tarjetaAlumno.exp}"
-                                           placeholder="Experiencia acumulada"/>
+                                           required
+                                           placeholder="Experiencia acumulada"
+                                            max="2000" min="0"/>
                                 </div>
 
                                 <!-- Electronios -->
                                 <div class="col-md-4">
-                                    <label for="electronios" class="form-label fw-semibold"><i
-                                            class="fas fa-coins me-2"></i>Electronios</label>
+                                    <label for="electronios" class="form-label fw-semibold"><img src="/images/electronio.png" alt="Electronio" style="width: 20px; height: 20px;">Electronios</label>
                                     <input type="number" class="form-control rounded-3" id="electronios"
                                            name="tarjetaAlumno.electronios"
+                                           max="100" min="-100"
+                                           required
                                            th:value="${alumno.tarjetaAlumno.electronios}" placeholder="Cantidad de electronios"/>
                                 </div>
                             </div>

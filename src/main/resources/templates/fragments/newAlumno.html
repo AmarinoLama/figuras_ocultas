@@ -7,8 +7,8 @@
                 <div class="modal-content shadow-lg border-0 rounded-4" style="background-color: #f3e8ff; color: #000;">
                     <div class="modal-header"
                          style="background-color: #8e44ad; color: #000; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
-                        <h5 class="modal-title" id="exampleModalLabel">
-                            <i class="fas fa-user-plus me-2"></i>Crear Nuevo Alumno
+                        <h5 class="modal-title" id="exampleModalLabel" style="color: white !important;">
+                            <i class="fas fa-user-plus me-2" style="color: white !important;"></i>Crear Nuevo Alumno
                         </h5>
                         <button type="button" class="btn-close" style="filter: invert(1);" data-bs-dismiss="modal"
                                 aria-label="Cerrar"></button>
@@ -78,14 +78,15 @@
                                 <!-- Electronios -->
                                 <div class="col-md-4">
                                     <label for="electronios" class="form-label fw-semibold">
-                                        <i class="fas fa-coins me-2"></i>Electronios
+                                        <img src="/images/electronio.png" alt="Electronio" style="width: 20px; height: 20px;">Electronios
                                     </label>
                                     <input type="number"
                                            th:field="*{tarjetaAlumno.electronios}"
                                            th:value="${alumno?.tarjetaAlumno?.electronios} ?: 0"
                                            class="form-control rounded-3"
                                            id="electronios"
-                                           min="0"
+                                           min="-100"
+                                           max="100"
                                            required/>
                                 </div>
 

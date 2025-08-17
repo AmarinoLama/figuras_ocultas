@@ -144,7 +144,7 @@
                         <label class="me-2 fw-bold mb-0">Electronios:</label>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(-1)">−</button>
-                            <input type="number" id="cantidadElectronios" class="form-control" value="1" min="1">
+                            <input type="number" id="cantidadElectronios" class="form-control" value="1" readonly>
                             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(1)">＋</button>
                         </div>
                     </div>
@@ -452,9 +452,17 @@
     });
 
     function mostrarError(mensaje) {
+        // Cierra cualquier modal abierta
+        const modalesAbiertas = document.querySelectorAll('.modal.show');
+        modalesAbiertas.forEach(modalEl => {
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+        });
+
+        // Actualiza el mensaje y muestra la modal de error
         document.getElementById("textoErrorModal").textContent = mensaje;
-        const modal = new bootstrap.Modal(document.getElementById("modalErrorGenerico"));
-        modal.show();
+        const modalError = new bootstrap.Modal(document.getElementById("modalErrorGenerico"));
+        modalError.show();
     }
 
 </script>

@@ -10,6 +10,7 @@
 </head>
 
 <div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/alumnado'"></div>
+<div th:insert="~{modalesAvisos/borrarInsignia :: modalConfirmarBorrado}"></div>
 
 <body style="padding-top: 8rem;">
 <div class="container-fluid mt-5 pt-4">
@@ -66,10 +67,16 @@
 
                                 <form th:action="@{/alumnos/insignias/eliminar/{id}(id=${insignia.id})}" method="post">
                                     <input type="hidden" name="alumnoId" th:value="${alumno.id}" />
-                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle d-flex align-items-center justify-content-center"
-                                            style="width: 30px; height: 30px;" title="Eliminar insignia">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger rounded-circle d-flex align-items-center justify-content-center"
+                                            style="width: 30px; height: 30px;"
+                                            title="Eliminar insignia"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalConfirmarBorrado"
+                                            th:attr="data-id=${insignia.id}, data-nombre=${insignia.nombre}, data-alumno=${alumno.id}">
                                         <i class="fas fa-trash-alt"></i>
                                     </button>
+
                                 </form>
 
                             </li>
@@ -150,6 +157,32 @@
                     previewNombre.textContent = nombreInput.value || '(sin nombre)';
                 });
             </script>
+            <script>
+                const modalConfirmar = document.getElementById('modalConfirmarBorrado');
+                const formBorrar = document.getElementById('formBorrarInsignia');
+                const nombreInsigniaABorrar = document.getElementById('nombreInsigniaABorrar');
+
+                modalConfirmar.addEventListener('show.bs.modal', event => {
+                    const button = event.relatedTarget;
+                    const insigniaId = button.getAttribute('data-id');
+                    const alumnoId = button.getAttribute('data-alumno');
+                    const nombre = button.getAttribute('data-nombre');
+
+                    // Cambiamos el texto del modal
+                    nombreInsigniaABorrar.textContent = nombre;
+
+                    // Actualizamos la acción del form
+                    formBorrar.action = `/alumnos/insignias/eliminar/${insigniaId}`;
+
+                    // Actualizamos el alumnoId hidden input (por si lo usas en backend)
+                    formBorrar.innerHTML = `
+                        <input type="hidden" name="alumnoId" value="${alumnoId}">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Sí, borrar</button>
+                    `;
+                            });
+            </script>
+
         </div>
     </div>
 </div>

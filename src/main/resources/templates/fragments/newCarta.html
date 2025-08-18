@@ -8,7 +8,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
 
-                    <form th:action="@{/cartas/nueva}" th:object="${nuevaCarta}" method="post" enctype="multipart/form-data" class="row g-3 needs-validation" novalidate>
+                    <form th:action="@{/cartas/nueva}" th:object="${nuevaCarta}" method="post" enctype="multipart/form-data" class="row g-3 needs-validation">
                         <div class="modal-body d-flex flex-column flex-lg-row gap-4">
                             <div class="form-section flex-fill">
                                 <!-- Título -->
@@ -26,7 +26,7 @@
                                 <!-- Precio -->
                                 <div class="mb-3">
                                     <label for="precio" class="form-label fw-semibold">Precio (Electronios)</label>
-                                    <input type="number" class="form-control form-control-lg" id="precio" min="1" th:field="*{precio}" placeholder="0" required />
+                                    <input type="number" class="form-control form-control-lg" id="precio" min="1" max="100" th:field="*{precio}" placeholder="0" required />
                                 </div>
 
                                 <!-- Imagen -->
@@ -67,12 +67,23 @@
                         </div>
 
                         <script th:if="${showAlert}">
-                            alert('El título ya está en uso');
-                            var myModal = new bootstrap.Modal(document.getElementById('modalNuevaCarta'), {
-                                backdrop: 'static',
-                                keyboard: false
+                            document.addEventListener('DOMContentLoaded', () => {
+                                // Cambiamos el texto del modal
+                                const textoModal = document.getElementById('textoErrorModal');
+                                if (textoModal) {
+                                    textoModal.textContent = 'El título ya está en uso';
+                                }
+
+                                // Mostramos el modal
+                                const modalElement = document.getElementById('modalErrorGenerico');
+                                if (modalElement) {
+                                    const myModal = new bootstrap.Modal(modalElement, {
+                                        backdrop: 'static',
+                                        keyboard: false
+                                    });
+                                    myModal.show();
+                                }
                             });
-                            myModal.show();
                         </script>
 
                         <!-- Script de previsualización -->

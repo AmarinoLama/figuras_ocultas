@@ -42,7 +42,7 @@
                                     <div class="input-group">
                                         <input type="password" class="form-control rounded-start-3" id="passwordAdmin" name="password" placeholder="••••••" required>
                                         <span class="input-group-text bg-white border-start-0 toggle-container btn-ojo-fijo"
-                                              onclick="togglePassword('password', this)" title="Mostrar/Ocultar contraseña">
+                                              onclick="togglePassword('passwordAdmin', this)" title="Mostrar/Ocultar contraseña">
                                             <i class="fa-solid fa-eye-slash"></i>
                                         </span>
                                     </div>
@@ -56,6 +56,9 @@
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <div th:if="${successMessage}" class="text-success fw-bold me-auto">
                                         ✅ <span th:text="${successMessage}"></span>
+                                    </div>
+                                    <div th:if="${errorMessage}" class="text-danger fw-bold">
+                                        ❌ <span th:text="${errorMessage}"></span>
                                     </div>
                                     <button type="submit" class="btn btn-primary fw-bold rounded-3 ms-auto">
                                         💾 Guardar Cambios
@@ -106,7 +109,7 @@
                                 <div class="mb-3">
                                     <label for="password" class="form-label fw-bold">Contraseña</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control rounded-start-3" id="password" name="password" placeholder="••••••">
+                                        <input type="password" class="form-control rounded-start-3" id="password" name="password" placeholde="••••••">
                                         <span class="input-group-text bg-white border-start-0 toggle-container btn-ojo-fijo"
                                               onclick="togglePassword('password', this)" title="Mostrar/Ocultar contraseña">
                                         <i class="fa-solid fa-eye-slash"></i>
@@ -121,13 +124,17 @@
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <div th:if="${successMessage}" class="text-success fw-bold me-auto">
+                                    <div th:if="${successMessage}" class="text-success fw-bold">
                                         ✅ <span th:text="${successMessage}"></span>
+                                    </div>
+                                    <div th:if="${errorMessage}" class="text-danger fw-bold">
+                                        ❌ <span th:text="${errorMessage}"></span>
                                     </div>
                                     <button type="submit" class="btn btn-primary fw-bold rounded-3 ms-auto">
                                         💾 Guardar Cambios
                                     </button>
                                 </div>
+
                             </form>
                         </div>
                     </div>

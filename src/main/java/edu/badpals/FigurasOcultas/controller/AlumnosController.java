@@ -233,7 +233,16 @@ public class AlumnosController {
 
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             usuario.setNombre(usuarioForm.getNombre());
-            usuario.setEmail(usuarioForm.getEmail());
+            if (usuarioService.checkValidEmail(usuarioForm.getEmail())) {
+                usuario.setEmail(usuarioForm.getEmail());
+            } else {
+                System.out.println("Email no válido: " + usuarioForm.getEmail());
+                model.addAttribute("usuario", usuario);
+                model.addAttribute("errorMessage", "Email no disponible");
+                model.addAttribute("nombreWeb", webConfigService.getWebConfig());
+                return "perfil";
+            }
+
             if (usuarioForm.getPassword() != null && !usuarioForm.getPassword().isEmpty()) {
                 usuario.setPassword(usuarioForm.getPassword());
             }
@@ -241,6 +250,7 @@ public class AlumnosController {
 
             model.addAttribute("usuario", usuario);
             model.addAttribute("successMessage", "Perfil actualizado");
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
             return "perfil";
 
         } else {

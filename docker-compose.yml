@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: figuras_ocultas
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  app:
+    build: .
+    container_name: figuras-ocultas-app
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      MYSQLHOST: mysql-db
+      MYSQLPORT: 3306
+      MYSQLDATABASE: figuras_ocultas
+      MYSQLUSER: root
+      MYSQLPASSWORD: root
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

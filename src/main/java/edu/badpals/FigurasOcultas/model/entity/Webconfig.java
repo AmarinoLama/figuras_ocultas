@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "webconfig")
+@Table(name = "web_config")
 public class Webconfig {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

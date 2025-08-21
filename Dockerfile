@@ -1,4 +1,7 @@
 # STAGE 1 : BUILD THE APPLICATION
+
+RUN chmod +x mvnw
+
 FROM maven:3.9-eclipse-temurin-17 AS build
 
 # Establecemos el directorio de trabajo

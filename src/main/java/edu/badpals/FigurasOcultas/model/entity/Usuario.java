@@ -7,7 +7,6 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
 @Entity
 @Table(name = "usuarios")
 @Getter
@@ -30,16 +29,21 @@ public class Usuario implements Serializable {
     private RolUsuario rol;
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private TarjetaAlumno tarjetaAlumno = new TarjetaAlumno();
+    private TarjetaAlumno tarjetaAlumno;
 
     @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Insignia> insignias = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {
-        if (this.tarjetaAlumno == null) {
-            this.tarjetaAlumno = new TarjetaAlumno();
+        if (this.rol == RolUsuario.ALUMNO) {
+            if (this.tarjetaAlumno == null) {
+                this.tarjetaAlumno = new TarjetaAlumno();
+            }
             this.tarjetaAlumno.setUsuario(this);
+            this.tarjetaAlumno.setNivel((byte) 0);
+            this.tarjetaAlumno.setExp(0);
+            this.tarjetaAlumno.setElectronios((byte) 0);
         }
     }
 

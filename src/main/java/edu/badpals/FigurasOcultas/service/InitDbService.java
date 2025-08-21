@@ -1,7 +1,7 @@
 package edu.badpals.FigurasOcultas.service;
 
-import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
+import edu.badpals.FigurasOcultas.model.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
@@ -23,13 +23,12 @@ public class InitDbService {
 
         webConfigService.updateWebConfig("Docker Ocultas");
 
-//        UsuarioDTO admin = new UsuarioDTO();
-//        admin.setId(1L);
-//        admin.setNombre("admin");
-//        admin.setEmail("admin@ua");
-//        admin.setPassword("123");
-//        admin.setRol(RolUsuario.ADMIN);
-//
-//        usuarioService.saveUser(admin);
+        Usuario admin = new Usuario();
+        admin.setNombre("admin");
+        admin.setEmail("admin@ua");
+        admin.setPassword("123");
+        admin.setRol(RolUsuario.ADMIN);
+
+        usuarioService.saveAdmin(admin);
     }
 }

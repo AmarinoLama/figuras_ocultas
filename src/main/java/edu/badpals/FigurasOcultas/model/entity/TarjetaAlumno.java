@@ -18,19 +18,20 @@ public class TarjetaAlumno {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @NotNull
     @ColumnDefault("0")
     @Column(name = "nivel", nullable = false)
-    private Byte nivel;
+    private Byte nivel = 0;
 
     @NotNull
     @ColumnDefault("0")
     @Column(name = "exp", nullable = false)
-    private Integer exp;
+    private Integer exp = 0;
 
     @NotNull
     @ColumnDefault("0")
     @Column(name = "electronios", nullable = false)
-    private Byte electronios;
+    private Byte electronios = 0;
 
     @OneToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)

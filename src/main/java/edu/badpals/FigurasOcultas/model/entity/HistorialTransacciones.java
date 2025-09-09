@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -37,9 +38,8 @@ public class HistorialTransacciones {
     @Column(name = "electronios_en_momento", nullable = false)
     private Integer electroniosEnMomento;
 
-    @NotNull
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "fecha", nullable = false)
+    @CreationTimestamp
+    @Column(name = "fecha", updatable = false, nullable = false)
     private Instant fecha;
 
 }

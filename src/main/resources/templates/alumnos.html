@@ -38,18 +38,22 @@
                     <form th:action="@{/alumnos}" method="get" class="d-flex align-items-center">
                         <select name="curso" class="form-select ms-2" onchange="this.form.submit()">
                             <option value="">&#128218; Todos los cursos</option>
-                            <option value="PRIMERO_ESO" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO'">1º ESO
-                            </option>
-                            <option value="SEGUNDO_ESO" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO'">2º ESO
-                            </option>
-                            <option value="TERCERO_ESO" th:selected="${cursoSeleccionado} == 'TERCERO_ESO'">3º ESO
-                            </option>
-                            <option value="CUARTO_ESO" th:selected="${cursoSeleccionado} == 'CUARTO_ESO'">4º ESO
-                            </option>
-                            <option value="PRIMERO_BACH" th:selected="${cursoSeleccionado} == 'PRIMERO_BACH'">1º BAC
-                            </option>
-                            <option value="SEGUNDO_BACH" th:selected="${cursoSeleccionado} == 'SEGUNDO_BACH'">2º BAC
-                            </option>
+
+                            <option value="PRIMERO_ESO_A" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO_A'">1º ESO A</option>
+                            <option value="PRIMERO_ESO_B" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO_B'">1º ESO B</option>
+                            <option value="PRIMERO_ESO_C" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO_C'">1º ESO C</option>
+
+                            <option value="SEGUNDO_ESO_A" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO_A'">2º ESO A</option>
+                            <option value="SEGUNDO_ESO_B" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO_B'">2º ESO B</option>
+                            <option value="SEGUNDO_ESO_C" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO_C'">2º ESO C</option>
+
+                            <option value="TERCERO_ESO_A" th:selected="${cursoSeleccionado} == 'TERCERO_ESO_A'">3º ESO A</option>
+                            <option value="TERCERO_ESO_B" th:selected="${cursoSeleccionado} == 'TERCERO_ESO_B'">3º ESO B</option>
+                            <option value="TERCERO_ESO_C" th:selected="${cursoSeleccionado} == 'TERCERO_ESO_C'">3º ESO C</option>
+
+                            <option value="CUARTO_ESO_A" th:selected="${cursoSeleccionado} == 'CUARTO_ESO_A'">4º ESO A</option>
+                            <option value="CUARTO_ESO_B" th:selected="${cursoSeleccionado} == 'CUARTO_ESO_B'">4º ESO B</option>
+                            <option value="CUARTO_ESO_C" th:selected="${cursoSeleccionado} == 'CUARTO_ESO_C'">4º ESO C</option>
                         </select>
                     </form>
 
@@ -120,12 +124,18 @@
                     </div>
 
                     <select id="selectCursoElectronios" class="form-select" aria-label="Seleccionar curso">
-                        <option value="PRIMERO_ESO">1º ESO</option>
-                        <option value="SEGUNDO_ESO">2º ESO</option>
-                        <option value="TERCERO_ESO">3º ESO</option>
-                        <option value="CUARTO_ESO">4º ESO</option>
-                        <option value="PRIMERO_BACH">1º BAC</option>
-                        <option value="SEGUNDO_BACH">2º BAC</option>
+                        <option value="PRIMERO_ESO_A">1º ESO A</option>
+                        <option value="PRIMERO_ESO_B">1º ESO B</option>
+                        <option value="PRIMERO_ESO_C">1º ESO C</option>
+                        <option value="SEGUNDO_ESO_A">2º ESO A</option>
+                        <option value="SEGUNDO_ESO_B">2º ESO B</option>
+                        <option value="SEGUNDO_ESO_C">2º ESO C</option>
+                        <option value="TERCERO_ESO_A">3º ESO A</option>
+                        <option value="TERCERO_ESO_B">3º ESO B</option>
+                        <option value="TERCERO_ESO_C">3º ESO C</option>
+                        <option value="CUARTO_ESO_A">4º ESO A</option>
+                        <option value="CUARTO_ESO_B">4º ESO B</option>
+                        <option value="CUARTO_ESO_C">4º ESO C</option>
                     </select>
 
                     <br/>

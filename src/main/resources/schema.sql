@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS usuarios
     nombre   CHAR(25) NOT NULL,
     email    VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    curso    ENUM ('PRIMERO_ESO', 'SEGUNDO_ESO', 'TERCERO_ESO', 'CUARTO_ESO', 'PRIMERO_BACH', 'SEGUNDO_BACH') NULL,
+    curso    ENUM ('PRIMERO_ESO_A', 'PRIMERO_ESO_B', 'PRIMERO_ESO_C', 'SEGUNDO_ESO_A', 'SEGUNDO_ESO_B', 'SEGUNDO_ESO_C', 'TERCERO_ESO_A', 'TERCERO_ESO_B', 'TERCERO_ESO_C','CUARTO_ESO_A', 'CUARTO_ESO_B', 'CUARTO_ESO_C') NULL,
     rol      ENUM ('ADMIN', 'ALUMNO') NOT NULL
 );
 
@@ -106,3 +106,29 @@ CREATE TRIGGER actualizar_nivel_tarjeta_update
                         WHEN NEW.exp >= 100  THEN 1
                         ELSE 0
         END;
+
+/* =========================  CREACIÓN DE PROCEDURES  ========================= */
+
+CREATE PROCEDURE crear_alumno(
+    IN p_nombre CHAR(25),
+    IN p_email VARCHAR(100),
+    IN p_password VARCHAR(255),
+    IN p_curso ENUM('PRIMERO_ESO_A','PRIMERO_ESO_B','PRIMERO_ESO_C',
+        'SEGUNDO_ESO_A','SEGUNDO_ESO_B','SEGUNDO_ESO_C',
+        'TERCERO_ESO_A','TERCERO_ESO_B','TERCERO_ESO_C',
+        'CUARTO_ESO_A','CUARTO_ESO_B','CUARTO_ESO_C')
+)
+BEGIN
+    DECLARE nuevo_id BIGINT;
+
+    -- Insertamos el alumno
+    INSERT INTO usuarios (nombre, email, password, curso, rol)
+    VALUES (p_nombre, p_email, p_password, p_curso, 'ALUMNO');
+
+    -- Obtenemos el id generado
+    SET nuevo_id = LAST_INSERT_ID();
+
+    -- Creamos la tarjeta asociada
+    INSERT INTO tarjeta_alumno (nivel, exp, electronios, usuario_id)
+    VALUES (0, 0, 0, nuevo_id);
+END;

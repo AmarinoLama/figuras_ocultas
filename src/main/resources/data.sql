@@ -1,25 +1,27 @@
-
-
 INSERT INTO usuarios (nombre, email, password, curso, rol)
 VALUES
     ('adminPrueba', 'admin@ua', '123', NULL, 'ADMIN'),
-    ('alumno', 'alumno@ua', '123', 'PRIMERO_ESO', 'ALUMNO'),
-    ('Vegete Pérez', 'Vegete', '123', 'SEGUNDO_ESO', 'ALUMNO'),
-    ('Skibidi Pérez', 'Skibidi', '123', 'SEGUNDO_ESO', 'ALUMNO'),
-    ('Vicente Pérez', 'Vicente', '123', 'PRIMERO_BACH', 'ALUMNO'),
-    ('Aman Pérez', 'Aman', '123', 'TERCERO_ESO', 'ALUMNO'),
-    ('Izan S.L. Pérez', 'Izan', '123', 'PRIMERO_ESO', 'ALUMNO'),
-    ('Carlos Martínez', 'Carlos', '123', 'PRIMERO_ESO', 'ALUMNO'),
-    ('Ana López', 'Ana', '123', 'PRIMERO_ESO', 'ALUMNO'),
-    ('Marta García', 'Marta', '123', 'SEGUNDO_ESO', 'ALUMNO'),
-    ('Luis González', 'Luis', '123', 'SEGUNDO_ESO', 'ALUMNO'),
-    ('José Sánchez', 'José', '123', 'TERCERO_ESO', 'ALUMNO'),
-    ('Paula Rodríguez', 'Paula', '123', 'TERCERO_ESO', 'ALUMNO'),
-    ('Raúl Pérez', 'Raúl', '123', 'CUARTO_ESO', 'ALUMNO'),
-    ('Lucía Fernández', 'Lucía', '123', 'CUARTO_ESO', 'ALUMNO'),
-    ('Santiago Díaz', 'Santiago', '123', 'PRIMERO_BACH', 'ALUMNO'),
-    ('Clara Jiménez', 'Clara', '123', 'SEGUNDO_BACH', 'ALUMNO'),
-    ('Martín Castro', 'Martín', '123', 'SEGUNDO_BACH', 'ALUMNO');
+
+    -- 1º ESO
+    ('Laura Pérez', 'laura@ua', '123', 'PRIMERO_ESO_A', 'ALUMNO'),
+    ('Diego Gómez', 'diego@ua', '123', 'PRIMERO_ESO_B', 'ALUMNO'),
+    ('Nerea Castro', 'nerea@ua', '123', 'PRIMERO_ESO_C', 'ALUMNO'),
+
+    -- 2º ESO
+    ('Hugo Fernández', 'hugo@ua', '123', 'SEGUNDO_ESO_A', 'ALUMNO'),
+    ('Valeria López', 'valeria@ua', '123', 'SEGUNDO_ESO_B', 'ALUMNO'),
+    ('Iván Morales', 'ivan@ua', '123', 'SEGUNDO_ESO_C', 'ALUMNO'),
+
+    -- 3º ESO
+    ('Sofía Martín', 'sofia@ua', '123', 'TERCERO_ESO_A', 'ALUMNO'),
+    ('Álvaro Díaz', 'alvaro@ua', '123', 'TERCERO_ESO_B', 'ALUMNO'),
+    ('Paula Ruiz', 'paula@ua', '123', 'TERCERO_ESO_C', 'ALUMNO'),
+
+    -- 4º ESO
+    ('Mario Rodríguez', 'mario@ua', '123', 'CUARTO_ESO_A', 'ALUMNO'),
+    ('Carmen Sánchez', 'carmen@ua', '123', 'CUARTO_ESO_B', 'ALUMNO'),
+    ('Adrián Torres', 'adrian@ua', '123', 'CUARTO_ESO_C', 'ALUMNO');
+
 
 INSERT INTO tarjeta_alumno (exp, electronios, usuario_id) VALUES
                                                               (0, 5, 2),

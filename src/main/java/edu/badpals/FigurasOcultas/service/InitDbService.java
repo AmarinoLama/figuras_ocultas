@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 
 @Service
-@Profile("production")
+@Profile({"production", "dev"})
 public class InitDbService {
 
     @Autowired UsuarioService usuarioService;
@@ -23,12 +23,18 @@ public class InitDbService {
 
         webConfigService.updateWebConfig("Docker Ocultas");
 
-        Usuario admin = new Usuario();
-        admin.setNombre("admin");
-        admin.setEmail("admin@ua");
-        admin.setPassword("123");
-        admin.setRol(RolUsuario.ADMIN);
+        Usuario susiAccount = new Usuario();
+        susiAccount.setNombre("Susi");
+        susiAccount.setEmail("susiveiga@figurasocultas");
+        susiAccount.setPassword("123");
+        susiAccount.setRol(RolUsuario.ADMIN);
+        usuarioService.saveAdmin(susiAccount);
 
-        usuarioService.saveAdmin(admin);
+        Usuario andreaAccount = new Usuario();
+        andreaAccount.setNombre("Andrea");
+        andreaAccount.setEmail("admin@ua");
+        andreaAccount.setPassword("123");
+        andreaAccount.setRol(RolUsuario.ADMIN);
+        usuarioService.saveAdmin(andreaAccount);
     }
 }

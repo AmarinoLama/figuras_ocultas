@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -130,7 +131,6 @@ public class UsuarioService {
                 nuevos = Math.max(-100, Math.min(100, nuevos));
 
                 alumno.getTarjetaAlumno().setElectronios((byte) nuevos);
-                System.out.println("Electronios actualizados: " + nuevos);
 
                 if (cantidadElectronios > 0) {
                     hts.addMoreElectroniosToHistorial(alumno.getId(), cantidadElectronios);

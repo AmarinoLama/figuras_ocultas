@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /// TODO: Añadir una barra de búsqueda para buscar alumnos
 /// TODO: Añadir paginación para la lista de alumnos
@@ -177,7 +178,7 @@ public class AlumnosController {
     public String darElectronios(
             @RequestParam String tipoSeleccion,
             @RequestParam int cantidadElectronios,
-            @RequestParam(required = false) List<Long> idsAlumnos,
+            @RequestParam(required = false) Set<Long> idsAlumnos,
             @RequestParam(required = false) String curso
     ) {
 
@@ -192,7 +193,7 @@ public class AlumnosController {
                     return "redirect:/alumnos?curso=" + curso;
 
                 } else {
-                    usuarioService.darElectroniosAlumnos(idsAlumnos, cantidadElectronios);
+                    usuarioService.darElectroniosAlumnos(idsAlumnos.stream().toList(), cantidadElectronios);
                 }
             }
         } else {
@@ -233,14 +234,17 @@ public class AlumnosController {
 
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
             usuario.setNombre(usuarioForm.getNombre());
-            if (usuarioService.checkValidEmail(usuarioForm.getEmail())) {
-                usuario.setEmail(usuarioForm.getEmail());
-            } else {
-                System.out.println("Email no válido: " + usuarioForm.getEmail());
-                model.addAttribute("usuario", usuario);
-                model.addAttribute("errorMessage", "Email no disponible");
-                model.addAttribute("nombreWeb", webConfigService.getWebConfig());
-                return "perfil";
+
+            // Comprobamos si el email ha cambiado
+            if (!usuario.getEmail().equals(usuarioForm.getEmail())) {
+                if (usuarioService.checkValidEmail(usuarioForm.getEmail())) {
+                    usuario.setEmail(usuarioForm.getEmail());
+                } else {
+                    model.addAttribute("usuario", usuario);
+                    model.addAttribute("errorMessage", "Email no disponible");
+                    model.addAttribute("nombreWeb", webConfigService.getWebConfig());
+                    return "perfil";
+                }
             }
 
             if (usuarioForm.getPassword() != null && !usuarioForm.getPassword().isEmpty()) {

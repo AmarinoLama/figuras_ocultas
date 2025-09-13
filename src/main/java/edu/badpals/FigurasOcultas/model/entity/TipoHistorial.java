@@ -4,5 +4,6 @@ public enum TipoHistorial {
     COMPRA,
     USO,
     GANAR_ELECTRONIOS,
-    PERDER_ELECTRONIOS
+    PERDER_ELECTRONIOS,
+    NUEVA_INSIGNIA
 }

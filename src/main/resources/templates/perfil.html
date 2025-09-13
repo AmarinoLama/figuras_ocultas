@@ -98,12 +98,12 @@
 
                                 <div class="mb-3">
                                     <label for="nombre" class="form-label fw-bold">Nombre</label>
-                                    <input type="text" class="form-control rounded-3" id="nombre" name="nombre" th:value="${usuario.nombre}" required>
+                                    <input type="text" class="form-control rounded-3" id="nombre" name="nombre" th:value="${usuario.nombre}" readonly>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="email" class="form-label fw-bold">Email</label>
-                                    <input type="email" class="form-control rounded-3" id="email" name="email" th:value="${usuario.email}" required>
+                                    <input type="email" class="form-control rounded-3" id="email" name="email" th:value="${usuario.email}" readonly>
                                 </div>
 
                                 <div class="mb-3">
@@ -153,7 +153,12 @@
                                      th:classappend="' lvl-' + ${lvl}">
                                     <span th:text="${lvl}"></span>
                                 </div>
-                                <div class="mt-1 text-white fw-semibold" th:text="'Nivel ' + ${lvl}"></div>
+                                <div th:if="${lvl == 1}" class="mt-1 text-white fw-semibold">Cerebro lógico</div>
+                                <div th:if="${lvl == 2}" class="mt-1 text-white fw-semibold">Maestría en medidas</div>
+                                <div th:if="${lvl == 3}" class="mt-1 text-white fw-semibold">Investigador científico</div>
+                                <div th:if="${lvl == 4}" class="mt-1 text-white fw-semibold">Leyenda científica</div>
+                                <div th:if="${lvl == 5}" class="mt-1 text-white fw-semibold">Mente brillante</div>
+                                <div th:if="${lvl == 6}" class="mt-1 text-white fw-semibold">Insignia Curie</div>
                             </div>
 
                             <!-- Insignias de BBDD -->

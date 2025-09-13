@@ -15,7 +15,7 @@
 <div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/alumnos'"></div>
 <div th:insert="~{modalesAvisos/borradoAlumno :: modalConfirmarBorrado}"></div>
 <div th:insert="~{modalesAvisos/errorTexto :: modalErrorGenerico}"></div>
-<div th:insert="~{modalesAvisos/darElectronios :: modalConfirmarElectronios}"></div>
+<div th:insert="~{modalesAvisos/darExp :: modalConfirmarElectronios}"></div>
 
 <!-- Contenido principal -->
 <div class="mt-1 position-relative" style="width: 90%; margin: 0 auto;">
@@ -28,7 +28,7 @@
                     <!-- Botón Electronios -->
                     <button id="btnElectronios" class="btn btn-primary fw-bold">
                         <img src="/images/electronio.png" alt="Electronio" style="width: 20px; height: 20px;">
-                        Electronios
+                        Experiencia
                     </button>
 
                     <button class="btn btn-success fw-bold" data-bs-toggle="modal" data-bs-target="#modalNuevoAlumno">
@@ -101,6 +101,7 @@
                                 <td th:text="${alumno.curso}"></td>
                                 <td>
                                     <div class="d-flex justify-content-center align-items-center gap-2">
+                                        <a class="btn btn-sm btn-warning" style="background-color: peru;" th:href="@{/alumnos/historial/{id}(id=${alumno.id})}">🧾</a>
                                         <a class="btn btn-sm btn-warning" style="background-color: deepskyblue;" th:href="@{/alumnos/insignias/{id}(id=${alumno.id})}">🎖️</a>
                                         <button type="button" class="btn btn-sm btn-warning btn-editar" th:data-email="${alumno.email}">✏️</button>
                                         <button type="button" class="btn btn-sm btn-danger btn-confirmar-borrado-alumno"
@@ -116,7 +117,7 @@
                 <!-- PANEL DERECHO -->
                 <div id="panelElectronios" class="card p-3"
                      style="display: none; width: 300px; flex-shrink: 0; align-self: flex-start;">
-                    <h5 class="mb-3">⚙️ Dar Electronios</h5>
+                    <h5 class="mb-3">⚙️ Dar Experiencia</h5>
 
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="opcionSeleccion" id="opCurso" value="curso" checked>
@@ -151,11 +152,11 @@
                     </div>
 
                     <div class="input-cantidad">
-                        <label class="me-2 fw-bold mb-0">Electronios:</label>
+                        <label class="me-2 fw-bold mb-0">Exp:</label>
                         <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(-1)">−</button>
-                            <input type="number" id="cantidadElectronios" class="form-control" value="1" readonly>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(1)">＋</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(-10)">−</button>
+                            <input type="number" id="cantidadElectronios" class="form-control" value="10">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(10)">＋</button>
                         </div>
                     </div>
 

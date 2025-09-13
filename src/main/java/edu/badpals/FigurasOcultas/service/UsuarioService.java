@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -67,6 +66,8 @@ public class UsuarioService {
             tarjetaAlumno.setUsuario(usuario);
             usuario.setTarjetaAlumno(tarjetaAlumno);
             usuarioRepository.save(usuario);
+        } else if (usuarioDTO.isAdmin()) {
+            saveAdmin(usuario);
         }
     }
 
@@ -95,51 +96,64 @@ public class UsuarioService {
     }
 
     @Transactional
-    public void darElectroniosCurso(String curso, int cantidadElectronios) {
+    public void darExpCurso(String curso, int cantidadExp) {
         List<UsuarioDTO> alumnos = getAlumnosFromCurso(curso);
         for (UsuarioDTO alumno : alumnos) {
 
-            int electronios = alumno.getTarjetaAlumno().getElectronios();
+            int exp = alumno.getTarjetaAlumno().getExp();
 
-            int nuevos = electronios + cantidadElectronios;
+            int nuevaExp = exp + cantidadExp;
 
-            nuevos = Math.max(-100, Math.min(100, nuevos));
+            alumno.getTarjetaAlumno().setExp(nuevaExp);
 
-            alumno.getTarjetaAlumno().setElectronios((byte) nuevos);
-            System.out.println("Electronios actualizados: " + nuevos);
-
-            if (cantidadElectronios > 0) {
-                hts.addMoreElectroniosToHistorial(alumno.getId(), cantidadElectronios);
+            if (cantidadExp > 0) {
+                hts.addMoreExpToHistorial(alumno.getId(), cantidadExp);
             } else {
-                hts.addLessElectroniosToHistorial(alumno.getId(), -cantidadElectronios);
+                hts.addLessExpToHistorial(alumno.getId(), -cantidadExp);
             }
 
             saveUser(alumno);
+
+            if ((double) (exp / 50) < (double) (nuevaExp / 50)) {
+                int diferencia = (nuevaExp / 50) - (exp / 50);
+                sumarElectronio(alumno.getId(), diferencia);
+            }
         }
     }
 
     @Transactional
-    public void darElectroniosAlumnos(List<Long> idsAlumnos, int cantidadElectronios) {
+    public void darExpAlumnos(List<Long> idsAlumnos, int cantidadExp) {
         for (Long idAlumno : idsAlumnos) {
             UsuarioDTO alumno = getUserById(idAlumno);
             if (alumno != null) {
 
-                int electronios = alumno.getTarjetaAlumno().getElectronios();
+                int exp = alumno.getTarjetaAlumno().getExp();
 
-                int nuevos = electronios + cantidadElectronios;
+                int nuevaExp = exp + cantidadExp;
 
-                nuevos = Math.max(-100, Math.min(100, nuevos));
+                alumno.getTarjetaAlumno().setExp(nuevaExp);
 
-                alumno.getTarjetaAlumno().setElectronios((byte) nuevos);
-
-                if (cantidadElectronios > 0) {
-                    hts.addMoreElectroniosToHistorial(alumno.getId(), cantidadElectronios);
+                if (cantidadExp > 0) {
+                    hts.addMoreExpToHistorial(alumno.getId(), cantidadExp);
                 } else {
-                    hts.addLessElectroniosToHistorial(alumno.getId(), -cantidadElectronios);
+                    hts.addLessExpToHistorial(alumno.getId(), -cantidadExp);
                 }
 
                 saveUser(alumno);
+
+                if ((double) (exp / 50) < (double) (nuevaExp / 50)) {
+                    int diferencia = (nuevaExp / 50) - (exp / 50);
+                    sumarElectronio(alumno.getId(), diferencia);
+                }
             }
         }
+    }
+
+    @Transactional
+    public void sumarElectronio(Long idAlumno, int electronios) {
+        UsuarioDTO alumno = getUserById(idAlumno);
+        byte electroniosAlumno = alumno.getTarjetaAlumno().getElectronios();
+        alumno.getTarjetaAlumno().setElectronios((byte) (electronios + electroniosAlumno));
+        saveUser(alumno);
     }
 }

@@ -2,7 +2,6 @@ package edu.badpals.FigurasOcultas.service;
 import edu.badpals.FigurasOcultas.model.dto.CartaDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.*;
-import edu.badpals.FigurasOcultas.model.repository.CartaUsuarioRepository;
 import edu.badpals.FigurasOcultas.model.repository.HistorialTransaccionesRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,14 +64,14 @@ public class HistorialTransaccionesService {
     }
 
     @Transactional
-    public void addMoreElectroniosToHistorial(Long usuarioId, int electronios) {
+    public void addMoreExpToHistorial(Long usuarioId, int experiencia) {
 
         UsuarioDTO usuarioDTO = usuarioService.getUserById(usuarioId);
 
         HistorialTransacciones historial = new HistorialTransacciones();
         historial.setAlumno(modelMapper.map(usuarioDTO, Usuario.class));
         historial.setTipo(TipoHistorial.GANAR_ELECTRONIOS);
-        historial.setDescripcion("Has recibido " + electronios + " " + (electronios == 1 ? "electronio" : "electronios"));
+        historial.setDescripcion("Has recibido " + experiencia + " de experiencia");
         historial.setFecha(ZonedDateTime.now(ZoneId.of("Europe/Madrid")).toInstant());
         historial.setElectroniosEnMomento(Integer.valueOf(usuarioDTO.getTarjetaAlumno().getElectronios()));
 
@@ -80,14 +79,28 @@ public class HistorialTransaccionesService {
     }
 
     @Transactional
-    public void addLessElectroniosToHistorial(Long usuarioId, int electronios) {
+    public void addLessExpToHistorial(Long usuarioId, int experiencia) {
 
         UsuarioDTO usuarioDTO = usuarioService.getUserById(usuarioId);
 
         HistorialTransacciones historial = new HistorialTransacciones();
         historial.setAlumno(modelMapper.map(usuarioDTO, Usuario.class));
         historial.setTipo(TipoHistorial.PERDER_ELECTRONIOS);
-        historial.setDescripcion("Has perdido " + electronios + " " + (electronios == 1 ? "electronio" : "electronios"));
+        historial.setDescripcion("Has perdido " + experiencia + " de experiencia");
+        historial.setFecha(ZonedDateTime.now(ZoneId.of("Europe/Madrid")).toInstant());
+        historial.setElectroniosEnMomento(Integer.valueOf(usuarioDTO.getTarjetaAlumno().getElectronios()));
+
+        htr.save(historial);
+    }
+
+    @Transactional
+    public void newInsignia(Long usuarioId, String insigniaName) {
+        UsuarioDTO usuarioDTO = usuarioService.getUserById(usuarioId);
+
+        HistorialTransacciones historial = new HistorialTransacciones();
+        historial.setAlumno(modelMapper.map(usuarioDTO, Usuario.class));
+        historial.setTipo(TipoHistorial.NUEVA_INSIGNIA);
+        historial.setDescripcion("Has recibido la siguiente insignia especial: " + insigniaName);
         historial.setFecha(ZonedDateTime.now(ZoneId.of("Europe/Madrid")).toInstant());
         historial.setElectroniosEnMomento(Integer.valueOf(usuarioDTO.getTarjetaAlumno().getElectronios()));
 

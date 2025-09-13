@@ -16,37 +16,44 @@
 
     <div th:if="${usuario}">
 
-        <div th:if="${!usuario.isAdmin()}">
+        <div th:if="${!usuario.isAdmin}">
             <div class="mb-4 p-3 bg-light rounded shadow-sm text-center"
                  style="font-size: 1.5rem; font-weight: bold; color: #0d6efd;">
-                🧾 Historial de Transacciones
+                🧾 Historial de Notificaciones
             </div>
+        </div>
 
-            <div th:if="${#lists.isEmpty(historial)}" class="alert alert-warning text-center">
-                Aún no ha pasado nada
+        <div th:if="${usuario.isAdmin}">
+            <div class="mb-4 p-3 bg-light rounded shadow-sm text-center"
+                 style="font-size: 1.5rem; font-weight: bold; color: #0d6efd;"
+                 th:text="'🧾 Historial de Notificaciones de ' + ${nombre}">
             </div>
+        </div>
 
-            <div th:if="${!#lists.isEmpty(historial)}" class="table-responsive">
-                <table class="table table-bordered mt-4">
-                    <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Mensaje</th>
-                        <th>Electronios</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="item : ${historial}">
-                        <td th:text="${#dates.format(item.fecha, 'dd/MM/yyyy')}"></td>
-                        <td th:text="${#dates.format(item.fecha, 'HH:mm:ss')}"></td>
-                        <td th:text="${item.descripcion}"></td>
-                        <td th:text="${item.electroniosEnMomento}"></td>
-                    </tr>
+        <div th:if="${#lists.isEmpty(historial)}" class="alert alert-warning text-center">
+            Aún no ha pasado nada
+        </div>
 
-                    </tbody>
-                </table>
-            </div>
+        <div th:if="${!#lists.isEmpty(historial)}" class="table-responsive">
+            <table class="table table-bordered mt-4">
+                <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Mensaje</th>
+                    <th>Electronios</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${historial}">
+                    <td th:text="${#dates.format(item.fecha, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${#dates.format(item.fecha, 'HH:mm:ss')}"></td>
+                    <td th:text="${item.descripcion}"></td>
+                    <td th:text="${item.electroniosEnMomento}"></td>
+                </tr>
+
+                </tbody>
+            </table>
         </div>
 
     </div>

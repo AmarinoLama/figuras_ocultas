@@ -22,6 +22,9 @@ public class InsigniaService {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private HistorialTransaccionesService htsService;
+
     @Transactional
     public List<Insignia> getAllInsignias() {
         return StreamSupport.stream(insigniaRepository.findAll().spliterator(), false)
@@ -36,6 +39,8 @@ public class InsigniaService {
         insignia.setAlumno(modelMapper.map(alumno, Usuario.class));
 
         insigniaRepository.save(insignia);
+
+        htsService.newInsignia(alumnoId, insignia.getNombre());
 
     }
 

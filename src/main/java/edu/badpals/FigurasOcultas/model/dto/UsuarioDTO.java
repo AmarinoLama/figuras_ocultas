@@ -10,6 +10,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Null;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,7 +55,7 @@ public class UsuarioDTO {
                 ", password='" + password + '\'' +
                 ", curso=" + curso +
                 ", rol=" + rol +
-                ", tarjetaAlumno=" + tarjetaAlumno + // Asegúrate de incluirla también en el toString
+                ", tarjetaAlumno=" + tarjetaAlumno +
                 '}';
     }
 }

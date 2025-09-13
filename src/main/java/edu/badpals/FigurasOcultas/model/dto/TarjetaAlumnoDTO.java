@@ -8,7 +8,7 @@ import lombok.Setter;
 public class TarjetaAlumnoDTO {
 
     private Long id;
-    private Byte nivel;
+    private Byte nivel = 0;
     private Integer exp = 0;
     private Byte electronios = 0;
     private Long usuarioId; // Aquí guardamos la id del usuario asociado

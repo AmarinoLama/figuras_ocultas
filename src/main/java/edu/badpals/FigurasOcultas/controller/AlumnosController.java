@@ -3,20 +3,17 @@ package edu.badpals.FigurasOcultas.controller;
 import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
+import edu.badpals.FigurasOcultas.model.entity.HistorialTransacciones;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import edu.badpals.FigurasOcultas.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -48,6 +45,9 @@ public class AlumnosController {
 
     @Autowired
     private WebConfigService webConfigService;
+
+    @Autowired
+    private CartaUsuarioService cartaUsuarioService;
 
     @GetMapping("/alumnos")
     public String loadIndex(Model model, @RequestParam(required = false) String curso) {
@@ -131,9 +131,9 @@ public class AlumnosController {
                 int electroniosAfter = alumnoEditado.getTarjetaAlumno().getElectronios();
 
                 if (electroniosBefore > electroniosAfter) {
-                    hts.addLessElectroniosToHistorial(idAlumno, electroniosBefore - electroniosAfter);
+                    hts.addLessExpToHistorial(idAlumno, electroniosBefore - electroniosAfter);
                 } else if (electroniosBefore < electroniosAfter) {
-                    hts.addMoreElectroniosToHistorial(idAlumno, electroniosAfter - electroniosBefore);
+                    hts.addMoreExpToHistorial(idAlumno, electroniosAfter - electroniosBefore);
                 }
 
                     if (alumnoEditado.getEmail() != null && !alumnoEditado.getEmail().isEmpty()) {
@@ -189,11 +189,11 @@ public class AlumnosController {
             if (usuario != null) {
 
                 if (Objects.equals(tipoSeleccion, "curso")) {
-                    usuarioService.darElectroniosCurso(curso, cantidadElectronios);
+                    usuarioService.darExpCurso(curso, cantidadElectronios);
                     return "redirect:/alumnos?curso=" + curso;
 
                 } else {
-                    usuarioService.darElectroniosAlumnos(idsAlumnos.stream().toList(), cantidadElectronios);
+                    usuarioService.darExpAlumnos(idsAlumnos.stream().toList(), cantidadElectronios);
                 }
             }
         } else {
@@ -233,6 +233,7 @@ public class AlumnosController {
         if (usuarioLogeado) {
 
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+
             usuario.setNombre(usuarioForm.getNombre());
 
             // Comprobamos si el email ha cambiado
@@ -250,6 +251,7 @@ public class AlumnosController {
             if (usuarioForm.getPassword() != null && !usuarioForm.getPassword().isEmpty()) {
                 usuario.setPassword(usuarioForm.getPassword());
             }
+
             usuarioService.saveUser(usuario);
 
             model.addAttribute("usuario", usuario);
@@ -260,5 +262,26 @@ public class AlumnosController {
         } else {
             return "redirect:/login";
         }
+    }
+
+    @GetMapping("/alumnos/historial/{id}")
+    public String historialAlumno(@PathVariable(value = "id") Long idAlumno, Model model) {
+        Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
+        if (usuarioLogeadoId != null) {
+            UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
+            UsuarioDTO alumno = usuarioService.getUserById(idAlumno);
+
+            model.addAttribute("usuario", usuario);
+            model.addAttribute("nombre", alumno.getNombre());
+
+            List<HistorialTransacciones> historial = cartaUsuarioService.getHistorial(idAlumno);
+            Collections.reverse(historial);
+            model.addAttribute("historial", historial);
+
+            model.addAttribute("nombreWeb", webConfigService.getWebConfig());
+
+            return "historial";
+        }
+        return "redirect:/login";
     }
 }

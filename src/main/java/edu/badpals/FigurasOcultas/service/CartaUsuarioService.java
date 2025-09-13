@@ -37,6 +37,7 @@ public class CartaUsuarioService {
     @Autowired
     private HistorialTransaccionesService historialTransaccionesService;
 
+    @Transactional
     public List<HistorialTransacciones> getHistorial(Long usuarioId) {
         return historialTransaccionesService.getHistorialTransaccionesByUsuario(usuarioId);
     }

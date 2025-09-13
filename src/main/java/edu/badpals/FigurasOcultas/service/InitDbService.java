@@ -21,20 +21,27 @@ public class InitDbService {
     @PostConstruct
     public void initDatabase() {
 
-        webConfigService.updateWebConfig("Docker Ocultas");
+//        webConfigService.updateWebConfig("Docker Ocultas");
 
 //        Usuario susiAccount = new Usuario();
 //        susiAccount.setNombre("Susi");
-//        susiAccount.setEmail("susiveiga@figurasocultas");
+//        susiAccount.setEmail("susiveiga@ua");
 //        susiAccount.setPassword("123");
 //        susiAccount.setRol(RolUsuario.ADMIN);
 //        usuarioService.saveAdmin(susiAccount);
 //
 //        Usuario andreaAccount = new Usuario();
 //        andreaAccount.setNombre("Andrea");
-//        andreaAccount.setEmail("admin@ua");
+//        andreaAccount.setEmail("andreavazquez@ua");
 //        andreaAccount.setPassword("123");
 //        andreaAccount.setRol(RolUsuario.ADMIN);
 //        usuarioService.saveAdmin(andreaAccount);
+//
+//        Usuario adminAccount = new Usuario();
+//        adminAccount.setNombre("Administrador");
+//        adminAccount.setEmail("admin@ua");
+//        adminAccount.setPassword("123");
+//        adminAccount.setRol(RolUsuario.ADMIN);
+//        usuarioService.saveAdmin(adminAccount);
     }
 }

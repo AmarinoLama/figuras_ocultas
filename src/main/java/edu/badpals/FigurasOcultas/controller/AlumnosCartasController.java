@@ -1,6 +1,7 @@
 package edu.badpals.FigurasOcultas.controller;
 import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
+import edu.badpals.FigurasOcultas.model.entity.HistorialTransacciones;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import edu.badpals.FigurasOcultas.service.CartaUsuarioService;
 import edu.badpals.FigurasOcultas.service.UsuarioService;
@@ -11,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /// TODO: Hacer DTO de alumnosCartas
@@ -98,7 +101,11 @@ public class AlumnosCartasController {
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
 
             model.addAttribute("usuario", usuario);
-            model.addAttribute("historial", cartaUsuarioService.getHistorial(usuarioLogeadoId));
+
+            List<HistorialTransacciones> historial = cartaUsuarioService.getHistorial(usuarioLogeadoId);
+            Collections.reverse(historial);
+            model.addAttribute("historial", historial);
+
             model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
             return "historial";

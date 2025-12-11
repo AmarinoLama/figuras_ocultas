@@ -107,6 +107,7 @@ public class InsigniasController {
             byte[] imagen = insigniaService.obtenerImagenInsignia(id);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_JPEG);
+            headers.setCacheControl("max-age=86400, public");
             return new ResponseEntity<>(imagen, headers, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

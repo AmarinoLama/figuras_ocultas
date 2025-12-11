@@ -26,7 +26,7 @@ public class HistorialTransaccionesService {
     @Autowired
     private ModelMapper modelMapper;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<HistorialTransacciones> getHistorialTransaccionesByUsuario(Long usuarioId) {
         return htr.findByAlumnoId(usuarioId);
     }

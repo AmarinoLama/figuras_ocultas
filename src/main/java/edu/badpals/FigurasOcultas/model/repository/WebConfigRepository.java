@@ -1,7 +1,10 @@
 package edu.badpals.FigurasOcultas.model.repository;
 
 import edu.badpals.FigurasOcultas.model.entity.Webconfig;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface WebConfigRepository extends CrudRepository<Webconfig, Long> {
+import java.util.Optional;
+
+public interface WebConfigRepository extends JpaRepository<Webconfig, Long> {
+    Optional<Webconfig> findFirstBy();
 }

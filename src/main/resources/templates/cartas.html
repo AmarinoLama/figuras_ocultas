@@ -42,6 +42,12 @@
                 </div>
             </div>
 
+            <div th:if="${cartasEmpty}" class="my-4">
+                <div class="alert alert-info text-center">
+                    No hay cartas. <span th:if="${usuario.isAdmin()}">Crea una nueva carta!</span>
+                </div>
+            </div>
+
             <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
                 <div th:each="carta : ${cartas}" class="col">
                     <div class="card shadow-sm p-0">
@@ -49,7 +55,8 @@
                             <h5 class="card-title" th:text="${carta.titulo}">Título</h5>
                             <img th:src="@{'/cartas/imagen/' + ${carta.id}}"
                                  class="card-img-top"
-                                 alt="Imagen de la carta">
+                                 alt="Imagen de la carta"
+                                 loading="lazy">
                             <p class="card-text">
                                 <strong>
                                     <span th:text="${carta.precio}">Precio</span>
@@ -71,6 +78,22 @@
                     </div>
                 </div>
             </div>
+
+            <div th:if="${cartasTotalPages != null and cartasTotalPages > 1}" class="mt-4 d-flex justify-content-center w-100">
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${cartasPageNumber == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/cartas(page=${cartasPageNumber - 1}, size=10)}">Anterior</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">Página <span th:text="${cartasPageNumber + 1}"></span> de <span th:text="${cartasTotalPages}"></span></span>
+                        </li>
+                        <li class="page-item" th:classappend="${cartasPageNumber + 1 >= cartasTotalPages} ? 'disabled'">
+                            <a class="page-link" th:href="@{/cartas(page=${cartasPageNumber + 1}, size=10)}">Siguiente</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
 
         <!-- SI EL USUARIO ES UN ALUMNO -->
@@ -88,7 +111,8 @@
                             <h5 class="card-title" th:text="${carta.titulo}">Título</h5>
                             <img th:src="@{'/cartas/imagen/' + ${carta.id}}"
                                  class="card-img-top"
-                                 alt="Imagen de la carta">
+                                 alt="Imagen de la carta"
+                                 loading="lazy">
                             <p class="card-text d-flex justify-content-between align-items-center">
                                 <strong>
                                     <span th:text="${carta.precio}">Precio</span>

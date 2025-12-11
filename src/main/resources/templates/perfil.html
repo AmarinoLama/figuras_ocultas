@@ -166,7 +166,8 @@
                                 <div class="badge-level mx-auto"
                                      style="radial-gradient(circle at 30% 30%, #e5e7eb, #6b7280 70%);">
                                     <img th:src="@{'/alumnos/insignias/imagen/' + ${insignia.id}}"
-                                         alt="Imagen de la insignia"
+                                         alt="Imagen de insignia"
+                                         loading="lazy"
                                          style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                                 </div>
                                 <div class="mt-1 text-white fw-semibold" th:text="${insignia.nombre}"></div>

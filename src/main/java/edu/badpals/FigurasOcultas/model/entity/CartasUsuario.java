@@ -14,7 +14,11 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "cartas_usuario")
+@Table(name = "cartas_usuario", indexes = {
+    @Index(name = "idx_cartas_usuario_alumno", columnList = "alumno_id"),
+    @Index(name = "idx_cartas_usuario_carta", columnList = "carta_id"),
+    @Index(name = "idx_cartas_usuario_usada", columnList = "usada")
+})
 public class CartasUsuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +26,7 @@ public class CartasUsuario {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "carta_id", nullable = false)
     private Carta carta;

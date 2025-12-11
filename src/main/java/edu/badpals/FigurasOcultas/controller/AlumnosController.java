@@ -50,7 +50,10 @@ public class AlumnosController {
     private CartaUsuarioService cartaUsuarioService;
 
     @GetMapping("/alumnos")
-    public String loadIndex(Model model, @RequestParam(required = false) String curso) {
+    public String loadIndex(Model model,
+                            @RequestParam(required = false) String curso,
+                            @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "10") int size) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
         boolean usuarioLogeado = usuarioLogeadoId != null;
 
@@ -63,9 +66,17 @@ public class AlumnosController {
             model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
             if (curso != null && !curso.isEmpty()) {
-                model.addAttribute("alumnos", usuarioService.getAlumnosFromCurso(curso));
+                var alumnosPage = usuarioService.getAlumnosFromCurso(curso, org.springframework.data.domain.PageRequest.of(page, size));
+                model.addAttribute("alumnos", alumnosPage.getContent());
+                model.addAttribute("alumnosPageNumber", alumnosPage.getNumber());
+                model.addAttribute("alumnosTotalPages", alumnosPage.getTotalPages());
+                model.addAttribute("alumnosTotalElements", alumnosPage.getTotalElements());
             } else {
-                model.addAttribute("alumnos", usuarioService.getAllAlumnos());
+                var alumnosPage = usuarioService.getAllAlumnos(org.springframework.data.domain.PageRequest.of(page, size));
+                model.addAttribute("alumnos", alumnosPage.getContent());
+                model.addAttribute("alumnosPageNumber", alumnosPage.getNumber());
+                model.addAttribute("alumnosTotalPages", alumnosPage.getTotalPages());
+                model.addAttribute("alumnosTotalElements", alumnosPage.getTotalElements());
             }
             model.addAttribute("cursoSeleccionado", curso);
 
@@ -225,7 +236,7 @@ public class AlumnosController {
     }
 
     @PostMapping("/perfil/actualizar")
-    public String actualizarPerfil(@Valid @ModelAttribute("usuario") UsuarioDTO usuarioForm, Model model) {
+    public String actualizarPerfil(@ModelAttribute("usuario") UsuarioDTO usuarioForm, Model model) {
 
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
         boolean usuarioLogeado = usuarioLogeadoId != null;
@@ -234,10 +245,18 @@ public class AlumnosController {
 
             UsuarioDTO usuario = usuarioService.getUserById(usuarioLogeadoId);
 
+            // Validación manual del nombre
+            if (usuarioForm.getNombre() == null || usuarioForm.getNombre().trim().isEmpty()) {
+                model.addAttribute("usuario", usuario);
+                model.addAttribute("errorMessage", "El nombre no puede estar vacío");
+                model.addAttribute("nombreWeb", webConfigService.getWebConfig());
+                return "perfil";
+            }
+
             usuario.setNombre(usuarioForm.getNombre());
 
             // Comprobamos si el email ha cambiado
-            if (!usuario.getEmail().equals(usuarioForm.getEmail())) {
+            if (usuarioForm.getEmail() != null && !usuario.getEmail().equals(usuarioForm.getEmail())) {
                 if (usuarioService.checkValidEmail(usuarioForm.getEmail())) {
                     usuario.setEmail(usuarioForm.getEmail());
                 } else {
@@ -248,14 +267,15 @@ public class AlumnosController {
                 }
             }
 
-            if (usuarioForm.getPassword() != null && !usuarioForm.getPassword().isEmpty()) {
+            // Solo actualizar contraseña si se proporcionó una nueva
+            if (usuarioForm.getPassword() != null && !usuarioForm.getPassword().trim().isEmpty()) {
                 usuario.setPassword(usuarioForm.getPassword());
             }
 
             usuarioService.saveUser(usuario);
 
             model.addAttribute("usuario", usuario);
-            model.addAttribute("successMessage", "Perfil actualizado");
+            model.addAttribute("successMessage", "Perfil actualizado correctamente");
             model.addAttribute("nombreWeb", webConfigService.getWebConfig());
             return "perfil";
 

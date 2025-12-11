@@ -8,7 +8,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuarios", indexes = {
+    @Index(name = "idx_usuario_email", columnList = "email"),
+    @Index(name = "idx_usuario_rol", columnList = "rol"),
+    @Index(name = "idx_usuario_curso", columnList = "curso")
+})
 @Getter
 @Setter
 public class Usuario implements Serializable {

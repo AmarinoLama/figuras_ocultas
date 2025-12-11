@@ -14,7 +14,10 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "historial_transacciones")
+@Table(name = "historial_transacciones", indexes = {
+    @Index(name = "idx_historial_alumno", columnList = "alumno_id"),
+    @Index(name = "idx_historial_fecha", columnList = "fecha")
+})
 public class HistorialTransacciones {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

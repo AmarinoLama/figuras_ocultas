@@ -19,7 +19,7 @@ public class TarjetaAlumnoService {
     @Autowired
     private ModelMapper modelMapper;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<TarjetaAlumno> getAllTarjetasAlumnos() {
         return (List<TarjetaAlumno>) tarjetaAlumnoRepository.findAll();
     }

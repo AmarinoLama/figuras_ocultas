@@ -48,7 +48,9 @@ public class CartasController {
     private WebConfigService webConfigService;
 
     @GetMapping("/cartas")
-    public String loadCartas(Model model) {
+    public String loadCartas(Model model,
+                             @RequestParam(defaultValue = "0") int page,
+                             @RequestParam(defaultValue = "10") int size) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
         boolean usuarioLogeado = usuarioLogeadoId != null;
 
@@ -64,13 +66,24 @@ public class CartasController {
         model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
         if (usuario.isAdmin()) {
-            model.addAttribute("cartas", cartaService.getAllCartasDTO());
+            var cartasPage = cartaService.getAllCartasDTO(org.springframework.data.domain.PageRequest.of(page, size));
+            model.addAttribute("cartas", cartasPage.getContent());
+            model.addAttribute("cartasPageNumber", cartasPage.getNumber());
+            model.addAttribute("cartasTotalPages", cartasPage.getTotalPages());
+            model.addAttribute("cartasTotalElements", cartasPage.getTotalElements());
+            model.addAttribute("cartasEmpty", cartasPage.getTotalElements() == 0);
         } else {
-            model.addAttribute("cartas", cartaService.getCartasDisponibles());
+            var cartasPage = cartaService.getCartasDisponibles(org.springframework.data.domain.PageRequest.of(page, size));
+            model.addAttribute("cartas", cartasPage.getContent());
+            model.addAttribute("cartasPageNumber", cartasPage.getNumber());
+            model.addAttribute("cartasTotalPages", cartasPage.getTotalPages());
+            model.addAttribute("cartasTotalElements", cartasPage.getTotalElements());
 
             Map<Long, Integer> inventario = cartaUsuarioService.getCartasByAlumno(usuario.getId());
             model.addAttribute("electroniosTotales", usuario.getTarjetaAlumno().getElectronios());
             model.addAttribute("inventario", inventario);
+            // show empty message if there are no cartas
+            model.addAttribute("cartasEmpty", cartasPage.getTotalElements() == 0);
         }
 
         return "cartas";
@@ -113,6 +126,7 @@ public class CartasController {
             byte[] imagen = cartaService.obtenerImagenCarta(id);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_JPEG);
+            headers.setCacheControl("max-age=86400, public");
             return new ResponseEntity<>(imagen, headers, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();

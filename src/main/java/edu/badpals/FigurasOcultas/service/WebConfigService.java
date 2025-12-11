@@ -15,8 +15,9 @@ public class WebConfigService {
     private WebConfigRepository webConfigRepository;
 
     @Transactional
+    @org.springframework.cache.annotation.Cacheable(value = "webConfig", key = "'name'")
     public String getWebConfig() {
-        Optional<Webconfig> config = StreamSupport.stream(webConfigRepository.findAll().spliterator(), false).findFirst();
+        Optional<Webconfig> config = webConfigRepository.findFirstBy();
         if (config.isPresent()) {
             return config.get().getNombre();
         } else {
@@ -25,8 +26,9 @@ public class WebConfigService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "webConfig", allEntries = true)
     public void updateWebConfig(String newConfig) {
-        Optional<Webconfig> config = StreamSupport.stream(webConfigRepository.findAll().spliterator(), false).findFirst();
+        Optional<Webconfig> config = webConfigRepository.findFirstBy();
         if (config.isPresent()) {
             Webconfig webConfig = config.get();
             webConfig.setNombre(newConfig);

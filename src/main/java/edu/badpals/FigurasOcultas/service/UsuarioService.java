@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -27,31 +29,53 @@ public class UsuarioService {
     @Autowired
     private ModelMapper modelMapper;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UsuarioDTO> getAllUsersDTO() {
-        return StreamSupport.stream(usuarioRepository.findAll().spliterator(), false)
+        List<Usuario> usuarios = usuarioRepository.findAll();
+        return usuarios.stream()
                 .map(u -> modelMapper.map(u, UsuarioDTO.class))
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    public Page<UsuarioDTO> getAllUsersDTO(Pageable pageable) {
+        return usuarioRepository.findAll(pageable)
+                .map(u -> modelMapper.map(u, UsuarioDTO.class));
+    }
+
+    @Transactional(readOnly = true)
     public List<UsuarioDTO> getAllAlumnos() {
-        return StreamSupport.stream(usuarioRepository.findAll().spliterator(), false)
+        List<Usuario> alumnos = usuarioRepository.findByRol(RolUsuario.ALUMNO);
+        return alumnos.stream()
                 .map(u -> modelMapper.map(u, UsuarioDTO.class))
-                .filter(u -> !u.isAdmin())
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "alumnos", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
+    public Page<UsuarioDTO> getAllAlumnos(Pageable pageable) {
+        return usuarioRepository.findByRol(RolUsuario.ALUMNO, pageable)
+                .map(u -> modelMapper.map(u, UsuarioDTO.class));
+    }
+
+    @Transactional(readOnly = true)
     public List<UsuarioDTO> getAlumnosFromCurso(String curso) {
-        CursoAlumno cursoEnum = CursoAlumno.valueOf(curso); // conversión segura
-        return StreamSupport.stream(usuarioRepository.findAll().spliterator(), false)
+        CursoAlumno cursoEnum = CursoAlumno.valueOf(curso);
+        List<Usuario> alumnos = usuarioRepository.findByRolAndCurso(RolUsuario.ALUMNO, cursoEnum);
+        return alumnos.stream()
                 .map(u -> modelMapper.map(u, UsuarioDTO.class))
-                .filter(u -> !u.isAdmin() && u.getCurso() == cursoEnum)
                 .collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "alumnos", key = "#curso + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
+    public Page<UsuarioDTO> getAlumnosFromCurso(String curso, Pageable pageable) {
+        CursoAlumno cursoEnum = CursoAlumno.valueOf(curso);
+        return usuarioRepository.findByRolAndCurso(RolUsuario.ALUMNO, cursoEnum, pageable)
+                .map(u -> modelMapper.map(u, UsuarioDTO.class));
+    }
+    
+    @Transactional(readOnly = true)
     public UsuarioDTO getUserById(Long id) {
         return usuarioRepository.findById(id)
                 .map(u -> modelMapper.map(u, UsuarioDTO.class))
@@ -59,6 +83,7 @@ public class UsuarioService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "alumnos", allEntries = true)
     public void saveUser(UsuarioDTO usuarioDTO) {
         Usuario usuario = modelMapper.map(usuarioDTO, Usuario.class);
         if (usuarioDTO.getTarjetaAlumno() != null && usuarioDTO.getRol() == RolUsuario.ALUMNO) {
@@ -76,22 +101,22 @@ public class UsuarioService {
         usuarioRepository.save(admin);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean checkValidEmail(String email) {
         if (email == null || email.isBlank()) return false;
         return usuarioRepository.findByEmail(email).isEmpty();
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "alumnos", allEntries = true)
     public void deleteUser(Long id) {
         usuarioRepository.deleteById(id);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UsuarioDTO getUserByEmail(String email) {
-        return getAllUsersDTO().stream()
-                .filter(u -> u.getEmail().equals(email))
-                .findFirst()
+        return usuarioRepository.findByEmail(email)
+                .map(u -> modelMapper.map(u, UsuarioDTO.class))
                 .orElse(null);
     }
 

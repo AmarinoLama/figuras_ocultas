@@ -25,10 +25,9 @@ public class InsigniaService {
     @Autowired
     private HistorialTransaccionesService htsService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Insignia> getAllInsignias() {
-        return StreamSupport.stream(insigniaRepository.findAll().spliterator(), false)
-                .toList();
+        return insigniaRepository.findAll();
     }
 
     @Transactional
@@ -49,6 +48,8 @@ public class InsigniaService {
         insigniaRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
+    @org.springframework.cache.annotation.Cacheable(value = "insigniaImagen", key = "#id")
     public byte[] obtenerImagenInsignia(Long id) {
         Insignia insignia = insigniaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Insignia no encontrada"));
@@ -58,11 +59,8 @@ public class InsigniaService {
         return insignia.getImagen();
     }
 
+    @Transactional(readOnly = true)
     public List<Insignia> getInsigniasAlumno(Long idAlumno) {
-        UsuarioDTO alumno = usuarioService.getUserById(idAlumno);
-        if (alumno == null) {
-            throw new RuntimeException("Alumno no encontrado");
-        }
-        return insigniaRepository.findByAlumno(modelMapper.map(alumno, Usuario.class));
+        return insigniaRepository.findByAlumnoId(idAlumno);
     }
 }

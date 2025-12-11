@@ -37,13 +37,14 @@ public class CartaUsuarioService {
     @Autowired
     private HistorialTransaccionesService historialTransaccionesService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<HistorialTransacciones> getHistorial(Long usuarioId) {
         return historialTransaccionesService.getHistorialTransaccionesByUsuario(usuarioId);
     }
 
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = {"inventario", "alumnos"}, allEntries = true)
     public boolean comprarCarta(Long usuarioId, Long cartaId) {
 
         UsuarioDTO usuario = usuarioService.getUserById(usuarioId);
@@ -72,6 +73,7 @@ public class CartaUsuarioService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.Cacheable(value = "inventario", key = "#usuarioId")
     public Map<Long, Integer> getCartasByAlumno(Long usuarioId) {
         List<Object[]> resultados = cartaUsuarioRepository.countByCartaIdAndUsuarioId(usuarioId);
         Map<Long, Integer> inventario = new HashMap<>();
@@ -85,7 +87,7 @@ public class CartaUsuarioService {
         return inventario;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CartaDTO> getCartasDisponiblesByUsuario(Long usuarioId) {
         return cartaUsuarioRepository.findByAlumnoIdAndUsadaFalse(usuarioId).stream()
                 .map(CartasUsuario::getCarta)
@@ -95,6 +97,7 @@ public class CartaUsuarioService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "inventario", allEntries = true)
     public boolean usarCarta(Long idCarta, Long idUsuario) {
         List<CartasUsuario> cartasUsuarios = cartaUsuarioRepository.findByCartaIdAndAlumnoId(idCarta, idUsuario);
         for (CartasUsuario cartaUsuario : cartasUsuarios) {

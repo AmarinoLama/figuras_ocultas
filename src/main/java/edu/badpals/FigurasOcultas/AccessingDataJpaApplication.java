@@ -11,7 +11,7 @@ public class AccessingDataJpaApplication {
   private static final Logger log = LoggerFactory.getLogger(AccessingDataJpaApplication.class);
 
   public static void main(String[] args) {
-    SpringApplication.run(AccessingDataJpaApplication.class);
+    SpringApplication.run(AccessingDataJpaApplication.class, args);
   }
 
 }

@@ -1,6 +1,6 @@
 # Figuras Ocultas
 
-Aplicacion web educativa desarrollada con **Spring Boot** y **Thymeleaf** para el curso de `edu.badpals`. Permite a los usuarios (alumnos y administradores) acceder a una plataforma interactiva de aprendizaje sobre figuras geometricas ocultas.
+Aplicacion web educativa desarrollada con **Spring Boot** y **Thymeleaf** para el curso de `AmarinoLama`. Permite a los usuarios (alumnos y administradores) acceder a una plataforma interactiva de aprendizaje sobre figuras geometricas ocultas.
 
 ---
 
@@ -126,4 +126,4 @@ spring.jpa.hibernate.ddl-auto=update
 
 ## Licencia
 
-Proyecto educativo - `edu.badpals`
+Proyecto educativo - `AmarinoLama`

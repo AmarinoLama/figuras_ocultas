@@ -32,7 +32,7 @@ Aplicacion web educativa desarrollada con **Spring Boot** y **Thymeleaf** para e
 ## Estructura del proyecto
 
 ```
-src/main/java/edu/badpals/FigurasOcultas/
+src/main/java/FigurasOcultas/
 ├── AccessingDataJpaApplication.java   # Punto de entrada
 ├── config/
 │   └── ModelMapperConfig.java         # Configuracion de ModelMapper

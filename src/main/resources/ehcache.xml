@@ -1,0 +1,61 @@
+<config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        xmlns='http://www.ehcache.org/v3'
+        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
+
+    <!-- Default cache configuration -->
+    <cache-template name="defaultCache">
+        <expiry>
+            <ttl unit="minutes">10</ttl>
+        </expiry>
+        <heap unit="entries">1000</heap>
+    </cache-template>
+
+    <!-- Alumnos cache - frequently accessed -->
+    <cache alias="alumnos" uses-template="defaultCache">
+        <expiry>
+            <ttl unit="minutes">5</ttl>
+        </expiry>
+        <heap unit="entries">500</heap>
+    </cache>
+
+    <!-- Cartas cache -->
+    <cache alias="cartas" uses-template="defaultCache">
+        <expiry>
+            <ttl unit="minutes">15</ttl>
+        </expiry>
+        <heap unit="entries">200</heap>
+    </cache>
+
+    <!-- WebConfig cache - rarely changes -->
+    <cache alias="webConfig" uses-template="defaultCache">
+        <expiry>
+            <ttl unit="hours">1</ttl>
+        </expiry>
+        <heap unit="entries">10</heap>
+    </cache>
+
+    <!-- Inventario cache -->
+    <cache alias="inventario" uses-template="defaultCache">
+        <expiry>
+            <ttl unit="minutes">5</ttl>
+        </expiry>
+        <heap unit="entries">500</heap>
+    </cache>
+
+    <!-- Carta images cache - images don't change often -->
+    <cache alias="cartaImagen" uses-template="defaultCache">
+        <expiry>
+            <ttl unit="hours">24</ttl>
+        </expiry>
+        <heap unit="kB">20480</heap> <!-- 20MB for images -->
+    </cache>
+
+    <!-- Insignia images cache -->
+    <cache alias="insigniaImagen" uses-template="defaultCache">
+        <expiry>
+            <ttl unit="hours">24</ttl>
+        </expiry>
+        <heap unit="kB">10240</heap> <!-- 10MB for images -->
+    </cache>
+
+</config>

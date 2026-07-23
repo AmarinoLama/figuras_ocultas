@@ -1,0 +1,116 @@
+package edu.badpals.FigurasOcultas.service;
+
+import edu.badpals.FigurasOcultas.model.dto.CartaDTO;
+import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
+import edu.badpals.FigurasOcultas.model.entity.Carta;
+import edu.badpals.FigurasOcultas.model.entity.CartasUsuario;
+import edu.badpals.FigurasOcultas.model.entity.HistorialTransacciones;
+import edu.badpals.FigurasOcultas.model.entity.Usuario;
+import edu.badpals.FigurasOcultas.model.repository.CartaUsuarioRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
+import java.util.*;
+
+@Service
+public class CartaUsuarioService {
+
+    @Autowired
+    private CartaUsuarioRepository cartaUsuarioRepository;
+
+    @Autowired
+    private CartaService cartaService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private HistorialTransaccionesService hts;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Autowired
+    private HistorialTransaccionesService historialTransaccionesService;
+
+    @Transactional(readOnly = true)
+    public List<HistorialTransacciones> getHistorial(Long usuarioId) {
+        return historialTransaccionesService.getHistorialTransaccionesByUsuario(usuarioId);
+    }
+
+
+    @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = {"inventario", "alumnos"}, allEntries = true)
+    public boolean comprarCarta(Long usuarioId, Long cartaId) {
+
+        UsuarioDTO usuario = usuarioService.getUserById(usuarioId);
+        CartaDTO carta = cartaService.getCartaById(cartaId);
+
+        if (usuario.getTarjetaAlumno().getElectronios() < carta.getPrecio()) {
+            return false;
+        } else {
+
+            hts.addCompraToHistorial(usuarioId, cartaId);
+
+            CartasUsuario cartasUsuario = new CartasUsuario();
+
+            cartasUsuario.setAlumno(modelMapper.map(usuario, Usuario.class));
+            cartasUsuario.setCarta(modelMapper.map(carta, Carta.class));
+            cartasUsuario.setFechaAdquisicion(ZonedDateTime.now(ZoneId.of("Europe/Madrid")).toInstant());
+            cartasUsuario.setUsada(false);
+
+            cartaUsuarioRepository.save(cartasUsuario);
+
+            usuario.getTarjetaAlumno().setElectronios((byte) (usuario.getTarjetaAlumno().getElectronios() - carta.getPrecio()));
+            usuarioService.saveUser(usuario);
+
+            return true;
+        }
+    }
+
+    @Transactional
+    @org.springframework.cache.annotation.Cacheable(value = "inventario", key = "#usuarioId")
+    public Map<Long, Integer> getCartasByAlumno(Long usuarioId) {
+        List<Object[]> resultados = cartaUsuarioRepository.countByCartaIdAndUsuarioId(usuarioId);
+        Map<Long, Integer> inventario = new HashMap<>();
+
+        for (Object[] fila : resultados) {
+            Long cartaId = (Long) fila[0];
+            Long cantidad = (Long) fila[1];
+            inventario.put(cartaId, cantidad.intValue());
+        }
+
+        return inventario;
+    }
+
+    @Transactional(readOnly = true)
+    public List<CartaDTO> getCartasDisponiblesByUsuario(Long usuarioId) {
+        return cartaUsuarioRepository.findByAlumnoIdAndUsadaFalse(usuarioId).stream()
+                .map(CartasUsuario::getCarta)
+                .map(carta -> modelMapper.map(carta, CartaDTO.class))
+                .distinct()
+                .toList();
+    }
+
+    @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "inventario", allEntries = true)
+    public boolean usarCarta(Long idCarta, Long idUsuario) {
+        List<CartasUsuario> cartasUsuarios = cartaUsuarioRepository.findByCartaIdAndAlumnoId(idCarta, idUsuario);
+        for (CartasUsuario cartaUsuario : cartasUsuarios) {
+            if (!cartaUsuario.getUsada()) {
+
+                hts.addUsoToHistorial(idUsuario, idCarta);
+
+                cartaUsuario.setUsada(true);
+                cartaUsuario.setFechaUsada(ZonedDateTime.now(ZoneId.of("Europe/Madrid")).toInstant());
+                cartaUsuarioRepository.save(cartaUsuario);
+                return true;
+            }
+        }
+        return false;
+    }
+}

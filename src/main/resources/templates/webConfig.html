@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${nombreWeb}">Nombre Web</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/index_style.css?v=1}">
+    <link rel="stylesheet" th:href="@{/css/webConfig.css?v=1}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div th:insert="~{fragments/navBar :: navBar}" th:with="currentPath='/alumnado'"></div>
+
+<div class="container-centered">
+
+    <div th:if="${usuario}">
+        <div th:if="${usuario.isAdmin()}">
+
+            <div class="titulo">
+                <i class="fas fa-globe fa-lg" style="color:#0d6efd;"></i>
+                <span>Editar nombre de la web</span>
+            </div>
+
+            <form id="formName" th:action="@{/webConfig/changeName}" method="post" th:object="${webConfigForm}">
+                <label for="nombre">Nuevo nombre:</label>
+                <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required autofocus>
+            </form>
+
+            <div id="btnGroup">
+                <a id="btnVolver" href="/alumnos" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i> Volver a alumnos
+                </a>
+                <button id="btnGuardar" type="submit" form="formName" class="btn btn-primary" title="Guardar nuevo nombre">
+                    <i class="fas fa-save me-2"></i> Guardar
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

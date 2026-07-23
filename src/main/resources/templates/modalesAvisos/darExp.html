@@ -1,0 +1,24 @@
+<div th:fragment="modalConfirmarElectronios">
+    <div class="modal fade" id="modalConfirmarElectronios" tabindex="-1" aria-labelledby="modalConfirmarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header bg-primary text-white rounded-top">
+                    <h5 class="modal-title" id="modalConfirmarLabel">
+                        <i class="fas fa-check-circle me-2"></i>Confirmar acción
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-dark">
+                    <p id="textoConfirmacionElectronios">
+                        Vas a dar <strong id="cantidadElectroniosModal">X</strong> experiencia
+                        a <strong id="destinatariosModal">X alumnos</strong>.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btnCancelarConfirmacion" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="btnAceptarConfirmacion">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

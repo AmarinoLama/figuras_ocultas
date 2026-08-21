@@ -25,11 +25,11 @@ services:
     container_name: figuras-ocultas-app
     environment:
       SPRING_PROFILES_ACTIVE: production
-      MYSQLHOST: mysql-db
-      MYSQLPORT: 3306
-      MYSQLDATABASE: figuras_ocultas
-      MYSQLUSER: root
-      MYSQLPASSWORD: root
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: figuras_ocultas
+      MYSQL_USER: root
+      MYSQL_PASSWORD: figuras_ocultas_2026_2027
     ports:
       - "8080:8080"
     depends_on:

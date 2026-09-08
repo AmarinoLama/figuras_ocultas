@@ -459,22 +459,19 @@
 
         fetch("/alumnos/darElectronios", { // Cambia la URL si necesitas
             method: "POST",
-            body: formDataElectronios
+            body: formDataElectronios,
+            redirect: "manual"
         })
             .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                } else if (response.ok) {
-                    return response.text();
+                // Con redirect: "manual" un 302 aparece como opaque (status 0) en
+                // algunos navegadores. En cualquier caso, si no hay error de red
+                // (status >= 300 es un redirect procesado exitosamente), recargamos
+                // la página para reflejar los electronios otorgados.
+                if (response.type === "opaqueredirect" || (response.status >= 200 && response.status < 300)) {
+                    window.location.reload();
                 } else {
                     throw new Error("Error al enviar el formulario");
                 }
-            })
-            .then(data => {
-                console.log("Electronios enviados correctamente");
-                // Opcional: cerrar modal manualmente si quieres
-                const modal = bootstrap.Modal.getInstance(document.getElementById("modalConfirmarElectronios"));
-                modal.hide();
             })
             .catch(error => {
                 console.error("Error:", error);

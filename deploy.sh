@@ -22,14 +22,14 @@ git pull origin master
 # 2. Reconstruir SOLO el contenedor de la app (mysql no se toca)
 echo ""
 echo ">>> Reconstruyendo contenedor de la app..."
-docker-compose build app
+docker compose build app
 
 # 3. Levantar SOLO el contenedor de la app
 #    (docker-compose up -d app solo recrea "app"; mysql no cambia,
 #     y su volumen mysql_data se preserva intacto)
 echo ""
 echo ">>> Reiniciando contenedor de la app..."
-docker-compose up -d app
+docker compose up -d app
 
 # 4. Limpiar imágenes Docker huérfanas (no afecta a contenedores en uso)
 echo ""

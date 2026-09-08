@@ -121,6 +121,7 @@ public class UsuarioService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "alumnos", allEntries = true)
     public void darExpCurso(String curso, int cantidadExp) {
         List<UsuarioDTO> alumnos = getAlumnosFromCurso(curso);
         for (UsuarioDTO alumno : alumnos) {
@@ -147,6 +148,7 @@ public class UsuarioService {
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "alumnos", allEntries = true)
     public void darExpAlumnos(List<Long> idsAlumnos, int cantidadExp) {
         for (Long idAlumno : idsAlumnos) {
             UsuarioDTO alumno = getUserById(idAlumno);

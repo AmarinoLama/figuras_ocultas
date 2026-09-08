@@ -10,8 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
+      # Conectamos el runner a la red Tailscale para poder acceder a la Raspberry
+      - name: Conectar a Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
 
       - name: Desplegar en Raspberry Pi via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -19,6 +22,7 @@ jobs:
           host: ${{ secrets.RASPBERRY_HOST }}
           username: ${{ secrets.RASPBERRY_USER }}
           key: ${{ secrets.RASPBERRY_SSH_KEY }}
+          command_timeout: "20m"
           script: |
             cd ${{ secrets.RASPBERRY_PROJECT_DIR }}
             bash deploy.sh

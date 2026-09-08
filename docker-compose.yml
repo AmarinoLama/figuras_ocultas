@@ -5,8 +5,8 @@ services:
     image: mysql:8.0
     container_name: mysql-db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: figuras_ocultas
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "3307:3306"
     networks:
@@ -23,13 +23,12 @@ services:
   app:
     build: .
     container_name: figuras-ocultas-app
+    restart: always
     environment:
       SPRING_PROFILES_ACTIVE: production
-      MYSQLHOST: mysql-db
-      MYSQLPORT: 3306
-      MYSQLDATABASE: figuras_ocultas
-      MYSQLUSER: root
-      MYSQLPASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "8080:8080"
     depends_on:

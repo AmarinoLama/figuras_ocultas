@@ -8,4 +8,8 @@ import { authInterceptor } from './app/core/auth.interceptor';
 
 bootstrapApplication(AppComponent, {
   providers: [provideRouter(routes), provideHttpClient(withInterceptors([authInterceptor]))],
+}).then(() => {
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('/sw.js').catch((error) => console.warn('No se pudo registrar la PWA', error));
+  }
 }).catch((error: unknown) => console.error(error));

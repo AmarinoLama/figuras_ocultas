@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Modern Angular/FastAPI stack ###
+.env.modern
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+backend/.venv/
+backend/__pycache__/
+backend/app/__pycache__/
+*.py[cod]

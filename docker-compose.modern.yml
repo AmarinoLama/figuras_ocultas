@@ -1,0 +1,66 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: figuras-ocultas-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Define MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-figuras_ocultas}
+    ports:
+      - "${MYSQL_BIND_PORT:-127.0.0.1:3307}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks: [app]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: figuras-ocultas-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: mysql+pymysql://root:${MYSQL_ROOT_PASSWORD}@mysql:3306/${MYSQL_DATABASE:-figuras_ocultas}
+      SECRET_KEY: ${SECRET_KEY:?Define SECRET_KEY}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://${DOMAIN}}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks: [app]
+
+  frontend:
+    build: ./frontend
+    container_name: figuras-ocultas-frontend
+    restart: unless-stopped
+    expose:
+      - "8080"
+    depends_on: [backend]
+    networks: [app]
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: figuras-ocultas-caddy
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Define DOMAIN}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:?Define LETSENCRYPT_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [frontend]
+    networks: [app]
+
+networks:
+  app:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  caddy_data:
+  caddy_config:

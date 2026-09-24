@@ -1,0 +1,15 @@
+[Unit]
+Description=GitHub Actions self-hosted runner for figuras_ocultas
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/home/aman/actions-runner-arm64
+ExecStart=/home/aman/actions-runner-arm64/run.sh
+KillMode=process
+TimeoutStopSec=30
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target

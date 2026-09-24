@@ -92,11 +92,11 @@ cp .env.modern.example .env.modern
 docker compose --env-file .env.modern -f docker-compose.modern.yml up -d --build
 ```
 
-Con el runner autoalojado ya no hacen falta `RASPBERRY_HOST`, `RASPBERRY_USER`, `RASPBERRY_SSH_KEY` ni `RASPBERRY_APP_DIR` en GitHub. No guardes `.env.modern`, claves SSH ni contraseñas en el repositorio. El checkout de la Raspberry debe estar limpio para que `git pull --ff-only` no falle.
+Con el runner autoalojado ya no hacen falta `RASPBERRY_HOST`, `RASPBERRY_USER`, `RASPBERRY_SSH_KEY` ni `RASPBERRY_APP_DIR` en GitHub. No guardes `.env.modern`, claves SSH ni contraseñas en el repositorio. El checkout de la Raspberry debe estar limpio para que `git pull --ff-only` no falle. El despliegue conserva el volumen Docker existente de MySQL y conecta el backend moderno a la red de la aplicación antigua; no elimina datos.
 
 ### Cloudflare
 
-La Raspberry tenía un **Quick Tunnel** (`cloudflared tunnel --url http://localhost:8080`). Aunque el servicio systemd está habilitado y reinicia el proceso, los Quick Tunnels no ofrecen una URL estable ni garantía de disponibilidad; por eso no son una solución permanente. Para una URL fija hay que crear un túnel nombrado en una cuenta Cloudflare y configurarlo como servicio con un token o credenciales del túnel. No se puede completar esa parte sin acceso a la cuenta, dominio y token de Cloudflare.
+La Raspberry tenía un **Quick Tunnel** (`cloudflared tunnel --url http://localhost:8080`). Aunque el servicio systemd está habilitado y reinicia el proceso, los Quick Tunnels no ofrecen una URL estable ni garantía de disponibilidad; por eso no son una solución permanente. La configuración moderna usa Caddy en `127.0.0.1:8081`, preparado para publicarse mediante Tailscale Funnel en la URL estable de la Raspberry. El Funnel debe activarse con `sudo tailscale funnel --bg http://127.0.0.1:8081` y comprobarse con `tailscale funnel status`; la política de tu tailnet debe permitir Funnel.
 
 El workflow despliega la rama actual `migration/angular-fastapi`. Cuando la aplicación pase a producción en `main`, cambia esa rama en los dos lugares del workflow (`on.push.branches` y `DEPLOY_BRANCH`) y en el checkout inicial.
 

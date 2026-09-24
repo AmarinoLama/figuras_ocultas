@@ -1,22 +1,4 @@
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: figuras-ocultas-mysql
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Define MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-figuras_ocultas}
-    ports:
-      - "${MYSQL_BIND_PORT:-127.0.0.1:3307}:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks: [app]
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
   backend:
     build: ./backend
     container_name: figuras-ocultas-backend
@@ -24,11 +6,8 @@ services:
     environment:
       DATABASE_URL: mysql+pymysql://root:${MYSQL_ROOT_PASSWORD}@mysql:3306/${MYSQL_DATABASE:-figuras_ocultas}
       SECRET_KEY: ${SECRET_KEY:?Define SECRET_KEY}
-      CORS_ORIGINS: ${CORS_ORIGINS:-https://${DOMAIN}}
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks: [app]
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://raspberryaman.tail055e51.ts.net}
+    networks: [legacy_app]
 
   frontend:
     build: ./frontend
@@ -37,30 +16,20 @@ services:
     expose:
       - "8080"
     depends_on: [backend]
-    networks: [app]
+    networks: [legacy_app]
 
   caddy:
     image: caddy:2-alpine
     container_name: figuras-ocultas-caddy
     restart: unless-stopped
-    environment:
-      DOMAIN: ${DOMAIN:?Define DOMAIN}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:?Define LETSENCRYPT_EMAIL}
     ports:
-      - "80:80"
-      - "443:443"
+      - "127.0.0.1:8081:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
     depends_on: [frontend]
-    networks: [app]
+    networks: [legacy_app]
 
 networks:
-  app:
-    driver: bridge
-
-volumes:
-  mysql_data:
-  caddy_data:
-  caddy_config:
+  legacy_app:
+    external: true
+    name: figuras_ocultas_app-network

@@ -8,9 +8,17 @@ ENV_FILE="${ENV_FILE:-.env.modern}"
 
 cd "$APP_DIR"
 
-if [[ -n "$(git status --porcelain)" ]]; then
-  echo "ERROR: el checkout contiene cambios locales; se cancela el despliegue." >&2
-  git status --short >&2
+tracked_changes="$(git diff --name-only; git diff --cached --name-only)"
+if [[ -n "$tracked_changes" ]]; then
+  echo "ERROR: el checkout contiene cambios locales en archivos versionados; se cancela el despliegue." >&2
+  printf '%s\n' "$tracked_changes" >&2
+  exit 1
+fi
+
+unexpected_untracked="$(git status --porcelain --untracked-files=all | awk '$1 == "??" && $2 != ".env" && $2 != ".env.modern" && $2 != "..env.swp" {print}')"
+if [[ -n "$unexpected_untracked" ]]; then
+  echo "ERROR: hay archivos no versionados inesperados; se cancela el despliegue." >&2
+  printf '%s\n' "$unexpected_untracked" >&2
   exit 1
 fi
 
@@ -24,6 +32,13 @@ docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" config --quiet
 
 echo "==> Descargando imágenes y reconstruyendo servicios"
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull
+
+if docker ps --format '{{.Names}}' | grep -qx 'figuras-ocultas-app'; then
+  echo "==> Deteniendo solo la aplicación legacy; MySQL y su volumen permanecen intactos"
+  docker stop figuras-ocultas-app
+  docker rm figuras-ocultas-app
+fi
+
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build --remove-orphans
 
 echo "==> Estado de los servicios"

@@ -39,7 +39,7 @@ if docker ps --format '{{.Names}}' | grep -qx 'figuras-ocultas-app'; then
   docker rm figuras-ocultas-app
 fi
 
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build --remove-orphans
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build
 
 echo "==> Estado de los servicios"
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps

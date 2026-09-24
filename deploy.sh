@@ -25,11 +25,11 @@ echo ">>> Reconstruyendo contenedor de la app..."
 docker compose build app
 
 # 3. Levantar SOLO el contenedor de la app
-#    (docker-compose up -d app solo recrea "app"; mysql no cambia,
-#     y su volumen mysql_data se preserva intacto)
+#    (--no-deps evita que compose intente recrear "mysql-db", que ya existe
+#     con el volumen figuras_ocultas_mysql_data intacto y la misma red)
 echo ""
 echo ">>> Reiniciando contenedor de la app..."
-docker compose up -d app
+docker compose up -d --no-deps app
 
 # 4. Limpiar imágenes Docker huérfanas (no afecta a contenedores en uso)
 echo ""

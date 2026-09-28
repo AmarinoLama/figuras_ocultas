@@ -18,7 +18,7 @@
         <div id="profebot-mensajes" class="profebot-mensajes" aria-live="polite"></div>
 
         <div id="profebot-confirmacion" class="profebot-confirmacion">
-            <span>⚠️ Esta acción borra datos. ¿Continúo?</span>
+            <span id="profebot-confirmacion-texto">⚠️ Esta acción borra datos. ¿Continúo?</span>
             <div class="profebot-botones">
                 <button type="button" id="profebot-si">Sí</button>
                 <button type="button" id="profebot-no">No</button>
@@ -48,6 +48,7 @@
             var formulario = document.getElementById('profebot-formulario');
             var texto = document.getElementById('profebot-texto');
             var confirmacion = document.getElementById('profebot-confirmacion');
+            var confirmacionTexto = document.getElementById('profebot-confirmacion-texto');
             var si = document.getElementById('profebot-si');
             var no = document.getElementById('profebot-no');
 
@@ -137,6 +138,8 @@
                     }
                     if (cuerpo.confirmacionRequerida === true) {
                         pendiente = { accion: cuerpo.accion, params: cuerpo.params };
+                        confirmacionTexto.textContent = cuerpo.textoConfirmacion
+                            || '⚠️ Esta acción borra datos. ¿Continúo?';
                         confirmacion.classList.add('visible');
                     } else {
                         ocultarConfirmacion();
@@ -156,8 +159,9 @@
                 }
                 saludado = true;
                 agregar('¡Hola! Soy ProfeBot. Escríbeme y te ayudo con el alumnado: '
-                    + 'crear, modificar o borrar alumnos, dar experiencia a un curso... '
-                    + 'Por ejemplo: "da 10 de experiencia a 2º ESO A".', 'bot');
+                    + 'crear, modificar o borrar alumnos, dar experiencia o electronios a un curso o a todos, '
+                    + 'poner el nivel de todo un curso... '
+                    + 'Por ejemplo: "da 10 de experiencia a 2º ESO A" o "pon el nivel 2 a todo 1º Bachillerato".', 'bot');
             }
 
             boton.addEventListener('click', function () {

@@ -20,6 +20,9 @@ public class ChatbotResponse {
     /** true si el usuario debe confirmar antes de ejecutar la acción. */
     private boolean confirmacionRequerida;
 
+    /** Texto del aviso de confirmación (si no llega, se usa el genérico). */
+    private String textoConfirmacion;
+
     /** true si la petición acaba de ejecutar una acción sobre la base de datos. */
     private boolean accionEjecutada;
 

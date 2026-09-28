@@ -39,7 +39,7 @@ public class ChatbotService {
     private static final long SESIONES_TTL_MS = 24L * 60L * 60L * 1000L;
 
     private static final Set<String> ACCIONES = Set.of(
-            "crear_alumno", "modificar_alumno", "borrar_alumno", "dar_experiencia");
+            "crear_alumno", "modificar_alumno", "borrar_alumno", "dar_experiencia", "modificar_en_masa");
     private static final Set<String> ACCIONES_DESTRUCTIVAS = Set.of("borrar_alumno");
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -95,13 +95,14 @@ public class ChatbotService {
                         : "No he entendido bien lo que me pides, ¿me lo puedes reformular?");
             }
 
-            if (ACCIONES_DESTRUCTIVAS.contains(accion)) {
+            if (requiereConfirmacion(accion, params)) {
                 ChatbotResponse respuesta = new ChatbotResponse();
                 respuesta.setRespuesta(propia != null ? propia
-                        : "Esta acción borra datos de forma definitiva. ¿Quieres que continúe?");
+                        : "Esta acción cambia datos de muchos alumnos. ¿Quieres que continúe?");
                 respuesta.setAccion(accion);
                 respuesta.setParams(params);
                 respuesta.setConfirmacionRequerida(true);
+                respuesta.setTextoConfirmacion(textoConfirmacion(accion, params));
                 return respuesta;
             }
 
@@ -279,13 +280,19 @@ public class ChatbotService {
         sb.append("9. Nunca menciones avisos internos del sistema (límites de pasos, herramientas, permisos o configuración): ");
         sb.append("habla únicamente de lo que te pide el usuario.\n\n");
         sb.append("ACCIONES DISPONIBLES:\n");
-        sb.append("- crear_alumno -> params {\"nombre\", \"email\", \"curso\", \"password\"?, \"exp\"?, \"electronios\"?}. ");
-        sb.append("curso es obligatorio. Si no pones password se usa la parte del email antes de la @.\n");
+        sb.append("- crear_alumno -> params {\"nombre\", \"curso\", \"email\"?, \"password\"?, \"exp\"?, \"electronios\"?}. ");
+        sb.append("curso es obligatorio; si no pones email se genera uno automaticamente (por ejemplo ana.garcia@alumno.com) ");
+        sb.append("y si no pones password se usa la parte del email antes de la @.\n");
         sb.append("- modificar_alumno -> params {\"alumno\", \"nombre\"?, \"email\"?, \"curso\"?, \"password\"?, \"exp\"?, \"electronios\"?}. ");
         sb.append("\"alumno\" es el email o la id del listado; solo incluye los campos que quieras cambiar.\n");
         sb.append("- borrar_alumno -> params {\"alumno\"}. DESTRUCTIVA: el usuario debe confirmarla.\n");
-        sb.append("- dar_experiencia -> params {\"cantidad\", \"curso\"} o {\"cantidad\", \"alumnos\": [\"ana@centro.es\", 12]}. ");
-        sb.append("La cantidad puede ser negativa para quitar experiencia.\n\n");
+        sb.append("- dar_experiencia -> params {\"cantidad\"} m\u00e1s el alcance: {\"curso\"} o {\"alumnos\": [\"ana@centro.es\", 12]} ");
+        sb.append("o {\"alumnos\": \"todos\"} (o {\"alcance\": \"todos\"}). La cantidad puede ser negativa para quitar experiencia.\n");
+        sb.append("- modificar_en_masa -> params {\"exp\"?, \"nivel\"?, \"electronios\"?} m\u00e1s el alcance: nada (todo el alumnado), ");
+        sb.append("{\"curso\": \"1BACH\"} o {\"alumnos\": [\"ana@centro.es\", 12]}. Pone esos valores de forma ABSOLUTA (no suma).\n");
+        sb.append("  OJO: \"nivel\" solo cambia porque la experiencia es la que lo fija; pon exp al m\u00ednimo de ese nivel: ");
+        sb.append("0->0, 1->100, 2->250, 3->500, 4->900, 5->1200, 6->1700. Si quieres subir experiencia en vez de fijarla, usa dar_experiencia.\n");
+        sb.append("  Si \"modificar_en_masa\" afecta a TODOS los alumnos, el usuario tendr\u00e1 que confirmar; si es de un curso o de una lista, se ejecuta ya.\n\n");
         sb.append("CURSOS VÁLIDOS (usa siempre el código de la izquierda):\n");
         sb.append(cursosValidos()).append("\n\n");
         sb.append("LISTADO ACTUAL DE ALUMNOS (id | nombre | email | curso | nivel | exp | electronios):\n");
@@ -308,7 +315,7 @@ public class ChatbotService {
                 + "\"type\":\"object\","
                 + "\"properties\":{"
                 + "\"accion\":{\"type\":\"string\",\"enum\":[\"" + ACCION_NINGUNA
-                + "\",\"crear_alumno\",\"modificar_alumno\",\"borrar_alumno\",\"dar_experiencia\"]},"
+                + "\",\"crear_alumno\",\"modificar_alumno\",\"borrar_alumno\",\"dar_experiencia\",\"modificar_en_masa\"]},"
                 + "\"params\":{\"type\":\"object\"},"
                 + "\"respuesta\":{\"type\":\"string\"}"
                 + "},"
@@ -373,6 +380,37 @@ public class ChatbotService {
         return accion != null && ACCIONES.contains(accion);
     }
 
+    /** true si la acción debe esperar al "Sí" del usuario antes de ejecutarse. */
+    private boolean requiereConfirmacion(String accion, JsonNode params) {
+        if (ACCIONES_DESTRUCTIVAS.contains(accion)) {
+            return true;
+        }
+        // Cambiar datos de TODOS los alumnos de golpe también pide confirmación.
+        return "modificar_en_masa".equals(accion) && alcanceEsTodos(params);
+    }
+
+    private boolean alcanceEsTodos(JsonNode params) {
+        if (params == null) {
+            return true;
+        }
+        if (texto(params, "curso") != null) {
+            return false;
+        }
+        JsonNode alumnos = params.get("alumnos");
+        if (alumnos != null && alumnos.isArray()) {
+            return alumnos.size() == 0;
+        }
+        String alcance = texto(params, "alcance");
+        return alcance == null || "todos".equalsIgnoreCase(alcance);
+    }
+
+    private String textoConfirmacion(String accion, JsonNode params) {
+        if (ACCIONES_DESTRUCTIVAS.contains(accion)) {
+            return "⚠️ Esta acción borra datos de forma definitiva. ¿Continúo?";
+        }
+        return "⚠️ Esta acción cambiará datos de TODO el alumnado a la vez. ¿Continúo?";
+    }
+
     private JsonNode ejecutarAccion(String accion, JsonNode params) {
         try {
             return switch (accion) {
@@ -380,6 +418,7 @@ public class ChatbotService {
                 case "modificar_alumno" -> modificarAlumno(params);
                 case "borrar_alumno" -> borrarAlumno(params);
                 case "dar_experiencia" -> darExperiencia(params);
+                case "modificar_en_masa" -> modificarEnMasa(params);
                 default -> resultado(false, "Acción desconocida: " + accion);
             };
         } catch (Exception e) {
@@ -399,13 +438,19 @@ public class ChatbotService {
         if (nombre == null) {
             return resultado(false, "Falta el nombre del alumno.");
         }
-        if (email == null || !email.contains("@")) {
-            return resultado(false, "El email '" + (email == null ? "" : email) + "' no es válido.");
+        if (nombre.length() > 25) {
+            nombre = nombre.substring(0, 25).trim();
         }
         CursoAlumno curso = curso(cursoTexto);
         if (curso == null) {
             return resultado(false, "El curso '" + (cursoTexto == null ? "" : cursoTexto)
                     + "' no existe. Usa uno de: " + cursosValidos());
+        }
+        if (email == null) {
+            email = generarEmail(nombre);
+        }
+        if (!email.contains("@")) {
+            return resultado(false, "El email '" + email + "' no es válido.");
         }
         if (usuarioService.getUserByEmail(email) != null) {
             return resultado(false, "Ya existe un alumno con el email " + email);
@@ -469,7 +514,7 @@ public class ChatbotService {
         }
 
         if (nombre != null) {
-            alumno.setNombre(nombre);
+            alumno.setNombre(nombre.length() > 25 ? nombre.substring(0, 25).trim() : nombre);
         }
         if (curso != null) {
             alumno.setCurso(curso);
@@ -574,7 +619,216 @@ public class ChatbotService {
                     + " de experiencia aplicada a " + String.join(", ", nombres) + ".");
         }
 
-        return resultado(false, "Indica el curso o la lista de alumnos a los que quieres dar experiencia.");
+        if (alcanceTodos(params, alumnos)) {
+            List<Long> ids = new ArrayList<>();
+            for (UsuarioDTO alumno : usuarioService.getAllAlumnos()) {
+                if (!alumno.isAdmin()) {
+                    ids.add(alumno.getId());
+                }
+            }
+            if (ids.isEmpty()) {
+                return resultado(false, "No hay alumnos dados de alta.");
+            }
+            usuarioService.darExpAlumnos(ids, cantidad);
+            return resultado(true, (cantidad >= 0 ? " + " : " ") + cantidad
+                    + " de experiencia aplicada a los " + ids.size() + " alumnos.");
+        }
+
+        return resultado(false, "Indica el curso, la lista de alumnos o \"todos\" a los que quieres dar experiencia.");
+    }
+
+    /** true si el alcance pedido es "todo el alumnado". */
+    private boolean alcanceTodos(JsonNode params, JsonNode alumnos) {
+        if (alumnos != null && alumnos.isTextual()) {
+            return "todos".equalsIgnoreCase(alumnos.asText().trim());
+        }
+        if (params != null && params.path("todos").asBoolean(false)) {
+            return true;
+        }
+        String alcance = texto(params, "alcance");
+        if (alcance != null) {
+            return "todos".equalsIgnoreCase(alcance);
+        }
+        return alumnos == null && texto(params, "curso") == null;
+    }
+
+    /**
+     * Cambios masivos: pone la experiencia, el nivel o los electronios de todos
+     * los alumnos, de un curso entero o de una lista concreta.
+     */
+    private JsonNode modificarEnMasa(JsonNode params) {
+        Integer exp = entero(params, "exp");
+        Integer nivel = entero(params, "nivel");
+        Integer electronios = entero(params, "electronios");
+
+        if (exp == null && nivel == null && electronios == null) {
+            return resultado(false, "Indica qué hay que cambiar: exp, nivel o electronios.");
+        }
+        if (exp != null && exp < 0) {
+            return resultado(false, "La experiencia no puede ser negativa; para quitar experiencia usa \"dar_experiencia\" con cantidad negativa.");
+        }
+        if (nivel != null && (nivel < 0 || nivel > 6)) {
+            return resultado(false, "El nivel debe estar entre 0 y 6.");
+        }
+        if (electronios != null && (electronios < -100 || electronios > 100)) {
+            return resultado(false, "Los electronios deben estar entre -100 y 100.");
+        }
+
+        String cursoTexto = texto(params, "curso");
+        JsonNode alumnosRef = params != null ? params.get("alumnos") : null;
+        List<UsuarioDTO> objetivos;
+        String alcance;
+
+        if (cursoTexto != null) {
+            CursoAlumno curso = curso(cursoTexto);
+            if (curso == null) {
+                return resultado(false, "El curso '" + cursoTexto + "' no existe. Usa uno de: " + cursosValidos());
+            }
+            objetivos = usuarioService.getAlumnosFromCurso(curso.name());
+            alcance = "todo " + curso;
+        } else if (alumnosRef != null && alumnosRef.isArray() && alumnosRef.size() > 0) {
+            objetivos = new ArrayList<>();
+            for (JsonNode referencia : alumnosRef) {
+                UsuarioDTO alumno = resolverAlumno(referencia);
+                if (alumno == null) {
+                    return resultado(false, "No encuentro al alumno " + referencia.asText() + ".");
+                }
+                if (alumno.isAdmin()) {
+                    return resultado(false, "No se puede modificar a un administrador desde el chatbot.");
+                }
+                objetivos.add(alumno);
+            }
+            alcance = "los alumnos indicados";
+        } else {
+            objetivos = usuarioService.getAllAlumnos();
+            alcance = "todo el alumnado";
+        }
+
+        List<UsuarioDTO> alumnos = objetivos.stream().filter(a -> !a.isAdmin()).toList();
+        if (alumnos.isEmpty()) {
+            return resultado(false, "No hay alumnos en ese alcance.");
+        }
+
+        int expNueva = exp != null ? exp : (nivel != null ? expMinimoNivel(nivel) : -1);
+        int tocados = 0;
+        StringBuilder cambios = new StringBuilder();
+
+        for (UsuarioDTO alumno : alumnos) {
+            if (alumno.getTarjetaAlumno() == null) {
+                alumno.setTarjetaAlumno(new TarjetaAlumnoDTO());
+            }
+            boolean cambia = false;
+
+            if (expNueva >= 0) {
+                int antes = exp(alumno);
+                if (antes != expNueva) {
+                    alumno.getTarjetaAlumno().setExp(expNueva);
+                    if (expNueva > antes) {
+                        historialService.addMoreExpToHistorial(alumno.getId(), expNueva - antes);
+                    } else {
+                        historialService.addLessExpToHistorial(alumno.getId(), antes - expNueva);
+                    }
+                    cambia = true;
+                }
+            }
+            if (electronios != null && electronios(alumno) != electronios) {
+                alumno.getTarjetaAlumno().setElectronios(electronios.byteValue());
+                cambia = true;
+            }
+
+            if (cambia) {
+                usuarioService.saveUser(alumno);
+                tocados++;
+                if (cambios.length() < 180) {
+                    if (cambios.length() > 0) {
+                        cambios.append(", ");
+                    }
+                    cambios.append(alumno.getNombre());
+                }
+            }
+        }
+
+        if (tocados == 0) {
+            return resultado(true, "No hacía falta cambiar nada: " + alcance + " ya tenía esos datos.");
+        }
+
+        StringBuilder msg = new StringBuilder("Hecho: ");
+        boolean algoEscrito = false;
+        if (expNueva >= 0) {
+            msg.append("exp = ").append(expNueva)
+                    .append(" (nivel ").append(nivelDesdeExp(expNueva)).append(")");
+            algoEscrito = true;
+        }
+        if (electronios != null) {
+            if (algoEscrito) {
+                msg.append(" y ");
+            }
+            msg.append("electronios = ").append(electronios);
+        }
+        msg.append(" en ").append(tocados).append(" alumno").append(tocados == 1 ? "" : "s")
+                .append(" (").append(alcance).append(").");
+        if (cambios.length() > 0) {
+            msg.append(" Ejemplos: ").append(cambios).append(".");
+        }
+        return resultado(true, msg.toString());
+    }
+
+    /** Experiencia mínima que corresponde a cada nivel (la BBDD recalcula el nivel solo). */
+    private int expMinimoNivel(int nivel) {
+        return switch (nivel) {
+            case 1 -> 100;
+            case 2 -> 250;
+            case 3 -> 500;
+            case 4 -> 900;
+            case 5 -> 1200;
+            case 6 -> 1700;
+            default -> 0;
+        };
+    }
+
+    private int nivelDesdeExp(int exp) {
+        if (exp >= 1700) {
+            return 6;
+        }
+        if (exp >= 1200) {
+            return 5;
+        }
+        if (exp >= 900) {
+            return 4;
+        }
+        if (exp >= 500) {
+            return 3;
+        }
+        if (exp >= 250) {
+            return 2;
+        }
+        return exp >= 100 ? 1 : 0;
+    }
+
+    /** Email de reserva cuando el profe solo da el nombre: ana.garcia@alumno.com */
+    private String generarEmail(String nombre) {
+        String base = normalizarEmail(nombre);
+        if (base.isEmpty()) {
+            base = "alumno";
+        }
+        String candidato = base + "@alumno.com";
+        int intento = 1;
+        while (usuarioService.getUserByEmail(candidato) != null) {
+            intento++;
+            candidato = base + intento + "@alumno.com";
+        }
+        return candidato;
+    }
+
+    private String normalizarEmail(String nombre) {
+        String sinTildes = Normalizer.normalize(nombre, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        String limpio = sinTildes.toLowerCase().replaceAll("[^a-z0-9]+", ".")
+                .replaceAll("^[.]+", "").replaceAll("[.]+$", "");
+        if (limpio.length() > 25) {
+            limpio = limpio.substring(0, 25).replaceAll("[.]+$", "");
+        }
+        return limpio;
     }
 
     private void aplicarTarjeta(Long idAlumno, Integer exp, Integer electronios) {

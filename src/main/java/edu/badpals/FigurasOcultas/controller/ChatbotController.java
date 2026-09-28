@@ -56,7 +56,10 @@ public class ChatbotController {
         }
 
         ChatbotRequest datos = request != null ? request : new ChatbotRequest();
-        return ResponseEntity.ok(chatbotService.chat(datos, sesionHttp, usuarioId));
+        long inicio = System.nanoTime();
+        ChatbotResponse respuesta = chatbotService.chat(datos, sesionHttp, usuarioId);
+        respuesta.setTiempoMs((System.nanoTime() - inicio) / 1_000_000L);
+        return ResponseEntity.ok(respuesta);
     }
 
     /**

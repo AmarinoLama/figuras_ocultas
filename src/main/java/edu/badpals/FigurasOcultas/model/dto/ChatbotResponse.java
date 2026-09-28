@@ -29,6 +29,9 @@ public class ChatbotResponse {
     /** URL de descarga de un archivo generado (por ejemplo, el CSV de usuarios). */
     private String descarga;
 
+    /** Milisegundos que ha tardado el servidor en preparar la respuesta. */
+    private Long tiempoMs;
+
     public ChatbotResponse() {
     }
 

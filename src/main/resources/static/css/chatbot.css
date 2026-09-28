@@ -281,3 +281,10 @@
     background: #2d9200;
     text-decoration: none;
 }
+
+.profebot-tiempo {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    opacity: .65;
+}

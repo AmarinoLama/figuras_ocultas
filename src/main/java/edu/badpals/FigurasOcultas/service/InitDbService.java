@@ -23,25 +23,20 @@ public class InitDbService {
 
 //        webConfigService.updateWebConfig("Docker Ocultas");
 
-//        Usuario susiAccount = new Usuario();
-//        susiAccount.setNombre("Susi");
-//        susiAccount.setEmail("susiveiga@ua");
-//        susiAccount.setPassword("123");
-//        susiAccount.setRol(RolUsuario.ADMIN);
-//        usuarioService.saveAdmin(susiAccount);
-//
-//        Usuario andreaAccount = new Usuario();
-//        andreaAccount.setNombre("Andrea");
-//        andreaAccount.setEmail("andreavazquez@ua");
-//        andreaAccount.setPassword("123");
-//        andreaAccount.setRol(RolUsuario.ADMIN);
-//        usuarioService.saveAdmin(andreaAccount);
-//
-//        Usuario adminAccount = new Usuario();
-//        adminAccount.setNombre("Administrador");
-//        adminAccount.setEmail("admin@ua");
-//        adminAccount.setPassword("123");
-//        adminAccount.setRol(RolUsuario.ADMIN);
-//        usuarioService.saveAdmin(adminAccount);
+        crearAdminSiNoExiste("Susi", "susiveiga@ua", "123");
+        crearAdminSiNoExiste("Andrea", "andreavazquez@ua", "123");
+    }
+
+    /** Crea la cuenta de administrador solo si todavía no existe (evita duplicados). */
+    private void crearAdminSiNoExiste(String nombre, String email, String password) {
+        if (!usuarioService.checkValidEmail(email)) {
+            return;
+        }
+        Usuario cuenta = new Usuario();
+        cuenta.setNombre(nombre);
+        cuenta.setEmail(email);
+        cuenta.setPassword(password);
+        cuenta.setRol(RolUsuario.ADMIN);
+        usuarioService.saveAdmin(cuenta);
     }
 }

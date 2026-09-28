@@ -10,6 +10,7 @@ import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
 import edu.badpals.FigurasOcultas.model.entity.Curso;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
+import edu.badpals.FigurasOcultas.util.Csv;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -913,27 +914,7 @@ public class ChatbotService {
     }
 
     private String csvAlumnos(List<String[]> filas) {
-        StringBuilder sb = new StringBuilder();
-        for (String[] fila : filas) {
-            if (sb.length() > 0) {
-                sb.append("\n");
-            }
-            for (int i = 0; i < fila.length; i++) {
-                if (i > 0) {
-                    sb.append(',');
-                }
-                sb.append(campoCsv(fila[i]));
-            }
-        }
-        return sb.append("\n").toString();
-    }
-
-    private String campoCsv(String valor) {
-        String texto = valor == null ? "" : valor;
-        if (texto.contains(",") || texto.contains("\"") || texto.contains("\n") || texto.contains("\r")) {
-            return "\"" + texto.replace("\"", "\"\"") + "\"";
-        }
-        return texto;
+        return Csv.filas(filas);
     }
 
     /** Guarda el CSV en la sesión del profe y devuelve su URL de descarga (null si no lo hay). */

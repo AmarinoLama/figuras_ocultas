@@ -40,6 +40,10 @@
                         ➕ Nuevo Alumno
                     </button>
 
+                    <button class="btn btn-warning fw-bold" data-bs-toggle="modal" data-bs-target="#modalExportarCsv">
+                        ⬇️ Extraer CSV
+                    </button>
+
                     <form th:action="@{/alumnos}" method="get" class="d-flex align-items-center">
                         <select name="curso" class="form-select ms-2" onchange="this.form.submit()">
                             <option value="">&#128218; Todos los cursos</option>
@@ -152,6 +156,43 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalExportarCsv" tabindex="-1" aria-labelledby="tituloExportarCsv" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tituloExportarCsv">⬇️ Extraer alumnos (CSV)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p>Descarga nombres completos, usuarios y contraseñas de tus alumnos.</p>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="exportarCsvOpcion"
+                           id="csvTodos" value="todos" th:checked="${cursoSeleccionado == null}">
+                    <label class="form-check-label" for="csvTodos">Todos tus cursos</label>
+                </div>
+
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="exportarCsvOpcion"
+                           id="csvCurso" value="curso" th:checked="${cursoSeleccionado != null}">
+                    <label class="form-check-label" for="csvCurso">Solo un curso en concreto</label>
+                </div>
+
+                <select id="selectCursoCsv" class="form-select ms-4" style="max-width: 260px;"
+                        aria-label="Curso a extraer">
+                    <option th:each="c : ${cursos}" th:value="${c.id}" th:text="${c.nombre}"
+                            th:selected="${cursoSeleccionado != null && cursoSeleccionado == c.id.toString()}">Curso
+                    </option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success fw-bold" id="btnDescargarCsv">⬇ Descargar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -460,6 +501,30 @@
             .catch(error => {
                 console.error("Error:", error);
             });
+    });
+
+    // ---- Descarga del CSV de alumnos: todos tus cursos o uno concreto ----
+    function sincronizarSelectCursoCsv() {
+        document.getElementById("selectCursoCsv").disabled =
+            document.getElementById("csvTodos").checked;
+    }
+
+    document.querySelectorAll('input[name="exportarCsvOpcion"]').forEach(function (radio) {
+        radio.addEventListener('change', sincronizarSelectCursoCsv);
+    });
+    sincronizarSelectCursoCsv();
+
+    document.getElementById("btnDescargarCsv").addEventListener("click", function () {
+        var url = "/alumnos/csv";
+        if (!document.getElementById("csvTodos").checked) {
+            var curso = document.getElementById("selectCursoCsv").value;
+            if (!curso) {
+                mostrarError("Debes seleccionar un curso para extraer solo ese curso.");
+                return;
+            }
+            url += "?curso=" + curso;
+        }
+        window.location.href = url;
     });
 
     function mostrarError(mensaje) {

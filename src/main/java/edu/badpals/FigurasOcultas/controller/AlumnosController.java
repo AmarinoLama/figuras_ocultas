@@ -3,16 +3,25 @@ package edu.badpals.FigurasOcultas.controller;
 import edu.badpals.FigurasOcultas.authentication.ManagerUserSession;
 import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
+import edu.badpals.FigurasOcultas.model.entity.Curso;
 import edu.badpals.FigurasOcultas.model.entity.HistorialTransacciones;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import edu.badpals.FigurasOcultas.service.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import edu.badpals.FigurasOcultas.util.Csv;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -51,6 +60,59 @@ public class AlumnosController {
 
     @Autowired
     private CursoService cursoService;
+
+    /**
+     * CSV con nombre completo, usuario y contraseña de los alumnos:
+     * de todos los cursos visibles o de un curso concreto si llega ?curso=id.
+     */
+    @GetMapping("/alumnos/csv")
+    public ResponseEntity<byte[]> exportarAlumnosCsv(@RequestParam(required = false) Long curso) {
+        Long usuarioId = managerUserSession.usuarioLogeado();
+        if (usuarioId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UsuarioDTO usuario = usuarioService.getUserById(usuarioId);
+        if (usuario == null || !usuario.isAdmin()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<Curso> cursos;
+        String sufijo;
+        if (curso != null) {
+            Curso concreto = cursoService.buscarPorId(curso);
+            if (concreto == null || !cursoService.puedeUsar(concreto, usuarioId)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            cursos = List.of(concreto);
+            sufijo = "-" + limpiarNombreFichero(concreto.getCodigo());
+        } else {
+            cursos = cursoService.visiblesPara(usuarioId);
+            sufijo = "-todos";
+        }
+
+        List<String[]> filas = new ArrayList<>();
+        filas.add(new String[] {"curso", "nombre", "usuario", "contrasena"});
+        for (Curso c : cursos) {
+            for (UsuarioDTO alumno : usuarioService.getAlumnosFromCurso(c.getId())) {
+                filas.add(new String[] {c.getCodigo(), alumno.getNombre(),
+                        alumno.getEmail(), alumno.getPassword()});
+            }
+        }
+
+        byte[] cuerpo = ("\uFEFF" + Csv.filas(filas)).getBytes(StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"alumnos" + sufijo + ".csv\"")
+                .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8"))
+                .body(cuerpo);
+    }
+
+    private String limpiarNombreFichero(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return "curso";
+        }
+        return valor.replaceAll("[^A-Za-z0-9_-]", "");
+    }
 
     @GetMapping("/alumnos")
     public String loadIndex(Model model,

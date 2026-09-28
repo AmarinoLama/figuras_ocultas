@@ -1,0 +1,220 @@
+<div th:fragment="chatbot" th:if="${usuario != null and usuario.isAdmin()}"
+     id="profebot" th:attr="data-endpoint=@{/api/chatbot}">
+
+    <link rel="stylesheet" th:href="@{/css/chatbot.css?v=1}">
+
+    <button type="button" id="profebot-boton" title="ProfeBot: asistente del profe"
+            aria-label="Abrir el chat con ProfeBot">💬</button>
+
+    <section id="profebot-panel" role="dialog" aria-label="Chat con ProfeBot">
+        <header class="profebot-cabecera">
+            <div>
+                <strong>🤖 ProfeBot</strong>
+                <small>Gestiona el alumnado escribiéndole</small>
+            </div>
+            <button type="button" class="profebot-cerrar" id="profebot-cerrar" aria-label="Cerrar el chat">✕</button>
+        </header>
+
+        <div id="profebot-mensajes" class="profebot-mensajes" aria-live="polite"></div>
+
+        <div id="profebot-confirmacion" class="profebot-confirmacion">
+            <span>⚠️ Esta acción borra datos. ¿Continúo?</span>
+            <div class="profebot-botones">
+                <button type="button" id="profebot-si">Sí</button>
+                <button type="button" id="profebot-no">No</button>
+            </div>
+        </div>
+
+        <form id="profebot-formulario" class="profebot-zona-texto">
+            <textarea id="profebot-texto" rows="1" placeholder="Escribe al ProfeBot..."
+                      aria-label="Mensaje para ProfeBot"></textarea>
+            <button type="submit" id="profebot-enviar" aria-label="Enviar mensaje">➤</button>
+        </form>
+    </section>
+
+    <script th:inline="javascript">
+        (function () {
+            var raiz = document.getElementById('profebot');
+            if (!raiz || raiz.dataset.listo === '1') {
+                return;
+            }
+            raiz.dataset.listo = '1';
+
+            var endpoint = raiz.getAttribute('data-endpoint');
+            var boton = document.getElementById('profebot-boton');
+            var panel = document.getElementById('profebot-panel');
+            var cerrar = document.getElementById('profebot-cerrar');
+            var zona = document.getElementById('profebot-mensajes');
+            var formulario = document.getElementById('profebot-formulario');
+            var texto = document.getElementById('profebot-texto');
+            var confirmacion = document.getElementById('profebot-confirmacion');
+            var si = document.getElementById('profebot-si');
+            var no = document.getElementById('profebot-no');
+
+            var pendiente = null;
+            var esperando = false;
+            var saludado = false;
+
+            function abajo() {
+                zona.scrollTop = zona.scrollHeight;
+            }
+
+            function agregar(contenido, clase, conRefresco) {
+                var burbuja = document.createElement('div');
+                burbuja.className = 'profebot-mensaje ' + (clase || 'bot');
+                burbuja.textContent = contenido;
+                if (conRefresco) {
+                    var refresco = document.createElement('button');
+                    refresco.type = 'button';
+                    refresco.className = 'profebot-actualizar';
+                    refresco.textContent = '🔄 Ver los cambios en la tabla';
+                    refresco.addEventListener('click', function () {
+                        window.location.reload();
+                    });
+                    burbuja.appendChild(refresco);
+                }
+                zona.appendChild(burbuja);
+                abajo();
+                return burbuja;
+            }
+
+            var puntos = null;
+
+            function escribiendo(activar) {
+                if (activar) {
+                    if (puntos) {
+                        return;
+                    }
+                    puntos = document.createElement('div');
+                    puntos.className = 'profebot-mensaje bot profebot-escribiendo';
+                    puntos.innerHTML = '<span></span><span></span><span></span>';
+                    puntos.setAttribute('aria-label', 'ProfeBot está escribiendo');
+                    zona.appendChild(puntos);
+                    abajo();
+                } else if (puntos) {
+                    puntos.remove();
+                    puntos = null;
+                }
+            }
+
+            function bloquear(activar) {
+                esperando = activar;
+                texto.disabled = activar;
+                formulario.querySelector('button[type="submit"]').disabled = activar;
+            }
+
+            function ocultarConfirmacion() {
+                pendiente = null;
+                confirmacion.classList.remove('visible');
+            }
+
+            function pedir(datos) {
+                bloquear(true);
+                escribiendo(true);
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                }).then(function (respuesta) {
+                    return respuesta.json().catch(function () {
+                        return null;
+                    }).then(function (cuerpo) {
+                        return { estado: respuesta.status, cuerpo: cuerpo };
+                    });
+                }).then(function (resultado) {
+                    escribiendo(false);
+                    var cuerpo = resultado.cuerpo || {};
+                    if (resultado.estado !== 200) {
+                        agregar(cuerpo.respuesta || 'No he podido atender la petición (' + resultado.estado + ').', 'sistema');
+                        if (resultado.estado === 401) {
+                            agregar('Recarga la página para volver a iniciar sesión.', 'sistema');
+                        }
+                        ocultarConfirmacion();
+                        return;
+                    }
+                    if (cuerpo.respuesta) {
+                        agregar(cuerpo.respuesta, 'bot', cuerpo.accionEjecutada === true);
+                    }
+                    if (cuerpo.confirmacionRequerida === true) {
+                        pendiente = { accion: cuerpo.accion, params: cuerpo.params };
+                        confirmacion.classList.add('visible');
+                    } else {
+                        ocultarConfirmacion();
+                    }
+                }).catch(function () {
+                    escribiendo(false);
+                    agregar('No consigo conectar con el servidor. Inténtalo de nuevo en unos segundos.', 'sistema');
+                }).finally(function () {
+                    bloquear(false);
+                    texto.focus();
+                });
+            }
+
+            function saludar() {
+                if (saludado) {
+                    return;
+                }
+                saludado = true;
+                agregar('¡Hola! Soy ProfeBot. Escríbeme y te ayudo con el alumnado: '
+                    + 'crear, modificar o borrar alumnos, dar experiencia a un curso... '
+                    + 'Por ejemplo: "da 10 de experiencia a 2º ESO A".', 'bot');
+            }
+
+            boton.addEventListener('click', function () {
+                panel.classList.toggle('abierto');
+                if (panel.classList.contains('abierto')) {
+                    saludar();
+                    texto.focus();
+                    abajo();
+                }
+            });
+
+            cerrar.addEventListener('click', function () {
+                panel.classList.remove('abierto');
+            });
+
+            formulario.addEventListener('submit', function (evento) {
+                evento.preventDefault();
+                var mensaje = texto.value.trim();
+                if (!mensaje || esperando) {
+                    return;
+                }
+                ocultarConfirmacion();
+                agregar(mensaje, 'yo');
+                texto.value = '';
+                texto.style.height = 'auto';
+                pedir({ mensaje: mensaje });
+            });
+
+            texto.addEventListener('keydown', function (evento) {
+                if (evento.key === 'Enter' && !evento.shiftKey) {
+                    evento.preventDefault();
+                    formulario.requestSubmit();
+                }
+            });
+
+            texto.addEventListener('input', function () {
+                texto.style.height = 'auto';
+                texto.style.height = Math.min(texto.scrollHeight, 110) + 'px';
+            });
+
+            si.addEventListener('click', function () {
+                if (!pendiente || esperando) {
+                    return;
+                }
+                var aEjecutar = pendiente;
+                ocultarConfirmacion();
+                agregar('Sí, adelante', 'yo');
+                pedir({ confirmado: true, accion: aEjecutar.accion, params: aEjecutar.params });
+            });
+
+            no.addEventListener('click', function () {
+                if (esperando) {
+                    return;
+                }
+                ocultarConfirmacion();
+                agregar('Vale, cancelado. No borro nada.', 'sistema');
+            });
+        })();
+    </script>
+</div>

@@ -29,6 +29,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      # Chatbot: "opencode serve" escucha en el host (4096), no en el contenedor
+      APP_CHATBOT_URL: http://host.docker.internal:4096
+      APP_CHATBOT_PASSWORD: ${APP_CHATBOT_PASSWORD}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8080:8080"
     depends_on:

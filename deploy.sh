@@ -31,6 +31,15 @@ echo ""
 echo ">>> Reiniciando contenedor de la app..."
 docker compose up -d --no-deps app
 
+# 3.5 Reiniciar "opencode serve" para que coja opencode.json (agente "chatbot")
+echo ""
+echo ">>> Reiniciando opencode serve (motor del chatbot)..."
+if sudo -n systemctl restart opencode-serve; then
+    echo "opencode serve reiniciado."
+else
+    echo "Aviso: no se pudo reiniciar opencode serve (¿permiso sudo?)."
+fi
+
 # 4. Limpiar imágenes Docker huérfanas (no afecta a contenedores en uso)
 echo ""
 echo ">>> Limpiando imágenes Docker huérfanas..."

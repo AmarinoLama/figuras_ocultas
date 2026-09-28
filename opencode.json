@@ -1,0 +1,39 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/ling-3.0-flash-fin-free",
+  "agent": {
+    "chatbot": {
+      "description": "Asistente de solo texto del chatbot web de Figuras Ocultas: no puede escribir, ejecutar ni buscar en el proyecto",
+      "mode": "primary",
+      "model": "opencode/ling-3.0-flash-fin-free",
+      "steps": 1,
+      "permission": {
+        "read": {
+          "*": "allow",
+          "*.sql": "deny",
+          "*.env": "deny",
+          "*.properties": "deny",
+          "*.yml": "deny",
+          "*.yaml": "deny"
+        },
+        "edit": "deny",
+        "glob": "deny",
+        "grep": "deny",
+        "list": "deny",
+        "bash": {
+          "*": "deny",
+          "ls": "allow"
+        },
+        "task": "deny",
+        "external_directory": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "lsp": "deny",
+        "skill": "deny",
+        "question": "deny",
+        "todowrite": "deny",
+        "todoread": "deny"
+      }
+    }
+  }
+}

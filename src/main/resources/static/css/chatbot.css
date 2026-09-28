@@ -1,0 +1,265 @@
+/* Chatbot "ProfeBot" (solo administradores) */
+
+#profebot-boton {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 1150;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7209b7, #b5179e);
+    color: #fff;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+#profebot-boton:hover {
+    transform: scale(1.08);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+}
+
+#profebot-panel {
+    position: fixed;
+    right: 24px;
+    bottom: 96px;
+    z-index: 1150;
+    width: min(380px, calc(100vw - 32px));
+    height: min(540px, calc(100vh - 140px));
+    display: none;
+    flex-direction: column;
+    background: #1b1035;
+    color: #f3edff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+#profebot-panel.abierto {
+    display: flex;
+}
+
+.profebot-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #3a0ca3, #b5179e);
+}
+
+.profebot-cabecera strong {
+    font-size: 1rem;
+}
+
+.profebot-cabecera small {
+    display: block;
+    font-weight: 400;
+    opacity: 0.85;
+    font-size: 0.72rem;
+}
+
+.profebot-cerrar {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 6px;
+}
+
+.profebot-mensajes {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scroll-behavior: smooth;
+}
+
+.profebot-mensaje {
+    max-width: 85%;
+    padding: 9px 12px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    line-height: 1.35;
+    white-space: pre-wrap;
+    word-break: break-word;
+    animation: profebot-entra 0.18s ease-out;
+}
+
+@keyframes profebot-entra {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.profebot-mensaje.bot {
+    align-self: flex-start;
+    background: #2d1b57;
+    border-bottom-left-radius: 4px;
+}
+
+.profebot-mensaje.yo {
+    align-self: flex-end;
+    background: #7209b7;
+    border-bottom-right-radius: 4px;
+}
+
+.profebot-mensaje.sistema {
+    align-self: center;
+    background: transparent;
+    border: 1px dashed rgba(255, 255, 255, 0.35);
+    color: #cfc2ee;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.profebot-actualizar {
+    display: block;
+    margin-top: 8px;
+    padding: 5px 10px;
+    font-size: 0.78rem;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.profebot-actualizar:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.profebot-escribiendo span {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 4px;
+    border-radius: 50%;
+    background: #cfc2ee;
+    animation: profebot-punto 1.2s infinite ease-in-out;
+}
+
+.profebot-escribiendo span:nth-child(2) { animation-delay: 0.2s; }
+.profebot-escribiendo span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes profebot-punto {
+    0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-4px); }
+}
+
+.profebot-confirmacion {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #33165e;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 0.85rem;
+}
+
+.profebot-confirmacion.visible {
+    display: flex;
+}
+
+.profebot-confirmacion .profebot-botones {
+    display: flex;
+    gap: 6px;
+}
+
+.profebot-confirmacion button {
+    border: none;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#profebot-si {
+    background: #38b000;
+    color: #fff;
+}
+
+#profebot-no {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.profebot-zona-texto {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    padding: 10px;
+    background: #241545;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+#profebot-texto {
+    flex: 1;
+    resize: none;
+    max-height: 110px;
+    min-height: 40px;
+    padding: 9px 11px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #170d2e;
+    color: #fff;
+    font-size: 0.9rem;
+    font-family: inherit;
+}
+
+#profebot-texto:focus {
+    outline: none;
+    border-color: #b5179e;
+}
+
+#profebot-texto::placeholder {
+    color: #9d8cc4;
+}
+
+#profebot-enviar {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7209b7, #b5179e);
+    color: #fff;
+    font-size: 1.05rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s ease-in-out;
+}
+
+#profebot-enviar:hover:not(:disabled) {
+    transform: scale(1.06);
+}
+
+#profebot-enviar:disabled,
+#profebot-texto:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+@media (max-width: 576px) {
+    #profebot-boton {
+        right: 14px;
+        bottom: 14px;
+    }
+
+    #profebot-panel {
+        right: 8px;
+        left: 8px;
+        bottom: 84px;
+        width: auto;
+        height: min(70vh, calc(100vh - 110px));
+    }
+}

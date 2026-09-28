@@ -32,7 +32,7 @@ services:
       # Chatbot: "opencode serve" escucha en el host (4096), no en el contenedor
       APP_CHATBOT_URL: http://host.docker.internal:4096
       APP_CHATBOT_PASSWORD: ${APP_CHATBOT_PASSWORD}
-      APP_CHATBOT_MODEL: ${APP_CHATBOT_MODEL:-opencode/mimo-v2.6-flash-free}
+      APP_CHATBOT_MODEL: ${APP_CHATBOT_MODEL:-opencode/ling-3.0-flash-fin-free}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:

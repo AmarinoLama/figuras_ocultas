@@ -36,8 +36,18 @@ public class OpencodeClient {
     @Value("${app.chatbot.model:opencode/ling-3.0-flash-fin-free}")
     private String modelo;
 
+    /** Modelo de reserva: se usa si el principal no responde (proveedor caído). */
+    @Value("${app.chatbot.model.fallback:opencode/mimo-v2.6-flash-free}")
+    private String modeloAlternativo;
+
     @Value("${app.chatbot.agent:chatbot}")
     private String agente;
+
+    /** Último fallo del modelo principal (epoch ms); 0 si nunca ha fallado. */
+    private volatile long ultimoFalloPrincipal;
+
+    /** Tiempo que se salta el modelo principal y va directo al de reserva. */
+    private static final long ENFRIAMIENTO_PRINCIPAL_MS = 5L * 60L * 1000L;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -112,8 +122,29 @@ public class OpencodeClient {
      * Se usa el agente "chatbot", que va sin herramientas: solo texto.
      */
     public JsonNode enviarMensaje(String sesionId, String system, JsonNode format, String texto) {
+        if (principalEnfriado()) {
+            return enviarConModelo(sesionId, system, format, texto, modeloAlternativo);
+        }
+        try {
+            JsonNode respuesta = enviarConModelo(sesionId, system, format, texto, modelo);
+            ultimoFalloPrincipal = 0L;
+            return respuesta;
+        } catch (RuntimeException e) {
+            if (sinModeloAlternativo()) {
+                throw e;
+            }
+            ultimoFalloPrincipal = System.currentTimeMillis();
+            log.warn("El modelo principal {} no responde ({}), pruebo con {}",
+                    modelo, e.getMessage(), modeloAlternativo);
+            return enviarConModelo(sesionId, system, format, texto, modeloAlternativo);
+        }
+    }
+
+    /** Igual que enviarMensaje, pero fijando el modelo a usar en la petición. */
+    private JsonNode enviarConModelo(String sesionId, String system, JsonNode format,
+                                     String texto, String modeloElegido) {
         ObjectNode cuerpo = mapper.createObjectNode();
-        cuerpo.set("model", modeloNode());
+        cuerpo.set("model", modeloNode(modeloElegido));
         if (agente != null && !agente.isBlank()) {
             cuerpo.put("agent", agente);
         }
@@ -133,18 +164,35 @@ public class OpencodeClient {
         if (nodo == null || !nodo.has("info")) {
             throw new OpencodeException("Respuesta inesperada de opencode serve", respuesta.statusCode());
         }
+        JsonNode error = nodo.path("info").path("error");
+        if (!error.isMissingNode() && !error.isNull()) {
+            throw new OpencodeException(
+                    error.path("data").path("message").asText("error desconocido del modelo"));
+        }
         return nodo;
     }
 
-    private JsonNode modeloNode() {
+    private boolean sinModeloAlternativo() {
+        return modeloAlternativo == null || modeloAlternativo.isBlank()
+                || modeloAlternativo.equals(modelo);
+    }
+
+    /** Tras un fallo, durante unos minutos se usa el modelo de reserva sin reintentar el principal. */
+    private boolean principalEnfriado() {
+        return !sinModeloAlternativo()
+                && ultimoFalloPrincipal > 0L
+                && System.currentTimeMillis() - ultimoFalloPrincipal < ENFRIAMIENTO_PRINCIPAL_MS;
+    }
+
+    private JsonNode modeloNode(String modeloElegido) {
         ObjectNode nodo = mapper.createObjectNode();
-        int corte = modelo.indexOf('/');
+        int corte = modeloElegido.indexOf('/');
         if (corte > 0) {
-            nodo.put("providerID", modelo.substring(0, corte));
-            nodo.put("modelID", modelo.substring(corte + 1));
+            nodo.put("providerID", modeloElegido.substring(0, corte));
+            nodo.put("modelID", modeloElegido.substring(corte + 1));
         } else {
             nodo.put("providerID", "opencode");
-            nodo.put("modelID", modelo);
+            nodo.put("modelID", modeloElegido);
         }
         return nodo;
     }

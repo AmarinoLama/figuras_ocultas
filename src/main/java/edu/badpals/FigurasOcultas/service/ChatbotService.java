@@ -25,7 +25,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Chatbot de la web: usa opencode serve (modelo ling-3.0-flash-fin-free)
+ * Chatbot de la web: usa opencode serve (modelo principal ling-3.0-flash-fin-free
+ * y, si el proveedor no responde, el de reserva mimo-v2.6-flash-free)
  * para interpretar lo que pide el profe y ejecutar acciones sobre los alumnos.
  */
 @Service

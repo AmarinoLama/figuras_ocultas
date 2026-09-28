@@ -6,7 +6,7 @@
       "description": "Asistente de solo texto del chatbot web de Figuras Ocultas: no puede escribir, ejecutar ni buscar en el proyecto",
       "mode": "primary",
       "model": "opencode/ling-3.0-flash-fin-free",
-      "steps": 1,
+      "steps": 3,
       "permission": {
         "read": {
           "*": "allow",

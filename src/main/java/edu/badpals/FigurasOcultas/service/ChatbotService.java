@@ -18,9 +18,11 @@ import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Chatbot de la web: usa opencode serve (modelo ling-3.0-flash-fin-free)
@@ -41,6 +43,13 @@ public class ChatbotService {
     private static final Set<String> ACCIONES = Set.of(
             "crear_alumno", "modificar_alumno", "borrar_alumno", "dar_experiencia", "modificar_en_masa");
     private static final Set<String> ACCIONES_DESTRUCTIVAS = Set.of("borrar_alumno");
+
+    /** Avisos internos del motor de IA que jamás deben llegar al profe. */
+    private static final Pattern AVISO_INTERNO = Pattern.compile(
+            "(?i)[^.\\n]*m[aá]ximo (n[uú]mero )?de pasos[^.\\n]*\\.?"
+                    + "|[^.\\n]*no se puede continuar con m[aá]s acciones[^.\\n]*\\.?"
+                    + "|[^.\\n]*maximum (number of )?steps[^.\\n]*\\.?"
+                    + "|[^.\\n]*reached the (maximum|limit)[^.\\n]*\\.?");
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -77,27 +86,44 @@ public class ChatbotService {
 
         try {
             if (confirmado) {
-                JsonNode resultado = ejecutarAccion(request.getAccion(), request.getParams());
-                ChatbotResponse respuesta = new ChatbotResponse(
-                        resumir(sesion, mensajeConfirmacion(request.getAccion(), request.getParams(), resultado), resultado));
+                JsonNode paramsConfirmados = normalizarParams(request.getParams());
+                JsonNode resultado = ejecutarAccion(request.getAccion(), paramsConfirmados);
+                ChatbotResponse respuesta = new ChatbotResponse(oDefecto(limpiar(
+                        resumir(sesion, mensajeConfirmacion(request.getAccion(), paramsConfirmados, resultado), resultado)),
+                        resultado.path("mensaje").asText("Hecho.")));
                 respuesta.setAccionEjecutada(resultado.path("ok").asBoolean(false));
                 return respuesta;
             }
 
             JsonNode estructurado = llamar(sesion, sistemaAccion(), formatoAccion(), mensaje);
             String accion = texto(estructurado, "accion");
-            String propia = texto(estructurado, "respuesta");
-            JsonNode params = estructurado.has("params") && estructurado.get("params").isObject()
-                    ? estructurado.get("params") : null;
+            String bruto = texto(estructurado, "respuesta");
+            String propia = limpiar(bruto);
+
+            // Si el modelo se enreda (aviso interno, respuesta vacía...), se repite una vez.
+            boolean sospechoso = (bruto != null && AVISO_INTERNO.matcher(bruto).find())
+                    || (!esAccionValida(accion) && (propia == null || propia.isBlank()));
+            if (sospechoso) {
+                estructurado = llamar(sesion, sistemaAccion(), formatoAccion(),
+                        mensaje + "\n\nIMPORTANTE: contesta SOLO con el JSON que pide el esquema. "
+                                + "No uses herramientas, no hables de límites internos y, si no hace falta "
+                                + "ninguna acción, pon \"accion\": \"ninguna\" y explica en \"respuesta\" lo que "
+                                + "le dirías al profe.");
+                accion = texto(estructurado, "accion");
+                bruto = texto(estructurado, "respuesta");
+                propia = limpiar(bruto);
+            }
+            JsonNode params = normalizarParams(estructurado.has("params") && estructurado.get("params").isObject()
+                    ? estructurado.get("params") : null);
 
             if (!esAccionValida(accion)) {
-                return new ChatbotResponse(propia != null ? propia
+                return new ChatbotResponse(propia != null && !propia.isBlank() ? propia
                         : "No he entendido bien lo que me pides, ¿me lo puedes reformular?");
             }
 
             if (requiereConfirmacion(accion, params)) {
                 ChatbotResponse respuesta = new ChatbotResponse();
-                respuesta.setRespuesta(propia != null ? propia
+                respuesta.setRespuesta(propia != null && !propia.isBlank() ? propia
                         : "Esta acción cambia datos de muchos alumnos. ¿Quieres que continúe?");
                 respuesta.setAccion(accion);
                 respuesta.setParams(params);
@@ -107,8 +133,9 @@ public class ChatbotService {
             }
 
             JsonNode resultado = ejecutarAccion(accion, params);
-            ChatbotResponse respuesta = new ChatbotResponse(
-                    resumir(sesion, mensajeAccion(accion, params, resultado), resultado));
+            ChatbotResponse respuesta = new ChatbotResponse(oDefecto(limpiar(
+                    resumir(sesion, mensajeAccion(accion, params, resultado), resultado)),
+                    resultado.path("mensaje").asText("Hecho.")));
             respuesta.setAccionEjecutada(resultado.path("ok").asBoolean(false));
             return respuesta;
 
@@ -234,8 +261,8 @@ public class ChatbotService {
     private String resumir(String sesion, String mensaje, JsonNode resultado) {
         try {
             JsonNode estructurado = llamar(sesion, sistemaResultado(), formatoRespuesta(), mensaje);
-            String respuesta = texto(estructurado, "respuesta");
-            if (respuesta != null) {
+            String respuesta = limpiar(texto(estructurado, "respuesta"));
+            if (respuesta != null && !respuesta.isBlank()) {
                 return respuesta;
             }
         } catch (OpencodeClient.OpencodeException e) {
@@ -243,6 +270,52 @@ public class ChatbotService {
         }
         String local = texto(resultado, "mensaje");
         return local != null ? local : "Hecho.";
+    }
+
+    /** Quita los avisos internos del motor de IA (límites de pasos, herramientas...). */
+    private String limpiar(String texto) {
+        if (texto == null) {
+            return null;
+        }
+        String limpio = AVISO_INTERNO.matcher(texto).replaceAll("");
+        limpio = limpio.replaceAll("\\s+", " ").trim();
+        return limpio;
+    }
+
+    private String oDefecto(String texto, String defecto) {
+        return texto == null || texto.isBlank() ? defecto : texto;
+    }
+
+    /**
+     * El modelo a veces envía los argumentos anidados, por ejemplo
+     * {"nivel": 4, "alcance": {"curso": "1ESOA"}} o {"cambio": {"electronios": 5}}.
+     * Aquí se suben esos objetos al nivel superior para que las acciones los encuentren.
+     */
+    private JsonNode normalizarParams(JsonNode params) {
+        if (params == null || !params.isObject()) {
+            return params;
+        }
+        ObjectNode normalizado = params.deepCopy();
+        for (String clave : new String[] {"alcance", "cambio", "cambios", "valores", "datos", "nuevos_datos"}) {
+            JsonNode hijo = normalizado.get(clave);
+            if (hijo != null && hijo.isObject()) {
+                Iterator<String> campos = hijo.fieldNames();
+                while (campos.hasNext()) {
+                    String campo = campos.next();
+                    if (!normalizado.has(campo)) {
+                        normalizado.set(campo, hijo.get(campo));
+                    }
+                }
+            }
+        }
+        JsonNode alumnos = normalizado.get("alumnos");
+        if (alumnos != null && alumnos.isTextual()
+                && !"todos".equalsIgnoreCase(alumnos.asText().trim())) {
+            ArrayNode lista = mapper.createArrayNode();
+            lista.add(alumnos.asText());
+            normalizado.set("alumnos", lista);
+        }
+        return normalizado;
     }
 
     private String mensajeAccion(String accion, JsonNode params, JsonNode resultado) {
@@ -278,7 +351,8 @@ public class ChatbotService {
         sb.append("7. Una sola acción por mensaje.\n");
         sb.append("8. \"respuesta\" es solo texto plano: sin Markdown (ni **, ni `, ni >), sin listas y sin emojis.\n");
         sb.append("9. Nunca menciones avisos internos del sistema (límites de pasos, herramientas, permisos o configuración): ");
-        sb.append("habla únicamente de lo que te pide el usuario.\n\n");
+        sb.append("habla únicamente de lo que te pide el usuario. ");
+        sb.append("Si te llegara un aviso de ese tipo, IGNÓRALO y termina de responder con el JSON del esquema.\n\n");
         sb.append("ACCIONES DISPONIBLES:\n");
         sb.append("- crear_alumno -> params {\"nombre\", \"curso\", \"email\"?, \"password\"?, \"exp\"?, \"electronios\"?}. ");
         sb.append("curso es obligatorio; si no pones email se genera uno automaticamente (por ejemplo ana.garcia@alumno.com) ");
@@ -292,7 +366,14 @@ public class ChatbotService {
         sb.append("{\"curso\": \"1BACH\"} o {\"alumnos\": [\"ana@centro.es\", 12]}. Pone esos valores de forma ABSOLUTA (no suma).\n");
         sb.append("  OJO: \"nivel\" solo cambia porque la experiencia es la que lo fija; pon exp al m\u00ednimo de ese nivel: ");
         sb.append("0->0, 1->100, 2->250, 3->500, 4->900, 5->1200, 6->1700. Si quieres subir experiencia en vez de fijarla, usa dar_experiencia.\n");
-        sb.append("  Si \"modificar_en_masa\" afecta a TODOS los alumnos, el usuario tendr\u00e1 que confirmar; si es de un curso o de una lista, se ejecuta ya.\n\n");
+        sb.append("  Si \"modificar_en_masa\" afecta a TODOS los alumnos, el usuario tendr\u00e1 que confirmar; si es de un curso o de una lista, se ejecuta ya.\n");
+        sb.append("EJEMPLOS DE params (el alcance va SIEMPRE como clave suelta, nunca anidado dentro de otro objeto):\n");
+        sb.append("  - dar 10 de exp al curso PRIMERO_ESO_A: {\"cantidad\": 10, \"curso\": \"PRIMERO_ESO_A\"}\n");
+        sb.append("  - quitar 5 de exp a dos alumnos: {\"cantidad\": -5, \"alumnos\": [\"juan@alumno.com\", 156]}\n");
+        sb.append("  - dar 10 de exp a todo el alumnado: {\"cantidad\": 10, \"alumnos\": \"todos\"}\n");
+        sb.append("  - nivel 4 en PRIMERO_ESO_A: {\"nivel\": 4, \"curso\": \"PRIMERO_ESO_A\"}\n");
+        sb.append("  - electronios a 5 en todo el alumnado: {\"electronios\": 5, \"alumnos\": \"todos\"}\n");
+        sb.append("  - crear alumno solo con nombre: {\"nombre\": \"Ana Garc\u00eda\", \"curso\": \"PRIMERO_ESO_A\"}\n\n");
         sb.append("CURSOS VÁLIDOS (usa siempre el código de la izquierda):\n");
         sb.append(cursosValidos()).append("\n\n");
         sb.append("LISTADO ACTUAL DE ALUMNOS (id | nombre | email | curso | nivel | exp | electronios):\n");
@@ -400,8 +481,15 @@ public class ChatbotService {
         if (alumnos != null && alumnos.isArray()) {
             return alumnos.size() == 0;
         }
+        if (alumnos != null && alumnos.isTextual()) {
+            return "todos".equalsIgnoreCase(alumnos.asText().trim());
+        }
         String alcance = texto(params, "alcance");
-        return alcance == null || "todos".equalsIgnoreCase(alcance);
+        if (alcance != null && !alcance.isBlank()) {
+            return "todos".equalsIgnoreCase(alcance);
+        }
+        // Sin curso ni alumnos concretos: el alcance es todo el alumnado.
+        return true;
     }
 
     private String textoConfirmacion(String accion, JsonNode params) {
@@ -662,7 +750,8 @@ public class ChatbotService {
         Integer electronios = entero(params, "electronios");
 
         if (exp == null && nivel == null && electronios == null) {
-            return resultado(false, "Indica qué hay que cambiar: exp, nivel o electronios.");
+            return resultado(false, "Indica qué hay que cambiar: exp, nivel o electronios. "
+                    + "Parámetros recibidos: " + paramsTexto(params));
         }
         if (exp != null && exp < 0) {
             return resultado(false, "La experiencia no puede ser negativa; para quitar experiencia usa \"dar_experiencia\" con cantidad negativa.");

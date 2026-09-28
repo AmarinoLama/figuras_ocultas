@@ -36,6 +36,8 @@ public class ChatbotService {
 
     public static final String ACCION_NINGUNA = "ninguna";
     private static final String ATRIBUTO_SESION = "chatbotSesionOpencode";
+    public static final String ATRIBUTO_CSV = "chatbotCsv";
+    public static final String ATRIBUTO_CSV_NOMBRE = "chatbotCsvNombre";
     private static final String TITULO_SESION = "chatbot-web";
     private static final int MAX_ALUMNOS_PROMPT = 300;
     private static final int SESIONES_BORRADAS_POR_PETICION = 5;
@@ -43,7 +45,7 @@ public class ChatbotService {
 
     private static final Set<String> ACCIONES = Set.of(
             "crear_alumno", "modificar_alumno", "borrar_alumno", "dar_experiencia", "modificar_en_masa",
-            "crear_curso", "modificar_curso", "borrar_curso", "compartir_curso");
+            "crear_alumnos", "crear_curso", "modificar_curso", "borrar_curso", "compartir_curso");
     private static final Set<String> ACCIONES_DESTRUCTIVAS = Set.of("borrar_alumno", "borrar_curso");
 
     /** Avisos internos del motor de IA que jamás deben llegar al profe. */
@@ -97,6 +99,7 @@ public class ChatbotService {
                         resumir(sesion, mensajeConfirmacion(request.getAccion(), paramsConfirmados, resultado), resultado)),
                         resultado.path("mensaje").asText("Hecho.")));
                 respuesta.setAccionEjecutada(resultado.path("ok").asBoolean(false));
+                respuesta.setDescarga(guardarCsv(resultado, sesionHttp));
                 return respuesta;
             }
 
@@ -143,6 +146,7 @@ public class ChatbotService {
                     resumir(sesion, mensajeAccion(accion, params, resultado), resultado)),
                     resultado.path("mensaje").asText("Hecho.")));
             respuesta.setAccionEjecutada(resultado.path("ok").asBoolean(false));
+            respuesta.setDescarga(guardarCsv(resultado, sesionHttp));
             return respuesta;
 
         } catch (OpencodeClient.OpencodeException e) {
@@ -328,7 +332,7 @@ public class ChatbotService {
     private String mensajeAccion(String accion, JsonNode params, JsonNode resultado) {
         return "El usuario te ha pedido la acción \"" + accion + "\" con estos parámetros: "
                 + paramsTexto(params) + ".\n"
-                + "El resultado real de ejecutarla ha sido: " + resultado.toString() + "\n"
+                + "El resultado real de ejecutarla ha sido: " + resultadoSinCsv(resultado) + "\n"
                 + "Cuéntaselo al usuario en español, breve y natural, indicando si ha ido bien o qué ha fallado. "
                 + "Solo texto plano (sin Markdown, sin listas, sin emojis) y sin mencionar avisos internos del sistema. "
                 + "No propongas nuevas acciones ni uses herramientas.";
@@ -337,7 +341,7 @@ public class ChatbotService {
     private String mensajeConfirmacion(String accion, JsonNode params, JsonNode resultado) {
         return "El usuario ha confirmado que quiere ejecutar la acción \"" + accion + "\" con estos parámetros: "
                 + paramsTexto(params) + ".\n"
-                + "El resultado real ha sido: " + resultado.toString() + "\n"
+                + "El resultado real ha sido: " + resultadoSinCsv(resultado) + "\n"
                 + "Cuéntaselo en español, breve y natural. No propongas acciones ni uses herramientas.";
     }
 
@@ -379,8 +383,14 @@ public class ChatbotService {
         sb.append("  OJO: \"nivel\" solo cambia porque la experiencia es la que lo fija; pon exp al m\u00ednimo de ese nivel: ");
         sb.append("0->0, 1->100, 2->250, 3->500, 4->900, 5->1200, 6->1700. Si quieres subir experiencia en vez de fijarla, usa dar_experiencia.\n");
         sb.append("  Si \"modificar_en_masa\" afecta a TODOS los alumnos, el usuario tendr\u00e1 que confirmar; si es de un curso o de una lista, se ejecuta ya.\n");
-        sb.append("- crear_curso -> params {\"nombre\", \"codigo\"?, \"etapa\"?}. Crea un curso a nombre del usuario. ");
-        sb.append("etapa solo puede ser ESO, BACHILLERATO, FP u OTRO (si no pones código se inventa uno a partir del nombre).\n");
+        sb.append("- crear_alumnos -> params {\"curso\": \"1ESOA\", \"alumnos\": [\"Ana García\", \"Luis Pérez\"]}. ");
+        sb.append("Crea en ese curso a los de la lista que no existan (les genera email y contraseña) y matricula a los que ya existan. ");
+        sb.append("Siempre que la lista no est\u00e9 vac\u00eda, el usuario recibir\u00e1 adem\u00e1s un CSV descargable con nombre, usuario y contrase\u00f1a. ");
+        sb.append("\u00dasala tambi\u00e9n cuando el usuario pida a\u00f1adir UNA sola persona a un curso (\"a\u00f1ade a Ana Garc\u00eda al curso 1ESOA\"): ");
+        sb.append("modificar_alumno es solo para cambiar campos de un alumno ya existente, no para matricular.\n");
+        sb.append("- crear_curso -> params {\"nombre\", \"codigo\"?, \"etapa\"?, \"alumnos\"?}. Crea un curso a nombre del usuario. ");
+        sb.append("etapa solo puede ser ESO, BACHILLERATO, FP u OTRO (si no pones código se inventa uno a partir del nombre); ");
+        sb.append("\"alumnos\" es opcional: la misma lista de nombres que en crear_alumnos y entonces también se recibe el CSV.\n");
         sb.append("- modificar_curso -> params {\"curso\", \"nombre\"?, \"codigo\"?, \"etapa\"?}. Solo sobre cursos MÍOS.\n");
         sb.append("- borrar_curso -> params {\"curso\"}. DESTRUCTIVA: borra el curso y deja a sus alumnos sin curso; ");
         sb.append("el usuario debe confirmarla.\n");
@@ -393,7 +403,9 @@ public class ChatbotService {
         sb.append("  - nivel 4 en 1ESOA: {\"nivel\": 4, \"curso\": \"1ESOA\"}\n");
         sb.append("  - electronios a 5 en todo el alumnado: {\"electronios\": 5, \"alumnos\": \"todos\"}\n");
         sb.append("  - crear alumno solo con nombre: {\"nombre\": \"Ana Garc\u00eda\", \"curso\": \"1ESOA\"}\n");
+        sb.append("  - meter una lista de alumnos en un curso: {\"curso\": \"1ESOA\", \"alumnos\": [\"Ana Garc\u00eda\", \"Luis P\u00e9rez\"]}\n");
         sb.append("  - crear curso: {\"nombre\": \"1\u00ba Bachillerato B\", \"codigo\": \"1BACHB\", \"etapa\": \"BACHILLERATO\"}\n");
+        sb.append("  - crear curso con su lista de alumnos: {\"nombre\": \"1\u00ba ESO D\", \"codigo\": \"1ESOD\", \"alumnos\": [\"Ana Garc\u00eda\", \"Luis P\u00e9rez\"]}\n");
         sb.append("  - compartir curso con otro profe: {\"curso\": \"1ESOA\", \"destino\": \"profe@centro.es\"}\n\n");
         sb.append("CURSOS (código (nombre) | etapa | dueño):\n");
         sb.append(cursosValidos(profesorId)).append("\n\n");
@@ -418,7 +430,7 @@ public class ChatbotService {
                 + "\"properties\":{"
                 + "\"accion\":{\"type\":\"string\",\"enum\":[\"" + ACCION_NINGUNA
                 + "\",\"crear_alumno\",\"modificar_alumno\",\"borrar_alumno\",\"dar_experiencia\",\"modificar_en_masa\","
-                + "\"crear_curso\",\"modificar_curso\",\"borrar_curso\",\"compartir_curso\"]},"
+                + "\"crear_alumnos\",\"crear_curso\",\"modificar_curso\",\"borrar_curso\",\"compartir_curso\"]},"
                 + "\"params\":{\"type\":\"object\"},"
                 + "\"respuesta\":{\"type\":\"string\"}"
                 + "},"
@@ -543,6 +555,7 @@ public class ChatbotService {
         try {
             return switch (accion) {
                 case "crear_alumno" -> crearAlumno(params, profesorId);
+                case "crear_alumnos" -> crearAlumnos(params, profesorId);
                 case "modificar_alumno" -> modificarAlumno(params, profesorId);
                 case "borrar_alumno" -> borrarAlumno(params);
                 case "dar_experiencia" -> darExperiencia(params, profesorId);
@@ -571,8 +584,16 @@ public class ChatbotService {
             return resultado(false, "El curso necesita un nombre.");
         }
         Curso curso = cursoService.crear(nombre, codigo, etapa, profesorId);
-        return resultado(true, "Curso " + curso.getNombre() + " creado con el código " + curso.getCodigo()
-                + " (etapa " + curso.getEtapa() + "). Sus alumnos se matriculan con ese código.");
+        String mensaje = "Curso " + curso.getNombre() + " creado con el código " + curso.getCodigo()
+                + " (etapa " + curso.getEtapa() + "). Sus alumnos se matriculan con ese código.";
+        List<String> alumnos = listaAlumnos(params);
+        if (alumnos.isEmpty()) {
+            return resultado(true, mensaje);
+        }
+        JsonNode matriculados = matricularLista(curso, alumnos);
+        ObjectNode res = resultado(true, mensaje + " " + matriculados.path("mensaje").asText(""));
+        copiarCsv(matriculados, res);
+        return res;
     }
 
     private JsonNode modificarCurso(JsonNode params, Long profesorId) {
@@ -724,7 +745,214 @@ public class ChatbotService {
         ObjectNode res = resultado(true, "Alumno " + nombre + " creado con el email " + email
                 + " en " + curso + ". Contraseña inicial: " + clave + ".");
         res.set("alumno", alumnoJson(creado));
+        res.put("csv", csvAlumnos(List.of(
+                new String[] {"nombre", "usuario", "contrasena"},
+                new String[] {creado.getNombre(), creado.getEmail(), clave})));
         return res;
+    }
+
+    /** Acción masiva: crea los alumnos que falten y matricula la lista entera en el curso. */
+    private JsonNode crearAlumnos(JsonNode params, Long profesorId) {
+        String cursoTexto = textoCurso(params);
+        Curso curso = curso(cursoTexto, profesorId);
+        if (curso == null) {
+            return cursoNoEncontrado(params, profesorId);
+        }
+        List<String> lista = listaAlumnos(params);
+        if (lista.isEmpty()) {
+            return resultado(false, "No me has dado ningún alumno. Por ejemplo: "
+                    + "{\"curso\": \"" + curso.getCodigo()
+                    + "\", \"alumnos\": [\"Ana García\", \"Luis Pérez\"]}.");
+        }
+        return matricularLista(curso, lista);
+    }
+
+    /** Nombres (o emails/ids) que el modelo ha enviado en params.alumnos. */
+    private List<String> listaAlumnos(JsonNode params) {
+        List<String> lista = new ArrayList<>();
+        if (params == null) {
+            return lista;
+        }
+        JsonNode alumnos = params.get("alumnos");
+        if (alumnos == null || !alumnos.isArray()) {
+            return lista;
+        }
+        for (JsonNode item : alumnos) {
+            String valor = null;
+            if (item.isTextual()) {
+                valor = item.asText();
+            } else if (item.isNumber()) {
+                UsuarioDTO alumno = usuarioService.getUserById(item.asLong());
+                valor = alumno == null ? null : alumno.getEmail();
+            } else if (item.isObject()) {
+                valor = texto(item, "nombre");
+                if (valor == null) {
+                    valor = texto(item, "email");
+                }
+            }
+            if (valor == null || valor.isBlank()) {
+                continue;
+            }
+            if (valor.contains(",")) {
+                for (String parte : valor.split(",")) {
+                    if (!parte.isBlank()) {
+                        lista.add(parte.trim());
+                    }
+                }
+            } else {
+                lista.add(valor.trim());
+            }
+        }
+        return lista;
+    }
+
+    /**
+     * Matricula la lista en el curso: crea a los que no existan (con email y contraseña
+     * generados) y mueve al curso a los que ya existían. El resultado lleva el CSV.
+     */
+    private JsonNode matricularLista(Curso curso, List<String> lista) {
+        int creados = 0;
+        int anadidos = 0;
+        int yaEstaban = 0;
+        List<String> fallos = new ArrayList<>();
+        List<String[]> filas = new ArrayList<>();
+        filas.add(new String[] {"nombre", "usuario", "contrasena"});
+
+        for (String referencia : lista) {
+            UsuarioDTO alumno = alumnoExistente(referencia);
+            if (alumno != null && alumno.isAdmin()) {
+                fallos.add(referencia + " (es una cuenta de administración)");
+                continue;
+            }
+            if (alumno == null) {
+                String nombre = referencia.length() > 25 ? referencia.substring(0, 25).trim() : referencia;
+                String email = generarEmail(nombre);
+                String clave = email.substring(0, email.indexOf('@'));
+                UsuarioDTO nuevo = new UsuarioDTO();
+                nuevo.setNombre(nombre);
+                nuevo.setEmail(email);
+                nuevo.setPassword(clave);
+                nuevo.setCurso(curso);
+                nuevo.setRol(RolUsuario.ALUMNO);
+                nuevo.setTarjetaAlumno(new TarjetaAlumnoDTO());
+                usuarioService.saveUser(nuevo);
+                UsuarioDTO guardado = usuarioService.getUserByEmail(email);
+                if (guardado == null) {
+                    fallos.add(nombre);
+                    continue;
+                }
+                creados++;
+                filas.add(new String[] {guardado.getNombre(), guardado.getEmail(), clave});
+                continue;
+            }
+
+            Curso actual = alumno.getCurso();
+            if (actual != null && curso.getId().equals(actual.getId())) {
+                yaEstaban++;
+            } else {
+                alumno.setCurso(curso);
+                usuarioService.saveUser(alumno);
+                anadidos++;
+            }
+            String clave = alumno.getPassword() == null || alumno.getPassword().isBlank()
+                    ? "-" : alumno.getPassword();
+            filas.add(new String[] {alumno.getNombre(), alumno.getEmail(), clave});
+        }
+
+        boolean hayCsv = filas.size() > 1;
+        StringBuilder mensaje = new StringBuilder();
+        if (creados > 0) {
+            mensaje.append("He creado ").append(creados).append(" alumno(s) nuevos en ")
+                    .append(curso.getCodigo()).append(". ");
+        }
+        if (anadidos > 0) {
+            mensaje.append("He matriculado en el curso a ").append(anadidos)
+                    .append(" que ya existían. ");
+        }
+        if (yaEstaban > 0) {
+            mensaje.append(yaEstaban).append(" ya estaban en ").append(curso.getCodigo()).append(". ");
+        }
+        if (creados + anadidos + yaEstaban == 0) {
+            mensaje.append("No he podido procesar a nadie de la lista. ");
+        }
+        if (!fallos.isEmpty()) {
+            mensaje.append("No he podido con: ").append(String.join("; ", fallos)).append(". ");
+        }
+        if (hayCsv) {
+            mensaje.append("Te dejo un CSV para descargar con los nombres completos, los usuarios "
+                    + "y las contraseñas de todos ellos.");
+        }
+
+        ObjectNode res = resultado(creados + anadidos + yaEstaban > 0, mensaje.toString().trim());
+        if (hayCsv) {
+            res.put("csv", csvAlumnos(filas));
+        }
+        return res;
+    }
+
+    /** Alumno ya dado de alta por email, por id o por nombre (sin tildes ni mayúsculas). */
+    private UsuarioDTO alumnoExistente(String referencia) {
+        String limpio = referencia.trim();
+        UsuarioDTO porReferencia = resolverAlumno(mapper.getNodeFactory().textNode(limpio));
+        if (porReferencia != null) {
+            return porReferencia;
+        }
+        String clave = normalizarNombre(limpio);
+        for (UsuarioDTO alumno : usuarioService.getAllAlumnos()) {
+            if (alumno.getNombre() != null && normalizarNombre(alumno.getNombre()).equals(clave)) {
+                return alumno;
+            }
+        }
+        return null;
+    }
+
+    private String normalizarNombre(String valor) {
+        String sinTildes = Normalizer.normalize(valor == null ? "" : valor, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        return sinTildes.toLowerCase().replaceAll("\\s+", " ").trim();
+    }
+
+    private String csvAlumnos(List<String[]> filas) {
+        StringBuilder sb = new StringBuilder();
+        for (String[] fila : filas) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
+            for (int i = 0; i < fila.length; i++) {
+                if (i > 0) {
+                    sb.append(',');
+                }
+                sb.append(campoCsv(fila[i]));
+            }
+        }
+        return sb.append("\n").toString();
+    }
+
+    private String campoCsv(String valor) {
+        String texto = valor == null ? "" : valor;
+        if (texto.contains(",") || texto.contains("\"") || texto.contains("\n") || texto.contains("\r")) {
+            return "\"" + texto.replace("\"", "\"\"") + "\"";
+        }
+        return texto;
+    }
+
+    /** Guarda el CSV en la sesión del profe y devuelve su URL de descarga (null si no lo hay). */
+    private String guardarCsv(JsonNode resultado, HttpSession sesionHttp) {
+        JsonNode csv = resultado == null ? null : resultado.get("csv");
+        if (csv == null || !csv.isTextual() || csv.asText().isBlank()) {
+            return null;
+        }
+        sesionHttp.setAttribute(ATRIBUTO_CSV, csv.asText());
+        sesionHttp.setAttribute(ATRIBUTO_CSV_NOMBRE, "alumnos-"
+                + new java.text.SimpleDateFormat("yyyyMMdd-HHmm").format(new java.util.Date()) + ".csv");
+        return "/api/chatbot/csv";
+    }
+
+    private void copiarCsv(JsonNode origen, ObjectNode destino) {
+        JsonNode csv = origen == null ? null : origen.get("csv");
+        if (csv != null && csv.isTextual()) {
+            destino.put("csv", csv.asText());
+        }
     }
 
     private JsonNode modificarAlumno(JsonNode params, Long profesorId) {
@@ -801,6 +1029,13 @@ public class ChatbotService {
 
         ObjectNode res = resultado(true, "Datos de " + alumno.getNombre() + " actualizados.");
         res.set("alumno", alumnoJson(alumno));
+        if (cursoTexto != null) {
+            String clave = alumno.getPassword() == null || alumno.getPassword().isBlank()
+                    ? "-" : alumno.getPassword();
+            res.put("csv", csvAlumnos(List.of(
+                    new String[] {"nombre", "usuario", "contrasena"},
+                    new String[] {alumno.getNombre(), alumno.getEmail(), clave})));
+        }
         return res;
     }
 
@@ -1149,6 +1384,19 @@ public class ChatbotService {
         nodo.put("ok", ok);
         nodo.put("mensaje", mensaje);
         return nodo;
+    }
+
+    /** El resultado sin el CSV entero: al modelo solo le interesa que exista la descarga. */
+    private String resultadoSinCsv(JsonNode resultado) {
+        if (resultado == null) {
+            return "{}";
+        }
+        if (!resultado.has("csv")) {
+            return resultado.toString();
+        }
+        ObjectNode copia = resultado.deepCopy();
+        copia.put("csv", "[CSV generado: se ofrece al usuario para descargarlo]");
+        return copia.toString();
     }
 
     private int nivel(UsuarioDTO alumno) {

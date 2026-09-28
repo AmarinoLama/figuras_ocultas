@@ -26,6 +26,9 @@ public class ChatbotResponse {
     /** true si la petición acaba de ejecutar una acción sobre la base de datos. */
     private boolean accionEjecutada;
 
+    /** URL de descarga de un archivo generado (por ejemplo, el CSV de usuarios). */
+    private String descarga;
+
     public ChatbotResponse() {
     }
 

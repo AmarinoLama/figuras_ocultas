@@ -1,7 +1,7 @@
 <div th:fragment="chatbot" th:if="${usuario != null and usuario.isAdmin()}"
      id="profebot" th:attr="data-endpoint=@{/api/chatbot}">
 
-    <link rel="stylesheet" th:href="@{/css/chatbot.css?v=1}">
+    <link rel="stylesheet" th:href="@{/css/chatbot.css?v=2}">
 
     <button type="button" id="profebot-boton" title="ProfeBot: asistente del profe"
             aria-label="Abrir el chat con ProfeBot">💬</button>
@@ -133,8 +133,16 @@
                         ocultarConfirmacion();
                         return;
                     }
+                    var burbuja = null;
                     if (cuerpo.respuesta) {
-                        agregar(cuerpo.respuesta, 'bot', cuerpo.accionEjecutada === true);
+                        burbuja = agregar(cuerpo.respuesta, 'bot', cuerpo.accionEjecutada === true);
+                    }
+                    if (cuerpo.descarga && burbuja) {
+                        var enlace = document.createElement('a');
+                        enlace.href = cuerpo.descarga;
+                        enlace.className = 'profebot-descarga';
+                        enlace.textContent = '\u2b07 Descargar CSV (nombres, usuarios y contrase\u00f1as)';
+                        burbuja.appendChild(enlace);
                     }
                     if (cuerpo.confirmacionRequerida === true) {
                         pendiente = { accion: cuerpo.accion, params: cuerpo.params };
@@ -161,8 +169,10 @@
                 agregar('¡Hola! Soy ProfeBot. Escríbeme y te ayudo con el centro: '
                     + 'crear, modificar o borrar alumnos, dar experiencia o electronios a un curso o a todos, '
                     + 'poner el nivel de todo un curso y crear, compartir o borrar cursos. '
-                    + 'Por ejemplo: "da 10 de experiencia a 2º ESO A", "pon el nivel 2 a todo 1º ESO A" '
-                    + 'o "crea un curso llamado 1º ESO D con código 1ESOD".', 'bot');
+                    + 'También puedo crear un curso con su lista de alumnos o meter una lista de golpe en un curso: '
+                    + 'creo a los que falten y te dejo un CSV para descargar con sus usuarios y contraseñas. '
+                    + 'Por ejemplo: "da 10 de experiencia a 2º ESO A", "crea un curso llamado 1º ESO D con código 1ESOD" '
+                    + 'o "añade a Ana García y Luis Pérez al curso 1ESOA".', 'bot');
             }
 
             boton.addEventListener('click', function () {

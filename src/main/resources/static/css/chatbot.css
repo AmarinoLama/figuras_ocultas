@@ -263,3 +263,21 @@
         height: min(70vh, calc(100vh - 110px));
     }
 }
+
+
+/* --------------------------------------------------------- descarga de CSV */
+.profebot-descarga {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #38b000;
+    color: #fff;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.profebot-descarga:hover {
+    background: #2d9200;
+    text-decoration: none;
+}

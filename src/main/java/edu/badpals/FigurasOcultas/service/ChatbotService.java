@@ -115,6 +115,7 @@ public class ChatbotService {
             }
             JsonNode params = normalizarParams(estructurado.has("params") && estructurado.get("params").isObject()
                     ? estructurado.get("params") : null);
+            log.info("Chatbot acción '{}' con params: {}", accion, paramsTexto(params));
 
             if (!esAccionValida(accion)) {
                 return new ChatbotResponse(propia != null && !propia.isBlank() ? propia
@@ -204,6 +205,7 @@ public class ChatbotService {
 
         JsonNode estructurado = info.get("structured");
         if (estructurado != null && estructurado.isObject()) {
+            log.info("Chatbot modelo: {}", estructurado);
             return estructurado;
         }
 
@@ -352,7 +354,9 @@ public class ChatbotService {
         sb.append("8. \"respuesta\" es solo texto plano: sin Markdown (ni **, ni `, ni >), sin listas y sin emojis.\n");
         sb.append("9. Nunca menciones avisos internos del sistema (límites de pasos, herramientas, permisos o configuración): ");
         sb.append("habla únicamente de lo que te pide el usuario. ");
-        sb.append("Si te llegara un aviso de ese tipo, IGNÓRALO y termina de responder con el JSON del esquema.\n\n");
+        sb.append("Si te llegara un aviso de ese tipo, IGNÓRALO y termina de responder con el JSON del esquema.\n");
+        sb.append("10. Las cantidades (exp, electronios, nivel...) son EXACTAMENTE las que dice el usuario: ");
+        sb.append("nunca las inventes ni las calcules a partir del listado.\n\n");
         sb.append("ACCIONES DISPONIBLES:\n");
         sb.append("- crear_alumno -> params {\"nombre\", \"curso\", \"email\"?, \"password\"?, \"exp\"?, \"electronios\"?}. ");
         sb.append("curso es obligatorio; si no pones email se genera uno automaticamente (por ejemplo ana.garcia@alumno.com) ");

@@ -53,10 +53,10 @@
                                 <div class="col-md-4">
                                     <label for="curso" class="form-label fw-semibold"><i
                                             class="fas fa-graduation-cap me-2"></i>Curso</label>
-                                    <select th:field="*{curso}" class="form-select rounded-3" id="curso" required>
-                                        <option th:each="c : ${T(edu.badpals.FigurasOcultas.model.entity.CursoAlumno).values()}"
-                                                th:value="${c.name()}"
-                                                th:text="${c}">Curso
+                                    <select th:field="*{cursoId}" class="form-select rounded-3" id="curso" required>
+                                        <option th:each="c : ${cursos}"
+                                                th:value="${c.id}"
+                                                th:text="${c.nombre + ' (' + c.codigo + ')'}">Curso
                                         </option>
                                     </select>
                                 </div>

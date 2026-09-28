@@ -120,7 +120,7 @@
 
                                 <div class="mb-3">
                                     <label for="curso" class="form-label fw-bold">Curso</label>
-                                    <input type="text" class="form-control rounded-3" id="curso" name="curso" th:value="${usuario.curso}" readonly disabled>
+                                    <input type="text" class="form-control rounded-3" id="curso" name="curso" th:value="${usuario.curso != null ? usuario.curso.nombre : '—'}" readonly disabled>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mt-3">

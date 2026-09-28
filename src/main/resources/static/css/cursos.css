@@ -1,0 +1,45 @@
+/* Estilos de la tabla de cursos */
+
+#tablaCursos {
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    table-layout: fixed;
+    width: 100%;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#tablaCursos thead th {
+    background-color: #212529 !important;
+    color: #fff !important;
+    font-weight: 600;
+    padding: 0.85rem 0.75rem;
+    white-space: nowrap;
+}
+
+#tablaCursos tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    word-break: break-word;
+}
+
+#tablaCursos tbody tr:nth-child(even) td {
+    background-color: #f5f3ff;
+}
+
+#tablaCursos tbody tr:hover td {
+    background-color: #e9e3ff;
+}
+
+#tablaCursos code {
+    background-color: #ececec;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+#tablaCursos .badge {
+    font-weight: 500;
+}

@@ -5,7 +5,9 @@ USE figuras_ocultas;
 /* ========================= CREACIÓN DE LAS TABLAS  ========================= */
 
 DROP TABLE IF EXISTS tarjeta_alumno;
+DROP TABLE IF EXISTS cursos_compartidos;
 DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS cursos;
 DROP TABLE IF EXISTS cartas;
 DROP TABLE IF EXISTS historial_transacciones;
 DROP TABLE IF EXISTS cartas_usuario;
@@ -18,9 +20,33 @@ CREATE TABLE IF NOT EXISTS usuarios
     nombre   CHAR(25) NOT NULL,
     email    VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    curso    ENUM ('PRIMERO_ESO_A', 'PRIMERO_ESO_B', 'PRIMERO_ESO_C', 'SEGUNDO_ESO_A', 'SEGUNDO_ESO_B', 'SEGUNDO_ESO_C', 'TERCERO_ESO_A', 'TERCERO_ESO_B', 'TERCERO_ESO_C','CUARTO_ESO_A', 'CUARTO_ESO_B', 'CUARTO_ESO_C') NULL,
+    curso_id BIGINT NULL,
     rol      ENUM ('ADMIN', 'ALUMNO') NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS cursos
+(
+    id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
+    nombre               VARCHAR(60) NOT NULL,
+    codigo               VARCHAR(30) NOT NULL UNIQUE,
+    etapa                ENUM ('ESO', 'BACHILLERATO', 'FP', 'OTRO') NOT NULL,
+    propietario_id       BIGINT      NOT NULL,
+    compartido_con_todos BOOLEAN     NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (propietario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS cursos_compartidos
+(
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    curso_id   BIGINT NOT NULL,
+    usuario_id BIGINT NOT NULL,
+    UNIQUE KEY uq_curso_usuario (curso_id, usuario_id),
+    FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+ALTER TABLE usuarios
+    ADD CONSTRAINT fk_usuario_curso FOREIGN KEY (curso_id) REFERENCES cursos(id) ON DELETE SET NULL;
 
 CREATE TABLE IF NOT EXISTS web_config (
      id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -113,16 +139,13 @@ CREATE PROCEDURE crear_alumno(
     IN p_nombre CHAR(25),
     IN p_email VARCHAR(100),
     IN p_password VARCHAR(255),
-    IN p_curso ENUM('PRIMERO_ESO_A','PRIMERO_ESO_B','PRIMERO_ESO_C',
-        'SEGUNDO_ESO_A','SEGUNDO_ESO_B','SEGUNDO_ESO_C',
-        'TERCERO_ESO_A','TERCERO_ESO_B','TERCERO_ESO_C',
-        'CUARTO_ESO_A','CUARTO_ESO_B','CUARTO_ESO_C')
+    IN p_curso BIGINT
 )
 BEGIN
     DECLARE nuevo_id BIGINT;
 
     -- Insertamos el alumno
-    INSERT INTO usuarios (nombre, email, password, curso, rol)
+    INSERT INTO usuarios (nombre, email, password, curso_id, rol)
     VALUES (p_nombre, p_email, p_password, p_curso, 'ALUMNO');
 
     -- Obtenemos el id generado

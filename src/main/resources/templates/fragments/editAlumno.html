@@ -58,11 +58,11 @@
                                     <label for="curso" class="form-label fw-semibold">
                                         <i class="fas fa-graduation-cap me-2"></i>Curso
                                     </label>
-                                    <select class="form-select rounded-3" id="curso" name="curso">
-                                        <option th:each="curso : ${T(edu.badpals.FigurasOcultas.model.entity.CursoAlumno).values()}"
-                                                th:value="${curso.name()}"
-                                                th:text="${curso.toString()}"
-                                                th:selected="${alumno.curso.name() == curso.name()}">
+                                    <select class="form-select rounded-3" id="curso" name="cursoId">
+                                        <option th:each="c : ${cursos}"
+                                                th:value="${c.id}"
+                                                th:text="${c.nombre}"
+                                                th:selected="${alumno.curso != null and alumno.curso.id == c.id}">
                                         </option>
                                     </select>
                                 </div>

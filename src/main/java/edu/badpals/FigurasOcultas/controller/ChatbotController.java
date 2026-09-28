@@ -51,7 +51,7 @@ public class ChatbotController {
         }
 
         ChatbotRequest datos = request != null ? request : new ChatbotRequest();
-        return ResponseEntity.ok(chatbotService.chat(datos, sesionHttp));
+        return ResponseEntity.ok(chatbotService.chat(datos, sesionHttp, usuarioId));
     }
 
     private ResponseEntity<ChatbotResponse> error(HttpStatus estado, String mensaje) {

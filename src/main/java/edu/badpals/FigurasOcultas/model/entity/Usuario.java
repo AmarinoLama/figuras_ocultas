@@ -11,7 +11,7 @@ import java.util.List;
 @Table(name = "usuarios", indexes = {
     @Index(name = "idx_usuario_email", columnList = "email"),
     @Index(name = "idx_usuario_rol", columnList = "rol"),
-    @Index(name = "idx_usuario_curso", columnList = "curso")
+    @Index(name = "idx_usuario_curso_id", columnList = "curso_id")
 })
 @Getter
 @Setter
@@ -26,8 +26,9 @@ public class Usuario implements Serializable {
     private String email;
     private String password;
 
-    @Enumerated(EnumType.STRING)
-    private CursoAlumno curso;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "curso_id")
+    private Curso curso;
 
     @Enumerated(EnumType.STRING)
     private RolUsuario rol;

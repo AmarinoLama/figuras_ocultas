@@ -1,6 +1,5 @@
 package edu.badpals.FigurasOcultas.service;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
-import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import edu.badpals.FigurasOcultas.model.entity.TarjetaAlumno;
 import edu.badpals.FigurasOcultas.model.entity.Usuario;
@@ -59,19 +58,23 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public List<UsuarioDTO> getAlumnosFromCurso(String curso) {
-        CursoAlumno cursoEnum = CursoAlumno.valueOf(curso);
-        List<Usuario> alumnos = usuarioRepository.findByRolAndCurso(RolUsuario.ALUMNO, cursoEnum);
+    public List<UsuarioDTO> getAlumnosFromCurso(Long cursoId) {
+        if (cursoId == null) {
+            return List.of();
+        }
+        List<Usuario> alumnos = usuarioRepository.findByRolAndCursoId(RolUsuario.ALUMNO, cursoId);
         return alumnos.stream()
                 .map(u -> modelMapper.map(u, UsuarioDTO.class))
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    @org.springframework.cache.annotation.Cacheable(value = "alumnos", key = "#curso + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
-    public Page<UsuarioDTO> getAlumnosFromCurso(String curso, Pageable pageable) {
-        CursoAlumno cursoEnum = CursoAlumno.valueOf(curso);
-        return usuarioRepository.findByRolAndCurso(RolUsuario.ALUMNO, cursoEnum, pageable)
+    @org.springframework.cache.annotation.Cacheable(value = "alumnos", key = "#cursoId + '-' + #pageable.pageNumber + '-' + #pageable.pageSize")
+    public Page<UsuarioDTO> getAlumnosFromCurso(Long cursoId, Pageable pageable) {
+        if (cursoId == null) {
+            return Page.empty(pageable);
+        }
+        return usuarioRepository.findByRolAndCursoId(RolUsuario.ALUMNO, cursoId, pageable)
                 .map(u -> modelMapper.map(u, UsuarioDTO.class));
     }
     
@@ -122,8 +125,8 @@ public class UsuarioService {
 
     @Transactional
     @org.springframework.cache.annotation.CacheEvict(value = "alumnos", allEntries = true)
-    public void darExpCurso(String curso, int cantidadExp) {
-        List<UsuarioDTO> alumnos = getAlumnosFromCurso(curso);
+    public void darExpCurso(Long cursoId, int cantidadExp) {
+        List<UsuarioDTO> alumnos = getAlumnosFromCurso(cursoId);
         for (UsuarioDTO alumno : alumnos) {
 
             int exp = alumno.getTarjetaAlumno().getExp();

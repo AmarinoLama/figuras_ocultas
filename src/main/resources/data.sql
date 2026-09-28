@@ -1,26 +1,28 @@
-INSERT INTO usuarios (nombre, email, password, curso, rol)
+-- Los cursos por defecto (1º ESO A ... 4º ESO C, códigos 1ESOA ... 4ESOC) los crea
+-- la aplicación al arrancar: ver edu.badpals.FigurasOcultas.service.CursoSeedService.
+INSERT INTO usuarios (nombre, email, password, curso_id, rol)
 VALUES
     ('adminPrueba', 'admin@ua', '123', NULL, 'ADMIN'),
 
     -- 1º ESO
-    ('Laura Pérez', 'laura@ua', '123', 'PRIMERO_ESO_A', 'ALUMNO'),
-    ('Diego Gómez', 'diego@ua', '123', 'PRIMERO_ESO_B', 'ALUMNO'),
-    ('Nerea Castro', 'nerea@ua', '123', 'PRIMERO_ESO_C', 'ALUMNO'),
+    ('Laura Pérez', 'laura@ua', '123', (SELECT id FROM cursos WHERE codigo = '1ESOA'), 'ALUMNO'),
+    ('Diego Gómez', 'diego@ua', '123', (SELECT id FROM cursos WHERE codigo = '1ESOB'), 'ALUMNO'),
+    ('Nerea Castro', 'nerea@ua', '123', (SELECT id FROM cursos WHERE codigo = '1ESOC'), 'ALUMNO'),
 
     -- 2º ESO
-    ('Hugo Fernández', 'hugo@ua', '123', 'SEGUNDO_ESO_A', 'ALUMNO'),
-    ('Valeria López', 'valeria@ua', '123', 'SEGUNDO_ESO_B', 'ALUMNO'),
-    ('Iván Morales', 'ivan@ua', '123', 'SEGUNDO_ESO_C', 'ALUMNO'),
+    ('Hugo Fernández', 'hugo@ua', '123', (SELECT id FROM cursos WHERE codigo = '2ESOA'), 'ALUMNO'),
+    ('Valeria López', 'valeria@ua', '123', (SELECT id FROM cursos WHERE codigo = '2ESOB'), 'ALUMNO'),
+    ('Iván Morales', 'ivan@ua', '123', (SELECT id FROM cursos WHERE codigo = '2ESOC'), 'ALUMNO'),
 
     -- 3º ESO
-    ('Sofía Martín', 'sofia@ua', '123', 'TERCERO_ESO_A', 'ALUMNO'),
-    ('Álvaro Díaz', 'alvaro@ua', '123', 'TERCERO_ESO_B', 'ALUMNO'),
-    ('Paula Ruiz', 'paula@ua', '123', 'TERCERO_ESO_C', 'ALUMNO'),
+    ('Sofía Martín', 'sofia@ua', '123', (SELECT id FROM cursos WHERE codigo = '3ESOA'), 'ALUMNO'),
+    ('Álvaro Díaz', 'alvaro@ua', '123', (SELECT id FROM cursos WHERE codigo = '3ESOB'), 'ALUMNO'),
+    ('Paula Ruiz', 'paula@ua', '123', (SELECT id FROM cursos WHERE codigo = '3ESOC'), 'ALUMNO'),
 
     -- 4º ESO
-    ('Mario Rodríguez', 'mario@ua', '123', 'CUARTO_ESO_A', 'ALUMNO'),
-    ('Carmen Sánchez', 'carmen@ua', '123', 'CUARTO_ESO_B', 'ALUMNO'),
-    ('Adrián Torres', 'adrian@ua', '123', 'CUARTO_ESO_C', 'ALUMNO');
+    ('Mario Rodríguez', 'mario@ua', '123', (SELECT id FROM cursos WHERE codigo = '4ESOA'), 'ALUMNO'),
+    ('Carmen Sánchez', 'carmen@ua', '123', (SELECT id FROM cursos WHERE codigo = '4ESOB'), 'ALUMNO'),
+    ('Adrián Torres', 'adrian@ua', '123', (SELECT id FROM cursos WHERE codigo = '4ESOC'), 'ALUMNO');
 
 
 INSERT INTO tarjeta_alumno (exp, electronios, usuario_id) VALUES

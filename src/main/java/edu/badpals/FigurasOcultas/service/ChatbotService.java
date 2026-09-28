@@ -8,7 +8,7 @@ import edu.badpals.FigurasOcultas.model.dto.ChatbotRequest;
 import edu.badpals.FigurasOcultas.model.dto.ChatbotResponse;
 import edu.badpals.FigurasOcultas.model.dto.TarjetaAlumnoDTO;
 import edu.badpals.FigurasOcultas.model.dto.UsuarioDTO;
-import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
+import edu.badpals.FigurasOcultas.model.entity.Curso;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
@@ -41,8 +41,9 @@ public class ChatbotService {
     private static final long SESIONES_TTL_MS = 24L * 60L * 60L * 1000L;
 
     private static final Set<String> ACCIONES = Set.of(
-            "crear_alumno", "modificar_alumno", "borrar_alumno", "dar_experiencia", "modificar_en_masa");
-    private static final Set<String> ACCIONES_DESTRUCTIVAS = Set.of("borrar_alumno");
+            "crear_alumno", "modificar_alumno", "borrar_alumno", "dar_experiencia", "modificar_en_masa",
+            "crear_curso", "modificar_curso", "borrar_curso", "compartir_curso");
+    private static final Set<String> ACCIONES_DESTRUCTIVAS = Set.of("borrar_alumno", "borrar_curso");
 
     /** Avisos internos del motor de IA que jamás deben llegar al profe. */
     private static final Pattern AVISO_INTERNO = Pattern.compile(
@@ -63,11 +64,14 @@ public class ChatbotService {
     private HistorialTransaccionesService historialService;
 
     @Autowired
+    private CursoService cursoService;
+
+    @Autowired
     private OpencodeClient opencode;
 
     // ------------------------------------------------------------------ API
 
-    public ChatbotResponse chat(ChatbotRequest request, HttpSession sesionHttp) {
+    public ChatbotResponse chat(ChatbotRequest request, HttpSession sesionHttp, Long profesorId) {
         String mensaje = request.getMensaje() == null ? "" : request.getMensaje().trim();
         boolean confirmado = request.isConfirmado() && esAccionValida(request.getAccion());
 
@@ -87,7 +91,7 @@ public class ChatbotService {
         try {
             if (confirmado) {
                 JsonNode paramsConfirmados = normalizarParams(request.getParams());
-                JsonNode resultado = ejecutarAccion(request.getAccion(), paramsConfirmados);
+                JsonNode resultado = ejecutarAccion(request.getAccion(), paramsConfirmados, profesorId);
                 ChatbotResponse respuesta = new ChatbotResponse(oDefecto(limpiar(
                         resumir(sesion, mensajeConfirmacion(request.getAccion(), paramsConfirmados, resultado), resultado)),
                         resultado.path("mensaje").asText("Hecho.")));
@@ -95,7 +99,7 @@ public class ChatbotService {
                 return respuesta;
             }
 
-            JsonNode estructurado = llamar(sesion, sistemaAccion(), formatoAccion(), mensaje);
+            JsonNode estructurado = llamar(sesion, sistemaAccion(profesorId), formatoAccion(), mensaje);
             String accion = texto(estructurado, "accion");
             String bruto = texto(estructurado, "respuesta");
             String propia = limpiar(bruto);
@@ -104,7 +108,7 @@ public class ChatbotService {
             boolean sospechoso = (bruto != null && AVISO_INTERNO.matcher(bruto).find())
                     || (!esAccionValida(accion) && (propia == null || propia.isBlank()));
             if (sospechoso) {
-                estructurado = llamar(sesion, sistemaAccion(), formatoAccion(),
+                estructurado = llamar(sesion, sistemaAccion(profesorId), formatoAccion(),
                         mensaje + "\n\nIMPORTANTE: contesta SOLO con el JSON que pide el esquema. "
                                 + "No uses herramientas, no hables de límites internos y, si no hace falta "
                                 + "ninguna acción, pon \"accion\": \"ninguna\" y explica en \"respuesta\" lo que "
@@ -133,7 +137,7 @@ public class ChatbotService {
                 return respuesta;
             }
 
-            JsonNode resultado = ejecutarAccion(accion, params);
+            JsonNode resultado = ejecutarAccion(accion, params, profesorId);
             ChatbotResponse respuesta = new ChatbotResponse(oDefecto(limpiar(
                     resumir(sesion, mensajeAccion(accion, params, resultado), resultado)),
                     resultado.path("mensaje").asText("Hecho.")));
@@ -298,7 +302,7 @@ public class ChatbotService {
             return params;
         }
         ObjectNode normalizado = params.deepCopy();
-        for (String clave : new String[] {"alcance", "cambio", "cambios", "valores", "datos", "nuevos_datos"}) {
+        for (String clave : new String[] {"alcance", "cambio", "cambios", "valores", "datos", "nuevos_datos", "curso"}) {
             JsonNode hijo = normalizado.get(clave);
             if (hijo != null && hijo.isObject()) {
                 Iterator<String> campos = hijo.fieldNames();
@@ -338,13 +342,13 @@ public class ChatbotService {
 
     // ------------------------------------------------------ prompts y esquemas
 
-    private String sistemaAccion() {
+    private String sistemaAccion(Long profesorId) {
         StringBuilder sb = new StringBuilder();
         sb.append("Eres \"ProfeBot\", el asistente de la web escolar \"Figuras Ocultas\". ");
         sb.append("Hablas SIEMPRE en español, de forma breve, cercana y sin rodeos.\n\n");
         sb.append("REGLAS:\n");
         sb.append("1. NUNCA uses herramientas (bash, archivos, búsquedas...). Solo respondes con el JSON que pide el esquema.\n");
-        sb.append("2. Solo puedes consultar y modificar ALUMNOS (rol ALUMNO). No toques cartas, insignias ni administradores.\n");
+        sb.append("2. Solo puedes consultar y modificar ALUMNOS (rol ALUMNO) y CURSOS. No toques cartas, insignias ni administradores.\n");
         sb.append("3. Los datos que tienes son los del LISTADO de abajo, que se refresca en cada mensaje: no inventes.\n");
         sb.append("4. Si falta información indispensable (por ejemplo, hay varios alumnos con ese nombre), pídesela al usuario.\n");
         sb.append("5. Para cambiar datos devuelve la acción en \"accion\" y sus argumentos en \"params\". ");
@@ -356,11 +360,14 @@ public class ChatbotService {
         sb.append("habla únicamente de lo que te pide el usuario. ");
         sb.append("Si te llegara un aviso de ese tipo, IGNÓRALO y termina de responder con el JSON del esquema.\n");
         sb.append("10. Las cantidades (exp, electronios, nivel...) son EXACTAMENTE las que dice el usuario: ");
-        sb.append("nunca las inventes ni las calcules a partir del listado.\n\n");
+        sb.append("nunca las inventes ni las calcules a partir del listado.\n");
+        sb.append("11. Los cursos se identifican por su CÓDIGO (la columna de la izquierda). ");
+        sb.append("Puedes matricular alumnos en cualquier curso de la lista, pero crear, editar, borrar o compartir ");
+        sb.append("solo funciona si el curso aparece como \"MÍO\".\n\n");
         sb.append("ACCIONES DISPONIBLES:\n");
         sb.append("- crear_alumno -> params {\"nombre\", \"curso\", \"email\"?, \"password\"?, \"exp\"?, \"electronios\"?}. ");
-        sb.append("curso es obligatorio; si no pones email se genera uno automaticamente (por ejemplo ana.garcia@alumno.com) ");
-        sb.append("y si no pones password se usa la parte del email antes de la @.\n");
+        sb.append("curso es obligatorio y va como código (por ejemplo 1ESOA); si no pones email se genera uno automaticamente ");
+        sb.append("(por ejemplo ana.garcia@alumno.com) y si no pones password se usa la parte del email antes de la @.\n");
         sb.append("- modificar_alumno -> params {\"alumno\", \"nombre\"?, \"email\"?, \"curso\"?, \"password\"?, \"exp\"?, \"electronios\"?}. ");
         sb.append("\"alumno\" es el email o la id del listado; solo incluye los campos que quieras cambiar.\n");
         sb.append("- borrar_alumno -> params {\"alumno\"}. DESTRUCTIVA: el usuario debe confirmarla.\n");
@@ -371,15 +378,24 @@ public class ChatbotService {
         sb.append("  OJO: \"nivel\" solo cambia porque la experiencia es la que lo fija; pon exp al m\u00ednimo de ese nivel: ");
         sb.append("0->0, 1->100, 2->250, 3->500, 4->900, 5->1200, 6->1700. Si quieres subir experiencia en vez de fijarla, usa dar_experiencia.\n");
         sb.append("  Si \"modificar_en_masa\" afecta a TODOS los alumnos, el usuario tendr\u00e1 que confirmar; si es de un curso o de una lista, se ejecuta ya.\n");
+        sb.append("- crear_curso -> params {\"nombre\", \"codigo\"?, \"etapa\"?}. Crea un curso a nombre del usuario. ");
+        sb.append("etapa solo puede ser ESO, BACHILLERATO, FP u OTRO (si no pones código se inventa uno a partir del nombre).\n");
+        sb.append("- modificar_curso -> params {\"curso\", \"nombre\"?, \"codigo\"?, \"etapa\"?}. Solo sobre cursos MÍOS.\n");
+        sb.append("- borrar_curso -> params {\"curso\"}. DESTRUCTIVA: borra el curso y deja a sus alumnos sin curso; ");
+        sb.append("el usuario debe confirmarla.\n");
+        sb.append("- compartir_curso -> params {\"curso\", \"destino\"} con \"quitar\"? (true para dejar de compartir). ");
+        sb.append("destino es el email de un profesor o \"todos\". Solo sobre cursos MÍOS.\n");
         sb.append("EJEMPLOS DE params (el alcance va SIEMPRE como clave suelta, nunca anidado dentro de otro objeto):\n");
-        sb.append("  - dar 10 de exp al curso PRIMERO_ESO_A: {\"cantidad\": 10, \"curso\": \"PRIMERO_ESO_A\"}\n");
+        sb.append("  - dar 10 de exp al curso 1ESOA: {\"cantidad\": 10, \"curso\": \"1ESOA\"}\n");
         sb.append("  - quitar 5 de exp a dos alumnos: {\"cantidad\": -5, \"alumnos\": [\"juan@alumno.com\", 156]}\n");
         sb.append("  - dar 10 de exp a todo el alumnado: {\"cantidad\": 10, \"alumnos\": \"todos\"}\n");
-        sb.append("  - nivel 4 en PRIMERO_ESO_A: {\"nivel\": 4, \"curso\": \"PRIMERO_ESO_A\"}\n");
+        sb.append("  - nivel 4 en 1ESOA: {\"nivel\": 4, \"curso\": \"1ESOA\"}\n");
         sb.append("  - electronios a 5 en todo el alumnado: {\"electronios\": 5, \"alumnos\": \"todos\"}\n");
-        sb.append("  - crear alumno solo con nombre: {\"nombre\": \"Ana Garc\u00eda\", \"curso\": \"PRIMERO_ESO_A\"}\n\n");
-        sb.append("CURSOS VÁLIDOS (usa siempre el código de la izquierda):\n");
-        sb.append(cursosValidos()).append("\n\n");
+        sb.append("  - crear alumno solo con nombre: {\"nombre\": \"Ana Garc\u00eda\", \"curso\": \"1ESOA\"}\n");
+        sb.append("  - crear curso: {\"nombre\": \"1\u00ba Bachillerato B\", \"codigo\": \"1BACHB\", \"etapa\": \"BACHILLERATO\"}\n");
+        sb.append("  - compartir curso con otro profe: {\"curso\": \"1ESOA\", \"destino\": \"profe@centro.es\"}\n\n");
+        sb.append("CURSOS (código (nombre) | etapa | dueño):\n");
+        sb.append(cursosValidos(profesorId)).append("\n\n");
         sb.append("LISTADO ACTUAL DE ALUMNOS (id | nombre | email | curso | nivel | exp | electronios):\n");
         sb.append(listadoAlumnos());
         return sb.toString();
@@ -400,7 +416,8 @@ public class ChatbotService {
                 + "\"type\":\"object\","
                 + "\"properties\":{"
                 + "\"accion\":{\"type\":\"string\",\"enum\":[\"" + ACCION_NINGUNA
-                + "\",\"crear_alumno\",\"modificar_alumno\",\"borrar_alumno\",\"dar_experiencia\",\"modificar_en_masa\"]},"
+                + "\",\"crear_alumno\",\"modificar_alumno\",\"borrar_alumno\",\"dar_experiencia\",\"modificar_en_masa\","
+                + "\"crear_curso\",\"modificar_curso\",\"borrar_curso\",\"compartir_curso\"]},"
                 + "\"params\":{\"type\":\"object\"},"
                 + "\"respuesta\":{\"type\":\"string\"}"
                 + "},"
@@ -424,15 +441,30 @@ public class ChatbotService {
         }
     }
 
-    private String cursosValidos() {
+    /** Cursos que el profesor puede usar, con el dueño para saber cuáles son suyos. */
+    private String cursosValidos(Long profesorId) {
         StringBuilder sb = new StringBuilder();
-        for (CursoAlumno curso : CursoAlumno.values()) {
+        for (Curso curso : cursoService.visiblesPara(profesorId)) {
             if (sb.length() > 0) {
-                sb.append(", ");
+                sb.append("\n");
             }
-            sb.append(curso.name()).append(" (").append(curso).append(")");
+            sb.append(curso.getCodigo()).append(" (").append(curso.getNombre()).append(") | ")
+                    .append(curso.getEtapa()).append(" | ")
+                    .append(curso.esDueno(profesorId) ? "MÍO" : curso.getPropietario().getNombre());
+        }
+        if (sb.length() == 0) {
+            sb.append("(todavía no hay cursos: créalos con la acción crear_curso)");
         }
         return sb.toString();
+    }
+
+    /** Lista de códigos de curso, para los mensajes de error. */
+    private String codigosCursos(Long profesorId) {
+        List<String> codigos = new ArrayList<>();
+        for (Curso curso : cursoService.visiblesPara(profesorId)) {
+            codigos.add(curso.getCodigo());
+        }
+        return String.join(", ", codigos);
     }
 
     private String listadoAlumnos() {
@@ -448,7 +480,7 @@ public class ChatbotService {
             sb.append(alumno.getId()).append(" | ")
                     .append(alumno.getNombre()).append(" | ")
                     .append(alumno.getEmail()).append(" | ")
-                    .append(alumno.getCurso()).append(" | ")
+                    .append(alumno.getCurso() == null ? "-" : alumno.getCurso().getCodigo()).append(" | ")
                     .append(nivel(alumno)).append(" | ")
                     .append(exp(alumno)).append(" | ")
                     .append(electronios(alumno)).append("\n");
@@ -478,7 +510,7 @@ public class ChatbotService {
         if (params == null) {
             return true;
         }
-        if (texto(params, "curso") != null) {
+        if (textoCurso(params) != null) {
             return false;
         }
         JsonNode alumnos = params.get("alumnos");
@@ -497,32 +529,152 @@ public class ChatbotService {
     }
 
     private String textoConfirmacion(String accion, JsonNode params) {
+        if ("borrar_curso".equals(accion)) {
+            return "⚠️ Esta acción borra el curso de forma definitiva y deja a sus alumnos sin curso. ¿Continúo?";
+        }
         if (ACCIONES_DESTRUCTIVAS.contains(accion)) {
             return "⚠️ Esta acción borra datos de forma definitiva. ¿Continúo?";
         }
         return "⚠️ Esta acción cambiará datos de TODO el alumnado a la vez. ¿Continúo?";
     }
 
-    private JsonNode ejecutarAccion(String accion, JsonNode params) {
+    private JsonNode ejecutarAccion(String accion, JsonNode params, Long profesorId) {
         try {
             return switch (accion) {
-                case "crear_alumno" -> crearAlumno(params);
-                case "modificar_alumno" -> modificarAlumno(params);
+                case "crear_alumno" -> crearAlumno(params, profesorId);
+                case "modificar_alumno" -> modificarAlumno(params, profesorId);
                 case "borrar_alumno" -> borrarAlumno(params);
-                case "dar_experiencia" -> darExperiencia(params);
-                case "modificar_en_masa" -> modificarEnMasa(params);
+                case "dar_experiencia" -> darExperiencia(params, profesorId);
+                case "modificar_en_masa" -> modificarEnMasa(params, profesorId);
+                case "crear_curso" -> crearCurso(params, profesorId);
+                case "modificar_curso" -> modificarCurso(params, profesorId);
+                case "borrar_curso" -> borrarCurso(params, profesorId);
+                case "compartir_curso" -> compartirCurso(params, profesorId);
                 default -> resultado(false, "Acción desconocida: " + accion);
             };
+        } catch (CursoService.CursoException e) {
+            return resultado(false, e.getMessage());
         } catch (Exception e) {
             log.error("Error ejecutando la acción '{}' del chatbot", accion, e);
             return resultado(false, "Error interno al ejecutar la acción: " + e.getMessage());
         }
     }
 
-    private JsonNode crearAlumno(JsonNode params) {
+    // ---------------------------------------------------------- acciones curso
+
+    private JsonNode crearCurso(JsonNode params, Long profesorId) {
+        String nombre = texto(params, "nombre");
+        String codigo = texto(params, "codigo");
+        String etapa = texto(params, "etapa");
+        if (nombre == null) {
+            return resultado(false, "El curso necesita un nombre.");
+        }
+        Curso curso = cursoService.crear(nombre, codigo, etapa, profesorId);
+        return resultado(true, "Curso " + curso.getNombre() + " creado con el código " + curso.getCodigo()
+                + " (etapa " + curso.getEtapa() + "). Sus alumnos se matriculan con ese código.");
+    }
+
+    private JsonNode modificarCurso(JsonNode params, Long profesorId) {
+        Curso curso = curso(params, profesorId);
+        if (curso == null) {
+            return cursoNoEncontrado(params, profesorId);
+        }
+        Curso actualizado = cursoService.modificar(curso.getId(),
+                texto(params, "nombre"), texto(params, "codigo"), texto(params, "etapa"), profesorId);
+        return resultado(true, "Curso " + actualizado.getNombre() + " actualizado (código "
+                + actualizado.getCodigo() + ", etapa " + actualizado.getEtapa() + ").");
+    }
+
+    private JsonNode borrarCurso(JsonNode params, Long profesorId) {
+        Curso curso = curso(params, profesorId);
+        if (curso == null) {
+            return cursoNoEncontrado(params, profesorId);
+        }
+        String nombre = curso.getNombre();
+        int alumnos = curso.getAlumnos();
+        cursoService.borrar(curso.getId(), profesorId);
+        return resultado(true, "Curso " + nombre + " borrado. " + alumnos
+                + " alumno(s) se han quedado sin curso (siguen dados de alta).");
+    }
+
+    private JsonNode compartirCurso(JsonNode params, Long profesorId) {
+        Curso curso = curso(params, profesorId);
+        if (curso == null) {
+            return cursoNoEncontrado(params, profesorId);
+        }
+        String destino = texto(params, "destino");
+        if (destino == null) {
+            destino = texto(params, "profesor");
+        }
+        if (destino == null) {
+            destino = texto(params, "con");
+        }
+        boolean quitar = params != null && params.path("quitar").asBoolean(false);
+        if (destino == null) {
+            return resultado(false, "Indica con quién compartir: email del profesor o \"todos\".");
+        }
+        cursoService.compartir(curso.getId(), destino, profesorId, quitar);
+        return resultado(true, quitar
+                ? "Curso " + curso.getNombre() + " dejado de compartir con " + destino + "."
+                : "Curso " + curso.getNombre() + " compartido con " + destino + ".");
+    }
+
+    /** Curso del que habla el profe (por código o nombre) dentro de los que puede usar. */
+    private Curso curso(JsonNode params, Long profesorId) {
+        if (params == null) {
+            return null;
+        }
+        return curso(textoCurso(params), profesorId);
+    }
+
+    /**
+     * Referencia textual al curso: funciona tanto si el modelo lo manda como texto
+     * ({"curso": "1ESOA"}) como si lo anida en un objeto ({"curso": {"codigo": ...}}).
+     */
+    private String textoCurso(JsonNode params) {
+        if (params == null) {
+            return null;
+        }
+        JsonNode nodo = params.get("curso");
+        if (nodo != null && nodo.isObject()) {
+            String codigo = texto(nodo, "codigo");
+            if (codigo != null) {
+                return codigo;
+            }
+            String nombre = texto(nodo, "nombre");
+            if (nombre != null) {
+                return nombre;
+            }
+            return texto(nodo, "id");
+        }
+        String valor = texto(params, "curso");
+        if (valor == null) {
+            valor = texto(params, "codigo");
+        }
+        if (valor == null) {
+            valor = texto(params, "nombre_curso");
+        }
+        return valor;
+    }
+
+    /** Curso por código o nombre dentro de los que el profesor puede usar. */
+    private Curso curso(String valor, Long profesorId) {
+        return cursoService.buscar(valor, profesorId);
+    }
+
+    private JsonNode cursoNoEncontrado(JsonNode params, Long profesorId) {
+        String valor = textoCurso(params);
+        if (valor == null && params != null) {
+            valor = texto(params, "nombre");
+        }
+        return resultado(false, "El curso '" + (valor == null ? "" : valor)
+                + "' no existe entre los que puedes usar. Códigos disponibles: " + codigosCursos(profesorId) + ".");
+    }
+
+    private JsonNode crearAlumno(JsonNode params, Long profesorId) {
         String nombre = texto(params, "nombre");
         String email = texto(params, "email");
-        String cursoTexto = texto(params, "curso");
+        String cursoTexto = textoCurso(params);
         String password = texto(params, "password");
         Integer exp = entero(params, "exp");
         Integer electronios = entero(params, "electronios");
@@ -533,10 +685,10 @@ public class ChatbotService {
         if (nombre.length() > 25) {
             nombre = nombre.substring(0, 25).trim();
         }
-        CursoAlumno curso = curso(cursoTexto);
+        Curso curso = curso(cursoTexto, profesorId);
         if (curso == null) {
             return resultado(false, "El curso '" + (cursoTexto == null ? "" : cursoTexto)
-                    + "' no existe. Usa uno de: " + cursosValidos());
+                    + "' no existe. Usa uno de: " + codigosCursos(profesorId));
         }
         if (email == null) {
             email = generarEmail(nombre);
@@ -574,7 +726,7 @@ public class ChatbotService {
         return res;
     }
 
-    private JsonNode modificarAlumno(JsonNode params) {
+    private JsonNode modificarAlumno(JsonNode params, Long profesorId) {
         UsuarioDTO alumno = buscarAlumno(params);
         if (alumno == null) {
             return resultado(false, "No encuentro ningún alumno con ese email o id.");
@@ -585,7 +737,7 @@ public class ChatbotService {
 
         String nombre = texto(params, "nombre");
         String email = texto(params, "email");
-        String cursoTexto = texto(params, "curso");
+        String cursoTexto = textoCurso(params);
         String password = texto(params, "password");
         Integer exp = entero(params, "exp");
         Integer electronios = entero(params, "electronios");
@@ -600,9 +752,9 @@ public class ChatbotService {
             return resultado(false, "El email '" + email + "' no es válido.");
         }
 
-        CursoAlumno curso = curso(cursoTexto);
+        Curso curso = curso(cursoTexto, profesorId);
         if (cursoTexto != null && curso == null) {
-            return resultado(false, "El curso '" + cursoTexto + "' no existe. Usa uno de: " + cursosValidos());
+            return resultado(false, "El curso '" + cursoTexto + "' no existe. Usa uno de: " + codigosCursos(profesorId));
         }
 
         if (nombre != null) {
@@ -668,7 +820,7 @@ public class ChatbotService {
         return resultado(true, "Alumno " + nombre + " (" + alumno.getEmail() + ") borrado junto a su tarjeta.");
     }
 
-    private JsonNode darExperiencia(JsonNode params) {
+    private JsonNode darExperiencia(JsonNode params, Long profesorId) {
         Integer cantidad = entero(params, "cantidad");
         if (cantidad == null) {
             cantidad = entero(params, "exp");
@@ -679,17 +831,17 @@ public class ChatbotService {
         if (cantidad == null) {
             return resultado(false, "Falta la cantidad de experiencia a dar o quitar.");
         }
-        String cursoTexto = texto(params, "curso");
+        String cursoTexto = textoCurso(params);
         JsonNode alumnos = params != null && params.has("alumnos") ? params.get("alumnos") : null;
 
         if (cursoTexto != null) {
-            CursoAlumno curso = curso(cursoTexto);
+            Curso curso = curso(cursoTexto, profesorId);
             if (curso == null) {
-                return resultado(false, "El curso '" + cursoTexto + "' no existe. Usa uno de: " + cursosValidos());
+                return resultado(false, "El curso '" + cursoTexto + "' no existe. Usa uno de: " + codigosCursos(profesorId));
             }
-            usuarioService.darExpCurso(curso.name(), cantidad);
+            usuarioService.darExpCurso(curso.getId(), cantidad);
             return resultado(true, (cantidad >= 0 ? " + " : " ") + cantidad
-                    + " de experiencia aplicada a todo " + curso + ".");
+                    + " de experiencia aplicada a todo " + curso.getNombre() + " (" + curso.getCodigo() + ").");
         }
 
         if (alumnos != null && alumnos.isArray() && alumnos.size() > 0) {
@@ -741,14 +893,14 @@ public class ChatbotService {
         if (alcance != null) {
             return "todos".equalsIgnoreCase(alcance);
         }
-        return alumnos == null && texto(params, "curso") == null;
+        return alumnos == null && textoCurso(params) == null;
     }
 
     /**
      * Cambios masivos: pone la experiencia, el nivel o los electronios de todos
      * los alumnos, de un curso entero o de una lista concreta.
      */
-    private JsonNode modificarEnMasa(JsonNode params) {
+    private JsonNode modificarEnMasa(JsonNode params, Long profesorId) {
         Integer exp = entero(params, "exp");
         Integer nivel = entero(params, "nivel");
         Integer electronios = entero(params, "electronios");
@@ -767,18 +919,18 @@ public class ChatbotService {
             return resultado(false, "Los electronios deben estar entre -100 y 100.");
         }
 
-        String cursoTexto = texto(params, "curso");
+        String cursoTexto = textoCurso(params);
         JsonNode alumnosRef = params != null ? params.get("alumnos") : null;
         List<UsuarioDTO> objetivos;
         String alcance;
 
         if (cursoTexto != null) {
-            CursoAlumno curso = curso(cursoTexto);
+            Curso curso = curso(cursoTexto, profesorId);
             if (curso == null) {
-                return resultado(false, "El curso '" + cursoTexto + "' no existe. Usa uno de: " + cursosValidos());
+                return resultado(false, "El curso '" + cursoTexto + "' no existe. Usa uno de: " + codigosCursos(profesorId));
             }
-            objetivos = usuarioService.getAlumnosFromCurso(curso.name());
-            alcance = "todo " + curso;
+            objetivos = usuarioService.getAlumnosFromCurso(curso.getId());
+            alcance = "todo " + curso.getNombre() + " (" + curso.getCodigo() + ")";
         } else if (alumnosRef != null && alumnosRef.isArray() && alumnosRef.size() > 0) {
             objetivos = new ArrayList<>();
             for (JsonNode referencia : alumnosRef) {
@@ -974,25 +1126,6 @@ public class ChatbotService {
         return usuarioService.getUserByEmail(limpio);
     }
 
-    private CursoAlumno curso(String valor) {
-        if (valor == null || valor.isBlank()) {
-            return null;
-        }
-        String limpio = normalizar(valor);
-        for (CursoAlumno curso : CursoAlumno.values()) {
-            if (normalizar(curso.name()).equals(limpio) || normalizar(curso.toString()).equals(limpio)) {
-                return curso;
-            }
-        }
-        return null;
-    }
-
-    private String normalizar(String valor) {
-        String sinTildes = Normalizer.normalize(valor, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "");
-        return sinTildes.toUpperCase().replaceAll("[^A-Z0-9]", "");
-    }
-
     private JsonNode alumnoJson(UsuarioDTO alumno) {
         ObjectNode nodo = mapper.createObjectNode();
         if (alumno == null) {
@@ -1003,7 +1136,7 @@ public class ChatbotService {
         }
         nodo.put("nombre", alumno.getNombre() == null ? "" : alumno.getNombre());
         nodo.put("email", alumno.getEmail() == null ? "" : alumno.getEmail());
-        nodo.put("curso", alumno.getCurso() == null ? "" : alumno.getCurso().name());
+        nodo.put("curso", alumno.getCurso() == null ? "" : alumno.getCurso().getCodigo());
         nodo.put("nivel", nivel(alumno));
         nodo.put("exp", exp(alumno));
         nodo.put("electronios", electronios(alumno));

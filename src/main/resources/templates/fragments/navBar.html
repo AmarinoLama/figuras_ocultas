@@ -28,6 +28,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link text-white" th:href="@{/cursos}"
+                           th:classappend="${currentPath == '/cursos'} ? 'active'">
+                            <i class="fas fa-chalkboard"></i> Cursos
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link text-white" th:href="@{/cartas}"
                            th:classappend="${currentPath == '/cartas'} ? 'active'">
                             <i class="fas fa-clone"></i> Cartas

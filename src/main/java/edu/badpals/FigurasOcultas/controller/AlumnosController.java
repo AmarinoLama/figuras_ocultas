@@ -49,6 +49,9 @@ public class AlumnosController {
     @Autowired
     private CartaUsuarioService cartaUsuarioService;
 
+    @Autowired
+    private CursoService cursoService;
+
     @GetMapping("/alumnos")
     public String loadIndex(Model model,
                             @RequestParam(required = false) String curso,
@@ -64,9 +67,11 @@ public class AlumnosController {
             nuevoAlumno.setTarjetaAlumno(new TarjetaAlumnoDTO());
             model.addAttribute("nuevoAlumno", nuevoAlumno);
             model.addAttribute("nombreWeb", webConfigService.getWebConfig());
+            model.addAttribute("cursos", cursoService.visiblesPara(usuarioLogeadoId));
 
-            if (curso != null && !curso.isEmpty()) {
-                var alumnosPage = usuarioService.getAlumnosFromCurso(curso, org.springframework.data.domain.PageRequest.of(page, size));
+            Long cursoId = idCurso(curso);
+            if (cursoId != null) {
+                var alumnosPage = usuarioService.getAlumnosFromCurso(cursoId, org.springframework.data.domain.PageRequest.of(page, size));
                 model.addAttribute("alumnos", alumnosPage.getContent());
                 model.addAttribute("alumnosPageNumber", alumnosPage.getNumber());
                 model.addAttribute("alumnosTotalPages", alumnosPage.getTotalPages());
@@ -86,6 +91,23 @@ public class AlumnosController {
         }
     }
 
+    /** El filtro de cursos viaja por la URL como id (si no es un número, no filtra). */
+    private Long idCurso(String curso) {
+        if (curso == null || curso.isBlank()) {
+            return null;
+        }
+        try {
+            return Long.valueOf(curso.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /** true si el profesor puede usar ese curso (el suyo, compartido con él o con todo el claustro). */
+    private boolean cursoUsable(Long cursoId, Long profesorId) {
+        return cursoService.puedeUsar(cursoService.buscarPorId(cursoId), profesorId);
+    }
+
     @GetMapping("/alumnos/info")
     public String cargarDatosAlumno(@RequestParam String email, Model model) {
         Long usuarioLogeadoId = managerUserSession.usuarioLogeado();
@@ -97,6 +119,7 @@ public class AlumnosController {
 
             UsuarioDTO alumno = usuarioService.getUserByEmail(email);
             model.addAttribute("alumno", alumno);
+            model.addAttribute("cursos", cursoService.visiblesPara(usuarioLogeadoId));
 
             model.addAttribute("nombreWeb", webConfigService.getWebConfig());
 
@@ -113,7 +136,14 @@ public class AlumnosController {
         boolean usuarioLogeado = usuarioLogeadoId != null;
         if (usuarioLogeado) {
             if (usuarioService.getUserByEmail(nuevoAlumno.getEmail()) == null) {
+                Long cursoId = nuevoAlumno.getCursoId();
+                if (cursoId != null && !cursoUsable(cursoId, usuarioLogeadoId)) {
+                    redirectAttributes.addFlashAttribute("errorCurso",
+                            "No puedes matricular en un curso que no es tuyo ni está compartido contigo.");
+                    return "redirect:/alumnos";
+                }
                 nuevoAlumno.setRol(RolUsuario.ALUMNO);
+                nuevoAlumno.setCurso(cursoId == null ? null : cursoService.buscarPorId(cursoId));
                 usuarioService.saveUser(nuevoAlumno);
                 UsuarioDTO usuarioCreado = usuarioService.getUserByEmail(nuevoAlumno.getEmail());
                 TarjetaAlumnoDTO tarjetaAlumnoDTO = usuarioCreado.getTarjetaAlumno();
@@ -155,7 +185,10 @@ public class AlumnosController {
 
                 alumnoOriginal.setNombre(alumnoEditado.getNombre());
                 alumnoOriginal.setPassword(alumnoEditado.getPassword());
-                alumnoOriginal.setCurso(alumnoEditado.getCurso());
+                if (alumnoEditado.getCursoId() != null
+                        && cursoUsable(alumnoEditado.getCursoId(), usuarioLogeadoId)) {
+                    alumnoOriginal.setCurso(cursoService.buscarPorId(alumnoEditado.getCursoId()));
+                }
 
 
                 alumnoOriginal.getTarjetaAlumno().setExp(alumnoEditado.getTarjetaAlumno().getExp());
@@ -200,7 +233,11 @@ public class AlumnosController {
             if (usuario != null) {
 
                 if (Objects.equals(tipoSeleccion, "curso")) {
-                    usuarioService.darExpCurso(curso, cantidadElectronios);
+                    Long cursoId = idCurso(curso);
+                    if (cursoId == null || !cursoUsable(cursoId, usuarioLogeadoId)) {
+                        return "redirect:/alumnos";
+                    }
+                    usuarioService.darExpCurso(cursoId, cantidadElectronios);
                     return "redirect:/alumnos?curso=" + curso;
 
                 } else {

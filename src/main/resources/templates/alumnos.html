@@ -21,6 +21,11 @@
 <div class="mt-1 position-relative" style="width: 90%; margin: 0 auto;">
     <div th:if="${usuario}">
         <div th:if="${usuario.isAdmin()}">
+            <div th:if="${errorCurso}" class="alert alert-danger" th:text="${errorCurso}"></div>
+            <div th:if="${showAlert}" class="alert alert-warning">
+                Ese alumno ya existe, no se ha vuelto a crear.
+            </div>
+
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="mb-0" style="color: white !important;">Listado de Alumnos</h2>
 
@@ -39,21 +44,10 @@
                         <select name="curso" class="form-select ms-2" onchange="this.form.submit()">
                             <option value="">&#128218; Todos los cursos</option>
 
-                            <option value="PRIMERO_ESO_A" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO_A'">1º ESO A</option>
-                            <option value="PRIMERO_ESO_B" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO_B'">1º ESO B</option>
-                            <option value="PRIMERO_ESO_C" th:selected="${cursoSeleccionado} == 'PRIMERO_ESO_C'">1º ESO C</option>
-
-                            <option value="SEGUNDO_ESO_A" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO_A'">2º ESO A</option>
-                            <option value="SEGUNDO_ESO_B" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO_B'">2º ESO B</option>
-                            <option value="SEGUNDO_ESO_C" th:selected="${cursoSeleccionado} == 'SEGUNDO_ESO_C'">2º ESO C</option>
-
-                            <option value="TERCERO_ESO_A" th:selected="${cursoSeleccionado} == 'TERCERO_ESO_A'">3º ESO A</option>
-                            <option value="TERCERO_ESO_B" th:selected="${cursoSeleccionado} == 'TERCERO_ESO_B'">3º ESO B</option>
-                            <option value="TERCERO_ESO_C" th:selected="${cursoSeleccionado} == 'TERCERO_ESO_C'">3º ESO C</option>
-
-                            <option value="CUARTO_ESO_A" th:selected="${cursoSeleccionado} == 'CUARTO_ESO_A'">4º ESO A</option>
-                            <option value="CUARTO_ESO_B" th:selected="${cursoSeleccionado} == 'CUARTO_ESO_B'">4º ESO B</option>
-                            <option value="CUARTO_ESO_C" th:selected="${cursoSeleccionado} == 'CUARTO_ESO_C'">4º ESO C</option>
+                            <option th:each="c : ${cursos}" th:value="${c.id}"
+                                    th:selected="${cursoSeleccionado != null && cursoSeleccionado == c.id.toString()}"
+                                    th:text="${c.nombre}">Curso
+                            </option>
                         </select>
                     </form>
 
@@ -101,7 +95,7 @@
                                 <td th:text="${alumno.tarjetaAlumno.nivel}"></td>
                                 <td th:text="${alumno.tarjetaAlumno.exp}"></td>
                                 <td th:text="${alumno.tarjetaAlumno.electronios}"></td>
-                                <td th:text="${alumno.curso}"></td>
+                                <td th:text="${alumno.curso != null ? alumno.curso.nombre : '—'}"></td>
                                 <td>
                                     <div class="d-flex justify-content-center align-items-center gap-2">
                                         <a class="btn btn-sm btn-warning" style="background-color: peru;" th:href="@{/alumnos/historial/{id}(id=${alumno.id})}">🧾</a>
@@ -130,18 +124,7 @@
                     </div>
 
                     <select id="selectCursoElectronios" class="form-select" aria-label="Seleccionar curso">
-                        <option value="PRIMERO_ESO_A">1º ESO A</option>
-                        <option value="PRIMERO_ESO_B">1º ESO B</option>
-                        <option value="PRIMERO_ESO_C">1º ESO C</option>
-                        <option value="SEGUNDO_ESO_A">2º ESO A</option>
-                        <option value="SEGUNDO_ESO_B">2º ESO B</option>
-                        <option value="SEGUNDO_ESO_C">2º ESO C</option>
-                        <option value="TERCERO_ESO_A">3º ESO A</option>
-                        <option value="TERCERO_ESO_B">3º ESO B</option>
-                        <option value="TERCERO_ESO_C">3º ESO C</option>
-                        <option value="CUARTO_ESO_A">4º ESO A</option>
-                        <option value="CUARTO_ESO_B">4º ESO B</option>
-                        <option value="CUARTO_ESO_C">4º ESO C</option>
+                        <option th:each="c : ${cursos}" th:value="${c.id}" th:text="${c.nombre}">Curso</option>
                     </select>
 
                     <br/>
@@ -424,13 +407,14 @@
         let textoDestinatarios = "";
 
         if (tipoSeleccion === "curso") {
-            const curso = document.getElementById("selectCursoElectronios").value;
+            const selectCurso = document.getElementById("selectCursoElectronios");
+            const curso = selectCurso.value;
             if (!curso) {
                 mostrarError("Debes seleccionar un curso válido.");
                 return;
             }
             formData.append("curso", curso);
-            textoDestinatarios = curso;
+            textoDestinatarios = selectCurso.selectedOptions[0].text;
         } else {
             const checkboxes = document.querySelectorAll('.selector-checkbox:checked');
             if (checkboxes.length === 0) {

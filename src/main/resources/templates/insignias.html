@@ -26,7 +26,7 @@
 
                 <div class="flex-grow-1 text-center p-3 bg-light rounded shadow-sm"
                      style="font-size: 1.5rem; font-weight: bold; color: #6f42c1; line-height: 1.3;">
-                    <div th:text="${alumno.nombre} + ' - ' + ${alumno.curso}"></div>
+                    <div th:text="${alumno.nombre + ' - ' + (alumno.curso != null ? alumno.curso.nombre : '—')}"></div>
                 </div>
             </div>
 

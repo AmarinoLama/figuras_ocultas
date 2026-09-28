@@ -1,6 +1,6 @@
 package edu.badpals.FigurasOcultas.model.dto;
 
-import edu.badpals.FigurasOcultas.model.entity.CursoAlumno;
+import edu.badpals.FigurasOcultas.model.entity.Curso;
 import edu.badpals.FigurasOcultas.model.entity.Insignia;
 import edu.badpals.FigurasOcultas.model.entity.RolUsuario;
 import edu.badpals.FigurasOcultas.model.entity.TarjetaAlumno;
@@ -35,7 +35,11 @@ public class UsuarioDTO {
     @NotBlank(message = "La contraseña no puede estar vacía")
     private String password;
 
-    private CursoAlumno curso;
+    private Curso curso;
+
+    /** Se usa solo para enlazar los formularios HTML (id del curso elegido). */
+    private Long cursoId;
+
     private RolUsuario rol;
 
     private TarjetaAlumnoDTO tarjetaAlumno = new TarjetaAlumnoDTO();

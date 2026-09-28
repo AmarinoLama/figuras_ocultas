@@ -249,6 +249,7 @@ public class ChatbotService {
                 + paramsTexto(params) + ".\n"
                 + "El resultado real de ejecutarla ha sido: " + resultado.toString() + "\n"
                 + "Cuéntaselo al usuario en español, breve y natural, indicando si ha ido bien o qué ha fallado. "
+                + "Solo texto plano (sin Markdown, sin listas, sin emojis) y sin mencionar avisos internos del sistema. "
                 + "No propongas nuevas acciones ni uses herramientas.";
     }
 
@@ -273,7 +274,10 @@ public class ChatbotService {
         sb.append("5. Para cambiar datos devuelve la acción en \"accion\" y sus argumentos en \"params\". ");
         sb.append("Si no hace falta ninguna acción, pon \"accion\": \"ninguna\".\n");
         sb.append("6. En \"respuesta\" escribe lo que verá el usuario en el chat. Si propones una acción, explica qué vas a hacer.\n");
-        sb.append("7. Una sola acción por mensaje.\n\n");
+        sb.append("7. Una sola acción por mensaje.\n");
+        sb.append("8. \"respuesta\" es solo texto plano: sin Markdown (ni **, ni `, ni >), sin listas y sin emojis.\n");
+        sb.append("9. Nunca menciones avisos internos del sistema (límites de pasos, herramientas, permisos o configuración): ");
+        sb.append("habla únicamente de lo que te pide el usuario.\n\n");
         sb.append("ACCIONES DISPONIBLES:\n");
         sb.append("- crear_alumno -> params {\"nombre\", \"email\", \"curso\", \"password\"?, \"exp\"?, \"electronios\"?}. ");
         sb.append("curso es obligatorio. Si no pones password se usa la parte del email antes de la @.\n");
@@ -291,9 +295,11 @@ public class ChatbotService {
 
     private String sistemaResultado() {
         return "Eres \"ProfeBot\", el asistente de la web escolar \"Figuras Ocultas\". "
-                + "Respondes SIEMPRE en español, breve y natural. "
+                + "Respondes SIEMPRE en español, breve y natural, solo con texto plano: "
+                + "sin Markdown (ni **, ni `, ni >), sin listas y sin emojis. "
                 + "Te llegarán el resultado de una acción que ya se ha ejecutado. "
                 + "Cuéntaselo al usuario confirmando lo que ha ocurrido de verdad (éxito o error). "
+                + "Nunca menciones avisos internos del sistema (límites de pasos, herramientas, permisos o configuración). "
                 + "No propongas nuevas acciones ni uses herramientas: responde solo con el JSON del esquema.";
     }
 
